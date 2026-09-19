@@ -16,13 +16,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parents[2]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
 from sightline.neural import SURFACE_VIEWS, OVERLAY_LABEL, assert_may_run_tribe, processing_ratio  # noqa: E402
@@ -121,6 +123,23 @@ def run_slide(run_id: str, index: int, text: str, image_png_path: Path, out_dir:
     return metrics
 
 
+def _login_to_huggingface() -> None:
+    """The text encoder (meta-llama/Llama-3.2-3B) is gated: this needs a HF token from an
+    account that has accepted its license (README.md step 4). Reads HF_TOKEN from this
+    directory's own .env -- deliberately not the repo-root .env, and never committed
+    (git-ignored, same pattern as ANTHROPIC_API_KEY there)."""
+    from dotenv import dotenv_values
+    from huggingface_hub import login
+
+    token = os.environ.get("HF_TOKEN") or dotenv_values(HERE / ".env").get("HF_TOKEN")
+    if not token:
+        sys.exit(
+            "No HF_TOKEN found (checked the environment and .env in this directory). "
+            "TRIBE v2's text encoder is a gated model; see README.md step 4."
+        )
+    login(token=token, add_to_git_credential=False)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True, help="a saved run's id under data/history/ (or a bundled sample)")
@@ -130,6 +149,7 @@ def main() -> None:
     args = parser.parse_args()
 
     assert_may_run_tribe()  # refuses to proceed if SIGHTLINE_PROCESS=server is set
+    _login_to_huggingface()
 
     store = RunStore(data_dir() / "history", bundled=[BUNDLED_RUNS_DIR])
     slides = store.load_slides(args.run_id)

@@ -28,7 +28,10 @@ never run inside the web app (6–13 minutes of GPU time per slide, CUDA-only).
    encoder is `meta-llama/Llama-3.2-3B`, gated on HuggingFace. Nobody but the person running
    this can do this step:
    - Log into HuggingFace, accept the license at the `meta-llama/Llama-3.2-3B` model page.
-   - `huggingface-cli login` with a token that has read access to gated repos.
+   - Generate a token with read access to gated repos.
+   - Either `huggingface-cli login` interactively, or put it in a `.env` file in this
+     directory (`HF_TOKEN=hf_...`) -- git-ignored, `run.py` loads it automatically. Never
+     put a token in a file that isn't git-ignored, and never in a commit or a chat.
 5. **License note:** TRIBE v2's weights are CC-BY-NC-4.0 — non-commercial use only. Fine
    for a hackathon demo; flag it if this project goes anywhere past that.
 

@@ -15,6 +15,7 @@ torchvision>=0.20,<0.22
 numpy==2.2.6
 transformers>=4.45
 huggingface_hub>=0.25
+python-dotenv>=1.0
 moviepy>=1.0.3
 gtts>=2.5
 mutagen>=1.47
