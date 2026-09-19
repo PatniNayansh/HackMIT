@@ -90,6 +90,9 @@ class RunStore:
             raise ReadOnlyRun(f"{run_id} is a bundled sample and cannot be modified")
         return d
 
+    def is_read_only(self, run_id: str) -> bool:
+        return self._dir(run_id)[1]
+
     # ---------------------------------------------------------------------- writing
 
     @staticmethod
@@ -148,6 +151,11 @@ class RunStore:
         meta.update(fields)
         _write_json(d / "run.json", meta)
         return meta
+
+    def clear_results(self, run_id: str) -> None:
+        """Forget earlier results before a failed run is started again."""
+        for p in (self._writable(run_id) / "results").glob("*.json"):
+            p.unlink()
 
     def save_result(self, run_id: str, result: SlideResult) -> None:
         _write_json(self._writable(run_id) / "results" / f"{result['index']:03d}.json", result)
