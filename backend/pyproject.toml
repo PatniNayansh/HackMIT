@@ -1,0 +1,29 @@
+[project]
+name = "sightline"
+version = "0.1.0"
+description = "Attention and interpretability evaluation for presentations"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=1.0",
+    "pydantic>=2.6",
+    "numpy>=1.26",
+    "pillow>=10",
+    "sentence-transformers>=3.0",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.3", "pytest-asyncio>=0.23"]
+
+[tool.setuptools]
+packages = ["sightline"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "embedding: needs the local sentence-transformers model (no network after first download)",
+    "live: calls the real LLM. Run via `make gate`; fails loudly without a key",
+]
+# Default `make test` is offline and deterministic. The live gate is opt-in.
+addopts = "-m 'not live'"

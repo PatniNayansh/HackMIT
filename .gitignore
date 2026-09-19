@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+node_modules/
+dist/
+.env
+# Runtime audience cache. Bundled sample-deck caches live in backend/bundled_cache/ and ARE committed.
+backend/.cache/
+# Server runtime data: audience cache and saved runs (bundled demo runs live in backend/fixtures/ and ARE committed).
+data/cache/
+data/history/
