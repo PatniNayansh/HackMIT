@@ -1,0 +1,25 @@
+# Isolated environment for the neural precompute CLI. Deliberately NOT part of
+# backend/pyproject.toml: TRIBE v2 pins numpy==2.2.6 exactly and torch<2.7, which would
+# collide with the main app's dependencies. Create a separate venv for this directory
+# (Python >=3.11 -- TRIBE v2's own requirement) on a CUDA machine (e.g. the ASUS GX10).
+# See README.md before running anything here.
+
+--extra-index-url https://download.pytorch.org/whl/cu124
+torch>=2.5.1,<2.7
+torchvision>=0.20,<0.22
+
+# TRIBE v2 itself: github.com/facebookresearch/tribev2. Not on PyPI as of the last check;
+# install from source once cloned (see README.md step 2):
+#   pip install -e path/to/tribev2
+# and its own internal deps: x_transformers, neuralset, neuraltrain, exca (also on PyPI).
+numpy==2.2.6
+transformers>=4.45
+huggingface_hub>=0.25
+moviepy>=1.0.3
+gtts>=2.5
+mutagen>=1.47
+x_transformers>=1.30
+
+# Atlas + surface rendering for processing_ratio and the cortical-surface images.
+nilearn>=0.10
+matplotlib>=3.8
