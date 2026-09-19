@@ -269,6 +269,40 @@ function findingsPanel(runId, n) {
   return box;
 }
 
+function neuralPanel(runId, n) {
+  const box = h("div", null, h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading…"));
+  getJSON(`/api/runs/${encodeURIComponent(runId)}/slides/${n}/neural`).then((d) => {
+    box.replaceChildren(
+      h("div", { class: "banner sample" }, infoIcon(), h("div", null,
+        h("strong", null, d.overlay_label), " ",
+        "From a brain-encoding model (TRIBE v2, Meta AI) run on synthesized narration of this slide’s text — not a real presenter reading it, and not a brain measurement.")),
+      h("div", { class: "rel-row" },
+        h("div", null,
+          h("div", { class: "small muted" }, "Processing ratio (language drive ÷ visual drive)"),
+          h("div", { class: "val" }, f2(d.processing_ratio)),
+          h("p", { class: "caveat" }, "A proposed readout, not a validated metric. Compare its shape across slides in this deck, not the level on this one.")),
+        h("div", null,
+          h("div", { class: "small muted" }, "Language drive"), h("div", null, f2(d.language_drive)),
+          h("div", { class: "small muted", style: "margin-top:8px" }, "Visual drive"), h("div", null, f2(d.visual_drive)))),
+      h("details", null, h("summary", null, "Narration this prediction was made from"),
+        h("div", { class: "textbox" }, d.narration_transcript)),
+      h("div", { class: "surface-grid" }, ...Object.entries(d.views).map(([name, url]) =>
+        h("figure", null, h("img", { src: url, alt: name, loading: "lazy" }),
+          h("figcaption", { class: "small muted" }, name.replace(/_/g, " "))))));
+  }).catch((e) => {
+    box.replaceChildren(e.status === 404
+      ? h("p", { class: "empty" }, "No precomputed neural data for this slide. The neural layer runs offline on a GPU, only for the bundled sample decks — see docs/SIGHTLINE_spec.md §5.")
+      : h("p", { class: "err" }, e.message));
+  });
+  return box;
+}
+
+const DETAIL_TABS = [
+  ["readings", "Audience readings", null],
+  ["neural", "Neural (predicted)", "predicted"],
+  ["recs", "Recommendations", "sample data"],
+];
+
 export function detail(root, runId, n) {
   return watch(runId, (state) => {
     if (guard(root, state)) return;
@@ -310,16 +344,18 @@ export function detail(root, runId, n) {
         h("div", { class: "textbox" }, r.text || "(no extractable text on this slide)")));
 
     const tabs = h("div", { class: "tabs", role: "tablist" },
-      ...[["readings", "Audience readings"], ["recs", "Recommendations"]].map(([id, label]) => h("button", {
+      ...DETAIL_TABS.map(([id, label, badge]) => h("button", {
         class: "tab", role: "tab", "aria-selected": String(tab === id),
         on: { click: () => { tab = id; detailPaint(); } },
-      }, label, id === "recs" && h("span", { class: "pill sample" }, "sample data"))));
+      }, label, badge && h("span", { class: "pill sample" }, badge))));
     const panel = h("div", null);
     const detailPaint = () => {
-      tabs.querySelectorAll(".tab").forEach((b, i) => b.setAttribute("aria-selected", String(tab === ["readings", "recs"][i])));
-      panel.replaceChildren(...(tab === "readings"
-        ? [...PERSONAS.map((p) => audienceCard(state, r, p)), crossAudience(state, r)]
-        : [findingsPanel(runId, n)]));
+      tabs.querySelectorAll(".tab").forEach((b, i) => b.setAttribute("aria-selected", String(tab === DETAIL_TABS[i][0])));
+      panel.replaceChildren(...(
+        tab === "readings" ? [...PERSONAS.map((p) => audienceCard(state, r, p)), crossAudience(state, r)]
+        : tab === "neural" ? [neuralPanel(runId, n)]
+        : [findingsPanel(runId, n)]
+      ));
     };
     detailPaint();
 

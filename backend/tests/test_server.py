@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 from sightline import diagnose
 from sightline.audiences import FileCache
+from sightline.neural import CachedNeural
 from sightline.server import create_app
 from sightline.store import RunStore
 
@@ -51,6 +52,7 @@ class Fake:
 def env(tmp_path):
     store = RunStore(tmp_path / "history")
     factory = Fake()
+    neural_cache = CachedNeural(tmp_path / "neural")
 
     def make_app(client_factory=factory):
         return create_app(
@@ -58,6 +60,7 @@ def env(tmp_path):
             cache=FileCache(tmp_path / "cache"),
             client_factory=client_factory,
             embedder=HashEmbedder(),
+            neural_cache=neural_cache,
             frontend_dir=tmp_path / "no-frontend",
         )
 
@@ -245,3 +248,71 @@ def test_health_reports_whether_new_runs_are_possible(env):
         assert c.get("/api/health").json()["can_call_model"] is True
         factory.available = False
         assert c.get("/api/health").json()["can_call_model"] is False
+
+
+# --------------------------------------------------------------------------------- neural
+# Precomputed only: nothing here ever calls a model. A run with nothing cached under
+# tmp_path/neural/ (every run, until scripts/precompute_neural/run.py is actually run) must
+# show a clear empty state, never a placeholder brain -- spec 9, screen 5.
+
+
+def _write_neural_fixture(tmp_path, run_id, index, **overrides):
+    import json
+
+    d = tmp_path / "neural" / run_id / str(index)
+    d.mkdir(parents=True)
+    metrics = {
+        "language_drive": 2.0,
+        "visual_drive": 1.0,
+        "processing_ratio": 2.0,
+        "gfp_negative_baseline": 0.03,
+        "narration_transcript": "synthesized narration of this slide's text",
+        **overrides,
+    }
+    (d / "metrics.json").write_text(json.dumps(metrics))
+    (d / "lateral_left.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+    return d
+
+
+def test_neural_slide_404s_when_nothing_is_cached(env):
+    _, _, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp)["run_id"]
+        assert c.get(f"/api/runs/{run_id}/slides/1/neural").status_code == 404
+
+
+def test_neural_deck_rollup_reports_zero_scored_when_nothing_is_cached(env):
+    _, _, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp)["run_id"]
+        body = c.get(f"/api/runs/{run_id}/neural").json()
+        assert body == {"n_slides": 3, "n_scored": 0, "scored": [], "per_slide": []}
+
+
+def test_neural_slide_returns_cached_metrics_never_the_gfp_baseline(env):
+    _, _, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp)["run_id"]
+        _write_neural_fixture(tmp, run_id, 1)
+        body = c.get(f"/api/runs/{run_id}/slides/1/neural").json()
+        assert body["processing_ratio"] == 2.0
+        assert body["narration_transcript"] == "synthesized narration of this slide's text"
+        assert "gfp_negative_baseline" not in body  # design rule 3: never a finding
+        assert body["views"]["lateral_left"] == f"/api/runs/{run_id}/slides/1/neural/lateral_left.png"
+        assert c.get(body["views"]["lateral_left"]).headers["content-type"] == "image/png"
+
+
+def test_neural_image_404s_for_an_uncached_view_400s_for_an_unknown_one(env):
+    _, _, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp)["run_id"]
+        _write_neural_fixture(tmp, run_id, 1)
+        assert c.get(f"/api/runs/{run_id}/slides/1/neural/medial_left.png").status_code == 404
+        assert c.get(f"/api/runs/{run_id}/slides/1/neural/top_down.png").status_code == 400
+
+
+def test_neural_endpoints_404_for_an_unknown_run(env):
+    _, _, make_app, _ = env
+    with TestClient(make_app()) as c:
+        assert c.get("/api/runs/nope/neural").status_code == 404
+        assert c.get("/api/runs/nope/slides/1/neural").status_code == 404

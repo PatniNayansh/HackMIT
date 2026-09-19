@@ -326,6 +326,11 @@ mark.hl { background: rgba(250, 178, 25, .38); color: inherit; border-radius: 3p
 .vals .vrow.here .bar i { background: var(--ink); }
 .vals .vrow span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
 
+.surface-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
+.surface-grid figure { margin: 0; }
+.surface-grid img { width: 100%; border-radius: 8px; background: var(--wash); display: block; }
+.surface-grid figcaption { font-size: 11.5px; text-align: center; margin-top: 4px; text-transform: capitalize; }
+
 .empty { color: var(--ink-2); padding: 20px 0; }
 @media (max-width: 1100px) {
   .detail, .two-col, .home-grid { grid-template-columns: 1fr; }

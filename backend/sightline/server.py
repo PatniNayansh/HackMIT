@@ -33,6 +33,7 @@ from .audiences import DeckProfile, FileCache
 from .deck import rollup
 from .divergence import Embedder, default_embedder
 from .llm import AnthropicClient, LLMClient
+from .neural import OVERLAY_LABEL, SURFACE_VIEWS, CachedNeural, NeuralNotCached
 from .runner import TolerantEngine, run_deck
 from .store import (
     BACKEND,
@@ -69,10 +70,14 @@ def create_app(
     cache: FileCache | None = None,
     client_factory: Callable[[], LLMClient | None] = default_client_factory,
     embedder: Embedder | None = None,
+    neural_cache: CachedNeural | None = None,
     frontend_dir: Path = FRONTEND_DIR,
 ) -> FastAPI:
     store = store or RunStore(data_dir() / "history", bundled=[BUNDLED_RUNS_DIR])
     cache = cache or FileCache(data_dir() / "cache" / "audiences", read_only_dirs=[BACKEND / "bundled_cache"])
+    # Precomputed only, and only ever for the bundled sample decks (spec 5, 9): there is no
+    # writable neural store, unlike run history or the audience cache.
+    neural_cache = neural_cache or CachedNeural(BACKEND / "fixtures" / "neural")
     active: dict[str, asyncio.Task] = {}
     embedder_ref: dict[str, Embedder] = {}
 
@@ -242,6 +247,47 @@ def create_app(
             "fixture": diagnose.FIXTURE_BACKED,  # the UI badges these as sample data
             "findings": diagnose.diagnose(result, rollup(results)),
         }
+
+    # ------------------------------------------------------------------------- neural
+    # Precomputed only (spec 5, 9): these never trigger a model call, only ever read what
+    # scripts/precompute_neural/run.py already wrote under backend/fixtures/neural/. A run
+    # with nothing cached there (every run right now, until that CLI is actually run on a
+    # CUDA machine) 404s per slide and reports zero scored slides at the deck level -- the
+    # UI's job is to show a clear empty state for that, never a placeholder brain.
+
+    @app.get("/api/runs/{run_id}/neural")
+    def neural_rollup(run_id: str):
+        meta = store.load_meta(run_id)  # 404 if the run itself is unknown
+        return neural_cache.deck_rollup(run_id, list(range(1, meta["slide_count"] + 1)))
+
+    @app.get("/api/runs/{run_id}/slides/{index}/neural")
+    def neural_slide(run_id: str, index: int):
+        store.load_meta(run_id)  # 404 if the run itself is unknown
+        if not neural_cache.has(run_id, index):
+            raise HTTPException(404, f"no precomputed neural result for slide {index}")
+        m = neural_cache.metrics(run_id, index)
+        return {
+            "slide": index,
+            "overlay_label": OVERLAY_LABEL,
+            "language_drive": m.language_drive,
+            "visual_drive": m.visual_drive,
+            "processing_ratio": m.processing_ratio,
+            "narration_transcript": m.narration_transcript,
+            # gfp_negative_baseline is deliberately withheld here: design rule 3 forbids
+            # showing it as a finding. It belongs only in the Methods panel (not built
+            # yet), labeled next to the null result it reproduces -- never on its own.
+            "views": {v: f"/api/runs/{run_id}/slides/{index}/neural/{v}.png" for v in SURFACE_VIEWS},
+        }
+
+    @app.get("/api/runs/{run_id}/slides/{index}/neural/{view}.png")
+    def neural_image(run_id: str, index: int, view: str):
+        try:
+            path = neural_cache.image_path(run_id, index, view)
+        except ValueError as e:
+            raise HTTPException(400, str(e)) from e
+        except NeuralNotCached as e:
+            raise HTTPException(404, str(e)) from e
+        return FileResponse(path, media_type="image/png", headers={"Cache-Control": "max-age=3600"})
 
     # -------------------------------------------------------------------------- pages
 
