@@ -1,0 +1,26 @@
+[
+  {
+    "id": "sample-undefined-terms",
+    "severity": "high",
+    "trigger": "The novice could not resolve several terms on this slide, and the same terms recur on other slides.",
+    "evidence": "Continuous batching; chunked prefill off to hold the TTFT SLO",
+    "suggestion": "Define TTFT and SLO once, on or before the first slide that uses them, instead of leaving each slide to assume them.",
+    "confidence_note": "This cannot tell you whether your real audience already knows these terms; the novice persona is a simulated reader."
+  },
+  {
+    "id": "sample-claim-not-carried",
+    "severity": "medium",
+    "trigger": "The novice's takeaway sits further from your declared intent than the expert's does.",
+    "evidence": "PagedAttention + speculative decoding: 2.4x goodput at p99",
+    "suggestion": "Say in plain words what the 2.4x refers to (more requests served per second at the same delay) before the two technique names.",
+    "confidence_note": "The similarity measure compares topic and phrasing, not whether two takeaways make the same claim, so a small gap may be noise."
+  },
+  {
+    "id": "sample-unanswered-question",
+    "severity": "low",
+    "trigger": "The peer persona reported a question the slide does not answer.",
+    "evidence": "Draft model acceptance α = 0.78 at γ = 5",
+    "suggestion": "State what α and γ measure, or move them to a footnote if this audience does not need them.",
+    "confidence_note": "A single question from one simulated reader is weak evidence; look for the same gap across slides before acting."
+  }
+]

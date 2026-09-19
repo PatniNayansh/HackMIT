@@ -9,7 +9,7 @@ from typing import Sequence
 import numpy as np
 
 from sightline.audiences import PERSONAS, AudienceReading, AudienceResponse
-from sightline.deck import SlideResult, reading_record
+from sightline.deck import SlideResult, plain, reading_record
 from sightline.divergence import score_slide
 
 INTENT = "INTENT"
@@ -53,7 +53,22 @@ def slide_result(
         "index": index,
         "text": text,
         "readings": readings,
-        "metrics": metrics.to_dict(),
+        "metrics": plain(metrics.to_dict()),
         "metrics_error": None,
         "scored_by": "angle-embedder",
     }
+
+
+class HashEmbedder:
+    """Deterministic stand-in for the sentence-transformers model: same text, same vector."""
+
+    model_name = "hash-embedder"
+
+    def embed(self, texts: Sequence[str]) -> np.ndarray:
+        import hashlib
+
+        rows = []
+        for t in texts:
+            raw = np.frombuffer(hashlib.sha256(t.encode()).digest(), dtype=np.uint8).astype(float) - 127.5
+            rows.append(raw / np.linalg.norm(raw))
+        return np.array(rows)

@@ -19,6 +19,7 @@ Two things this module deliberately does not do, both from the step 1 gate repor
 
 from __future__ import annotations
 
+import json
 from collections import Counter
 from typing import Any, Mapping, Sequence, TypedDict
 
@@ -48,6 +49,12 @@ class SlideResult(TypedDict):
     metrics: dict[str, Any] | None
     metrics_error: str | None
     scored_by: str | None  # name of the embedding model behind the metrics
+
+
+def plain(obj: Any) -> Any:
+    """Round-trip through JSON so a record held in memory is identical to the one reloaded from
+    disk (tuples become lists, numpy scalars fail loudly here rather than in the server)."""
+    return json.loads(json.dumps(obj))
 
 
 def reading_record(r: AudienceReading) -> dict[str, Any]:
