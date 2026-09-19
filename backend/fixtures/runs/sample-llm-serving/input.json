@@ -1,0 +1,30 @@
+[
+  {
+    "index": 1,
+    "text": "[title] Serving LLMs faster: 2.4x goodput at p99\n[body] Alex Rivera\n[body] Systems Group"
+  },
+  {
+    "index": 2,
+    "text": "[title] Why serving is hard\n[body] Every request grows a KV-cache as it generates tokens\n[body] Fragmented memory wastes GPU capacity\n[body] Tail latency (p99) is what users feel"
+  },
+  {
+    "index": 3,
+    "text": "[title] PagedAttention + speculative decoding: 2.4x goodput at p99\n[body] KV-cache fragmentation: <4% waste via block tables\n[body] Draft model acceptance alpha = 0.78 at gamma = 5\n[body] Continuous batching; chunked prefill off to hold the TTFT SLO"
+  },
+  {
+    "index": 4,
+    "text": "[title] Block tables\n[body] KV-cache split into fixed-size blocks, mapped per sequence\n[body] Copy-on-write shares blocks across parallel samples\n[body] Prefix caching hit rate: 61% on the chat workload"
+  },
+  {
+    "index": 5,
+    "text": "[title] Speculative decoding\n[body] A small draft model proposes gamma tokens\n[body] The target model verifies them in one forward pass\n[body] Rejection sampling keeps the output distribution exact"
+  },
+  {
+    "index": 6,
+    "text": "[title] Result: 2.4x more requests per second\n[body] Same hardware: 8 GPUs, same latency target\n[body] Median response time unchanged\n[body] Measured on a real chat workload"
+  },
+  {
+    "index": 7,
+    "text": "[title] What to remember\n[body] Serve more users on the same GPUs\n[body] No change to what the model says\n[body] Open-sourced this quarter"
+  }
+]

@@ -19,8 +19,8 @@
     "id": "sample-unanswered-question",
     "severity": "low",
     "trigger": "The peer persona reported a question the slide does not answer.",
-    "evidence": "Draft model acceptance α = 0.78 at γ = 5",
-    "suggestion": "State what α and γ measure, or move them to a footnote if this audience does not need them.",
+    "evidence": "Draft model acceptance alpha = 0.78 at gamma = 5",
+    "suggestion": "State what alpha and gamma measure, or move them to a footnote if this audience does not need them.",
     "confidence_note": "A single question from one simulated reader is weak evidence; look for the same gap across slides before acting."
   }
 ]

@@ -107,10 +107,13 @@ class RunStore:
         slides: Sequence[Slide],
         inferred: DeckProfile | None,
         inference_error: str | None,
+        run_id: str | None = None,
     ) -> dict[str, Any]:
         """Persist an uploaded deck before the run starts, so the presenter can confirm the
         intent and subfield against it. A draft is not history until it has been started."""
-        run_id = self.new_run_id()
+        run_id = run_id or self.new_run_id()
+        if not RUN_ID.match(run_id):
+            raise ValueError(f"invalid run id {run_id!r}")
         d = self.root / run_id
         for s in slides:
             (d / "slides").mkdir(parents=True, exist_ok=True)

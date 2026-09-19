@@ -1,0 +1,148 @@
+{
+  "index": 5,
+  "text": "[title] Speculative decoding\n[body] A small draft model proposes gamma tokens\n[body] The target model verifies them in one forward pass\n[body] Rejection sampling keeps the output distribution exact",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "A faster small model guesses several tokens ahead, which the main model checks at once, speeding things up without changing the final output.",
+      "confidence": 0.55,
+      "unresolved_terms": [
+        "gamma tokens",
+        "Rejection sampling",
+        "forward pass"
+      ],
+      "questions": [
+        "What exactly does 'gamma tokens' mean here?",
+        "How does rejection sampling technically ensure accuracy?",
+        "How much speed improvement does this technique give?"
+      ],
+      "inferred_claim": "The presenter wants me to believe speculative decoding speeds up model output while keeping results accurate.",
+      "model": "claude-sonnet-5",
+      "cached": false,
+      "latency_s": 3.206,
+      "attempts": 1,
+      "slide_hash": "db5e7a31f2a208b5da315ff6"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "Speculative decoding speeds up generation by having a small draft model propose tokens that a larger target model verifies in one pass, without changing output distribution.",
+      "confidence": 0.6,
+      "unresolved_terms": [
+        "gamma tokens"
+      ],
+      "questions": [
+        "What determines the value of gamma?",
+        "How much speedup does this technique give alone?",
+        "How does rejection sampling mechanically work here?"
+      ],
+      "inferred_claim": "The presenter wants me to believe speculative decoding is a valid, distribution-preserving way to speed up inference.",
+      "model": "claude-sonnet-5",
+      "cached": false,
+      "latency_s": 3.067,
+      "attempts": 1,
+      "slide_hash": "db5e7a31f2a208b5da315ff6"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The slide gives the standard mechanics of speculative decoding: draft proposal, single-pass verification, and exact-distribution rejection sampling.",
+      "confidence": 0.9,
+      "unresolved_terms": [],
+      "questions": [
+        "What value of gamma was tuned for the 2.4x result?",
+        "How does draft acceptance rate interact with continuous batching here?"
+      ],
+      "inferred_claim": "Understand speculative decoding as the second pillar enabling the claimed 2.4x goodput gain.",
+      "model": "claude-sonnet-5",
+      "cached": false,
+      "latency_s": 3.201,
+      "attempts": 1,
+      "slide_hash": "db5e7a31f2a208b5da315ff6"
+    }
+  },
+  "metrics": {
+    "slide_index": 5,
+    "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+    "takeaways": {
+      "novice": "A faster small model guesses several tokens ahead, which the main model checks at once, speeding things up without changing the final output.",
+      "peer": "Speculative decoding speeds up generation by having a small draft model propose tokens that a larger target model verifies in one pass, without changing output distribution.",
+      "expert": "The slide gives the standard mechanics of speculative decoding: draft proposal, single-pass verification, and exact-distribution rejection sampling."
+    },
+    "intent_alignment": {
+      "novice": {
+        "value": 0.3214928311708779,
+        "inputs": {
+          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+          "novice": "A faster small model guesses several tokens ahead, which the main model checks at once, speeding things up without changing the final output."
+        }
+      },
+      "peer": {
+        "value": 0.37455789771732156,
+        "inputs": {
+          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+          "peer": "Speculative decoding speeds up generation by having a small draft model propose tokens that a larger target model verifies in one pass, without changing output distribution."
+        }
+      },
+      "expert": {
+        "value": 0.35067027282351904,
+        "inputs": {
+          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+          "expert": "The slide gives the standard mechanics of speculative decoding: draft proposal, single-pass verification, and exact-distribution rejection sampling."
+        }
+      }
+    },
+    "audience_divergence": {
+      "value": 0.4738872065506848,
+      "inputs": {
+        "novice": "A faster small model guesses several tokens ahead, which the main model checks at once, speeding things up without changing the final output.",
+        "peer": "Speculative decoding speeds up generation by having a small draft model propose tokens that a larger target model verifies in one pass, without changing output distribution.",
+        "expert": "The slide gives the standard mechanics of speculative decoding: draft proposal, single-pass verification, and exact-distribution rejection sampling."
+      }
+    },
+    "pairwise_distance": {
+      "novice-peer": {
+        "value": 0.4483207499943451,
+        "inputs": {
+          "novice": "A faster small model guesses several tokens ahead, which the main model checks at once, speeding things up without changing the final output.",
+          "peer": "Speculative decoding speeds up generation by having a small draft model propose tokens that a larger target model verifies in one pass, without changing output distribution."
+        }
+      },
+      "novice-expert": {
+        "value": 0.7171052691936942,
+        "inputs": {
+          "novice": "A faster small model guesses several tokens ahead, which the main model checks at once, speeding things up without changing the final output.",
+          "expert": "The slide gives the standard mechanics of speculative decoding: draft proposal, single-pass verification, and exact-distribution rejection sampling."
+        }
+      },
+      "peer-expert": {
+        "value": 0.25623560046401517,
+        "inputs": {
+          "peer": "Speculative decoding speeds up generation by having a small draft model propose tokens that a larger target model verifies in one pass, without changing output distribution.",
+          "expert": "The slide gives the standard mechanics of speculative decoding: draft proposal, single-pass verification, and exact-distribution rejection sampling."
+        }
+      }
+    },
+    "blind_spot_score": {
+      "value": 0.029177441652641134,
+      "inputs": {
+        "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+        "novice": "A faster small model guesses several tokens ahead, which the main model checks at once, speeding things up without changing the final output.",
+        "expert": "The slide gives the standard mechanics of speculative decoding: draft proposal, single-pass verification, and exact-distribution rejection sampling."
+      }
+    },
+    "term_gap": {
+      "terms": [
+        "gamma tokens",
+        "Rejection sampling",
+        "forward pass"
+      ],
+      "novice_unresolved": [
+        "gamma tokens",
+        "Rejection sampling",
+        "forward pass"
+      ],
+      "expert_unresolved": []
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "sentence-transformers/all-MiniLM-L6-v2"
+}

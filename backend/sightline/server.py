@@ -233,6 +233,14 @@ def create_app(
     if frontend_dir.is_dir():
         app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
+        @app.middleware("http")
+        async def _revalidate_static(request, call_next):
+            # No build step means no hashed filenames, so make the browser recheck each time.
+            response = await call_next(request)
+            if request.url.path.startswith("/static/"):
+                response.headers["Cache-Control"] = "no-cache"
+            return response
+
         @app.get("/", include_in_schema=False)
         def index():
             return FileResponse(frontend_dir / "index.html", headers={"Cache-Control": "no-cache"})

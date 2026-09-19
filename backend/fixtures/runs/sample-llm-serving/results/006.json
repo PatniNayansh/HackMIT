@@ -1,0 +1,140 @@
+{
+  "index": 6,
+  "text": "[title] Result: 2.4x more requests per second\n[body] Same hardware: 8 GPUs, same latency target\n[body] Median response time unchanged\n[body] Measured on a real chat workload",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "Using the same hardware and keeping response time the same, the presenter's changes let the system handle 2.4x more requests per second in a real chat test.",
+      "confidence": 0.8,
+      "unresolved_terms": [
+        "GPUs"
+      ],
+      "questions": [
+        "What counts as 'real chat workload' exactly?",
+        "Was latency measured at average or worst-case?"
+      ],
+      "inferred_claim": "The presenter wants us to believe their improvements deliver real, measurable efficiency gains without hurting speed.",
+      "model": "claude-sonnet-5",
+      "cached": false,
+      "latency_s": 2.742,
+      "attempts": 1,
+      "slide_hash": "6245d954610689860a75b20b"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "On the same 8-GPU hardware and latency target, the described techniques achieved 2.4x higher request throughput without hurting median response time, validated on a real chat workload.",
+      "confidence": 0.75,
+      "unresolved_terms": [],
+      "questions": [
+        "How does 'requests per second' relate to earlier p99 latency metric?",
+        "What counts as 'real chat workload' specifically?",
+        "Is median response time the same metric as p99 latency?"
+      ],
+      "inferred_claim": "The presenter wants us to believe their combined techniques deliver a validated, real-world 2.4x throughput gain at no latency cost.",
+      "model": "claude-sonnet-5",
+      "cached": false,
+      "latency_s": 3.356,
+      "attempts": 1,
+      "slide_hash": "6245d954610689860a75b20b"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The presenter reports a measured 2.4x throughput gain on identical hardware and latency SLO, tested on a real chat workload, validating the earlier claim.",
+      "confidence": 0.7,
+      "unresolved_terms": [],
+      "questions": [
+        "Is throughput measured at p50, p99, or aggregate RPS?",
+        "What is the actual latency target value used?",
+        "What request/output length distribution defines 'real chat workload'?"
+      ],
+      "inferred_claim": "The presenter wants the audience to accept the 2.4x throughput claim as empirically validated under fair conditions.",
+      "model": "claude-sonnet-5",
+      "cached": false,
+      "latency_s": 3.469,
+      "attempts": 1,
+      "slide_hash": "6245d954610689860a75b20b"
+    }
+  },
+  "metrics": {
+    "slide_index": 6,
+    "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+    "takeaways": {
+      "novice": "Using the same hardware and keeping response time the same, the presenter's changes let the system handle 2.4x more requests per second in a real chat test.",
+      "peer": "On the same 8-GPU hardware and latency target, the described techniques achieved 2.4x higher request throughput without hurting median response time, validated on a real chat workload.",
+      "expert": "The presenter reports a measured 2.4x throughput gain on identical hardware and latency SLO, tested on a real chat workload, validating the earlier claim."
+    },
+    "intent_alignment": {
+      "novice": {
+        "value": 0.4421950737510693,
+        "inputs": {
+          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+          "novice": "Using the same hardware and keeping response time the same, the presenter's changes let the system handle 2.4x more requests per second in a real chat test."
+        }
+      },
+      "peer": {
+        "value": 0.5219625275375807,
+        "inputs": {
+          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+          "peer": "On the same 8-GPU hardware and latency target, the described techniques achieved 2.4x higher request throughput without hurting median response time, validated on a real chat workload."
+        }
+      },
+      "expert": {
+        "value": 0.526201451266569,
+        "inputs": {
+          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+          "expert": "The presenter reports a measured 2.4x throughput gain on identical hardware and latency SLO, tested on a real chat workload, validating the earlier claim."
+        }
+      }
+    },
+    "audience_divergence": {
+      "value": 0.26009420554109636,
+      "inputs": {
+        "novice": "Using the same hardware and keeping response time the same, the presenter's changes let the system handle 2.4x more requests per second in a real chat test.",
+        "peer": "On the same 8-GPU hardware and latency target, the described techniques achieved 2.4x higher request throughput without hurting median response time, validated on a real chat workload.",
+        "expert": "The presenter reports a measured 2.4x throughput gain on identical hardware and latency SLO, tested on a real chat workload, validating the earlier claim."
+      }
+    },
+    "pairwise_distance": {
+      "novice-peer": {
+        "value": 0.3002723065145918,
+        "inputs": {
+          "novice": "Using the same hardware and keeping response time the same, the presenter's changes let the system handle 2.4x more requests per second in a real chat test.",
+          "peer": "On the same 8-GPU hardware and latency target, the described techniques achieved 2.4x higher request throughput without hurting median response time, validated on a real chat workload."
+        }
+      },
+      "novice-expert": {
+        "value": 0.24662200207255014,
+        "inputs": {
+          "novice": "Using the same hardware and keeping response time the same, the presenter's changes let the system handle 2.4x more requests per second in a real chat test.",
+          "expert": "The presenter reports a measured 2.4x throughput gain on identical hardware and latency SLO, tested on a real chat workload, validating the earlier claim."
+        }
+      },
+      "peer-expert": {
+        "value": 0.23338830803614719,
+        "inputs": {
+          "peer": "On the same 8-GPU hardware and latency target, the described techniques achieved 2.4x higher request throughput without hurting median response time, validated on a real chat workload.",
+          "expert": "The presenter reports a measured 2.4x throughput gain on identical hardware and latency SLO, tested on a real chat workload, validating the earlier claim."
+        }
+      }
+    },
+    "blind_spot_score": {
+      "value": 0.08400637751549972,
+      "inputs": {
+        "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+        "novice": "Using the same hardware and keeping response time the same, the presenter's changes let the system handle 2.4x more requests per second in a real chat test.",
+        "expert": "The presenter reports a measured 2.4x throughput gain on identical hardware and latency SLO, tested on a real chat workload, validating the earlier claim."
+      }
+    },
+    "term_gap": {
+      "terms": [
+        "GPUs"
+      ],
+      "novice_unresolved": [
+        "GPUs"
+      ],
+      "expert_unresolved": []
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "sentence-transformers/all-MiniLM-L6-v2"
+}
