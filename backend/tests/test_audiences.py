@@ -59,7 +59,7 @@ def test_no_ratings_anywhere_in_the_backend():
     assert not banned_fields & set(AudienceResponse.model_fields)
     pattern = re.compile(r"\b\d+(\.\d+)?\s*/\s*10\b|\bclarity\b\s*[:=]\s*\d", re.I)
     for path in Path(__file__).parent.parent.joinpath("sightline").glob("*.py"):
-        assert not pattern.search(path.read_text()), f"rating-style output in {path.name}"
+        assert not pattern.search(path.read_text(encoding="utf-8")), f"rating-style output in {path.name}"
 
 
 @pytest.mark.parametrize(

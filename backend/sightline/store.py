@@ -62,7 +62,7 @@ def now_iso() -> str:
 def _write_json(path: Path, obj: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
     os.replace(tmp, path)  # atomic: a poll never sees half a file
 
@@ -147,7 +147,7 @@ class RunStore:
 
     def update_meta(self, run_id: str, **fields: Any) -> dict[str, Any]:
         d = self._writable(run_id)
-        meta = json.loads((d / "run.json").read_text())
+        meta = json.loads((d / "run.json").read_text(encoding="utf-8"))
         unknown = set(fields) - set(meta)
         if unknown:
             raise KeyError(f"not run metadata: {sorted(unknown)}")
@@ -167,13 +167,13 @@ class RunStore:
 
     def load_meta(self, run_id: str) -> dict[str, Any]:
         d, _ = self._dir(run_id)
-        return json.loads((d / "run.json").read_text())
+        return json.loads((d / "run.json").read_text(encoding="utf-8"))
 
     def load_slides(self, run_id: str) -> list[Slide]:
         d, _ = self._dir(run_id)
         return [
             Slide(rec["index"], rec["text"], (d / "slides" / f"{rec['index']:03d}.png").read_bytes())
-            for rec in json.loads((d / "input.json").read_text())
+            for rec in json.loads((d / "input.json").read_text(encoding="utf-8"))
         ]
 
     def load_results(self, run_id: str) -> list[SlideResult]:
@@ -181,7 +181,7 @@ class RunStore:
         out: list[SlideResult] = []
         for p in sorted((d / "results").glob("*.json")):
             try:
-                out.append(json.loads(p.read_text()))
+                out.append(json.loads(p.read_text(encoding="utf-8")))
             except json.JSONDecodeError:
                 continue  # half-written by a crash; the slide simply reads as pending
         return out
@@ -205,7 +205,7 @@ class RunStore:
                 if d.name in seen or not (d / "run.json").is_file():
                     continue
                 try:
-                    meta = json.loads((d / "run.json").read_text())
+                    meta = json.loads((d / "run.json").read_text(encoding="utf-8"))
                 except (json.JSONDecodeError, OSError):
                     continue
                 seen.add(d.name)

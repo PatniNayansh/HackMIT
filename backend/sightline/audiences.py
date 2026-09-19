@@ -299,7 +299,7 @@ class FileCache:
             p = d / name
             if p.is_file():
                 try:
-                    blob = json.loads(p.read_text())
+                    blob = json.loads(p.read_text(encoding="utf-8"))
                     return AudienceResponse.model_validate(blob["response"]), blob.get("model", "unknown")
                 except (json.JSONDecodeError, ValidationError, KeyError):
                     continue  # a corrupt entry is a miss, not a crash
@@ -312,7 +312,7 @@ class FileCache:
             indent=2,
         )
         fd, tmp = tempfile.mkstemp(dir=self.write_dir, suffix=".tmp")
-        with os.fdopen(fd, "w") as f:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(payload)
         os.replace(tmp, self.write_dir / self._name(slide_hash, persona, ctx))  # atomic
 

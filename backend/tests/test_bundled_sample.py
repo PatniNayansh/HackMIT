@@ -85,12 +85,12 @@ def test_every_module_the_frontend_imports_exists():
     modules = sorted(js.glob("*.js"))
     assert modules
     for path in modules:
-        for target in re.findall(r'from "\./([\w-]+\.js)"', path.read_text()):
+        for target in re.findall(r'from "\./([\w-]+\.js)"', path.read_text(encoding="utf-8")):
             assert (js / target).is_file(), f"{path.name} imports missing {target}"
 
 
 def test_the_frontend_never_builds_html_from_strings():
     """Slide text and model output are untrusted; the DOM helpers only ever create text nodes."""
     for path in (FRONTEND_DIR / "js").glob("*.js"):
-        assert "innerHTML" not in path.read_text(), path.name
-        assert "insertAdjacentHTML" not in path.read_text(), path.name
+        assert "innerHTML" not in path.read_text(encoding="utf-8"), path.name
+        assert "insertAdjacentHTML" not in path.read_text(encoding="utf-8"), path.name

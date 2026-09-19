@@ -19,6 +19,10 @@ import tempfile
 from pathlib import Path
 from typing import Any, Callable
 
+# Marks this process as the FastAPI server, so sightline.neural.TribeNeural (6-13 GPU-min
+# per slide) refuses to run here even if something imports and calls it by mistake.
+os.environ["SIGHTLINE_PROCESS"] = "server"
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -123,18 +127,29 @@ def create_app(
         suffix = Path(name).suffix.lower()
         if suffix not in ingest.supported_extensions():
             raise HTTPException(415, f"unsupported file type {suffix or '(none)'!r}; upload a PDF")
-        with tempfile.NamedTemporaryFile(suffix=suffix) as tmp:
-            size = 0
-            while chunk := await file.read(1 << 20):
-                size += len(chunk)
-                if size > MAX_UPLOAD_BYTES:
-                    raise HTTPException(413, f"file is larger than {MAX_UPLOAD_BYTES // (1 << 20)} MB")
-                tmp.write(chunk)
-            tmp.flush()
+        # mkstemp + close-before-reopen, not NamedTemporaryFile: on Windows a file opened
+        # for writing is locked against being opened again by path (pymupdf.open below)
+        # until the write handle is closed, which NamedTemporaryFile's context manager
+        # only does at the very end of the `with` block.
+        fd, tmp_name = tempfile.mkstemp(suffix=suffix)
+        try:
+            with os.fdopen(fd, "wb") as tmp:
+                size = 0
+                while chunk := await file.read(1 << 20):
+                    size += len(chunk)
+                    if size > MAX_UPLOAD_BYTES:
+                        raise HTTPException(413, f"file is larger than {MAX_UPLOAD_BYTES // (1 << 20)} MB")
+                    tmp.write(chunk)
             try:
-                slides = await asyncio.to_thread(ingest.parse, Path(tmp.name))
+                slides = await asyncio.to_thread(ingest.parse, Path(tmp_name))
             except ingest.IngestError as e:
                 raise HTTPException(422, str(e)) from e
+        finally:
+            try:
+                os.unlink(tmp_name)
+            except PermissionError:
+                pass  # pymupdf can keep its own handle open after a failed parse on
+                # Windows; a leaked temp file the OS reaps later beats crashing the request
 
         inferred: DeckProfile | None = None
         error: str | None = None

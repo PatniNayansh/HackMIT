@@ -40,7 +40,7 @@ _SEVERITIES = ("high", "medium", "low")
 
 def load_fixture(path: Path = FIXTURE_PATH) -> list[Finding]:
     """The fixture, checked against the contract so a malformed edit fails loudly."""
-    findings = json.loads(Path(path).read_text())
+    findings = json.loads(Path(path).read_text(encoding="utf-8"))
     for f in findings:
         missing = set(Finding.__annotations__) - set(f)
         if missing or f["severity"] not in _SEVERITIES:

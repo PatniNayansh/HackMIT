@@ -37,7 +37,7 @@ def run_once() -> tuple[dict[str, str], dict]:
     }
     if not REPORT.exists():
         sys.exit("gate could not run (no report written):\n" + "\n".join(proc.stdout.splitlines()[-25:]))
-    return outcomes, json.loads(REPORT.read_text())
+    return outcomes, json.loads(REPORT.read_text(encoding="utf-8"))
 
 
 def row(report: dict) -> dict[str, float]:
