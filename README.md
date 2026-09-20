@@ -33,32 +33,36 @@ make dev                    # http://localhost:8000
 
 ### Using it
 
-1. **Upload** a PDF. The deck's subfield is inferred once by the model and shown as
-   `unconfirmed`; edit it, and the adjacent field the peer comes from. You may also give a
-   **declared intent** (one sentence, optional): it is stored and shown on the deck overview, and
-   is not used for alignment or shown on the slide page. Start the review.
-2. **Deck overview** fills in as slides land (about 6 s each, in order). It lists the *hardest
-   slides for a newcomer*, the terms the novice could not resolve across the deck, and the
-   narrative arc: how each audience's reading of the claim compares with the expert's as the deck
-   goes on (the number of the expert's propositions each audience covered).
-3. **Slide detail**: the slide on the left, on a light card in both themes. Directly under it, one
-   block, *Intent of this slide*, shows the expert persona's takeaway **verbatim**; if the slide
-   has a chart or diagram, a collapsed *Figure description (machine-generated)* sits beneath it. On
-   the right, a line saying what shape the slide has (*"This slide names a principle and works to
-   a numeric result."*), then the slide's **findings** and **tier**, then three audience cards.
-   Each novice and peer card leads with the **state** of their claim in words, then the four fields
-   beside the expert's, then unresolved terms and *What to change*: concrete edits, each quoting
-   the persona's report or the slide (made the first time you open a slide, about 5 s, and saved
-   with the run). Click any state, field, finding or number for the texts it came from. Last on
-   the page, a **predicted neural response** to the slide, if one was precomputed for it — see
+1. **Add a deck.** Drop a PDF on the front page. It is read immediately -- slides, figure
+   descriptions and the deck's subfield, in one request -- but **nothing starts on its own**.
+2. **Add lecture audio, or don't.** Optional, and labelled as such. Duration is read in the
+   browser, then the file is cut into **two-minute chunks** before anything is sent; see
+   [Lecture audio](#lecture-audio). Slides are required; audio alone cannot start a run.
+3. **Press Proceed.** It stays disabled until a deck is present, and reads *Working* while audio
+   is still chunking, so a half-ready run cannot be started. Confirm the subfield (inferred and
+   marked `unconfirmed`) and the adjacent field the peer comes from. A **declared intent** is
+   optional: stored and shown on the deck overview, never used for alignment.
+4. **Deck overview** fills in as slides land (about 6 s each, in order): the *hardest slides for
+   a newcomer*, the terms the novice could not resolve across the deck, and the narrative arc.
+   Each section's sub-text rests at opacity 0 and appears on hover or keyboard focus -- it keeps
+   its box, so nothing on the page moves when it does.
+5. **Slide detail**: the slide on the left, and directly under it *Intent of this slide*, the
+   expert persona's takeaway **verbatim**. On the right, *What this slide demands of its reader*
+   with the slide's tier and findings; everything those were read from sits behind **More info**.
+   Then three audience cards, each leading with the **state** of its claim in words, what it
+   missed, and *What to change*. The field table and the unresolved-term list are behind
+   **More**, one panel per persona per slide -- they open independently and stay open when
+   another slide lands. Click any state, field, finding or number for the text it came from.
+   Last, the **predicted neural response**, if one was precomputed -- see
    [The neural layer](#the-neural-layer).
-4. **History** is the front page's list of saved runs. Runs save automatically, slide by slide,
-   to `data/history/<run_id>/` as plain JSON and images. Opening one makes no API calls, so it
-   works with no network and no key, and recommendations you opened before saving replay too. The
-   bundled **Sample: serving LLMs faster** run works the same way and is your demo insurance.
-   Runs saved before per-slide intent existed open in a reduced form with a notice. Runs saved
-   while the intent was a rephrased sentence still show that sentence (with its attribution), because
-   it is what their alignment was measured against.
+6. **The title slide is not analysed.** A deck opens on its name, so slide 1 gets no persona, no
+   model call and no place in any ranking. It keeps its number -- slide 2 here is slide 2 in the
+   PDF -- and its page says so. Turn it off with `skip_title_slide=False` on `create_app`.
+
+Runs save themselves slide by slide to `data/history/<run_id>/` as plain JSON and images, and
+reopen at `#/run/<run_id>` with no network and no key. **The front page does not list them**: it
+is an entry point, not an index. The bundled **Sample: serving LLMs faster** run is at
+`#/run/sample-llm-serving` and is the demo that works with no key at all.
 
 ### Themes
 
@@ -351,9 +355,34 @@ the one that is not drawn. Regenerate it with:
 python backend/scripts/make_lecture_timecourse.py
 ```
 
+## Lecture audio
+
+Audio is optional input alongside a deck. It is cut into **fixed two-minute chunks with no
+overlap** in the browser before anything is sent.
+
+That is a cost limit, not a size limit. TRIBE v2's text encoder builds *contextualised* word
+embeddings -- every word is re-encoded against the whole transcript before it -- so cost grows
+faster than length. A 25-minute lecture fed in one pass was still in the word-embedding stage
+after 30 minutes with an ETA over 30 hours. Two-minute chunks each start their own short
+context, which keeps the bound flat and lets a run resume a chunk at a time.
+
+No overlap, because each chunk starts a cold context regardless and overlapping would pay twice
+for the same seconds. Not silence-based, because lecture pauses are short and irregular, so
+chunk lengths -- and the cost bound that is the point -- stop being predictable. The cost is
+real and visible: a sentence spanning a boundary is encoded with no lead-in, which reads as a
+brief dip in the first seconds of each chunk.
+
+> **The GX10 upload is not wired up.** `frontend/js/audio-upload.js` has one clearly-marked
+> stub, `sendAudioChunk`, that waits rather than inventing a result. There is no HTTP endpoint
+> on the GX10 yet -- today neural output reaches this app as files on disk, written by
+> `backend/scripts/precompute_neural/run.py` over SSH. Wiring it needs the URL, the auth method,
+> the request shape and whether it answers synchronously or hands back a job to poll. Everything
+> else on that page is real; replace that function's body and nothing else.
+
 ## The neural layer
 
-A slide page also shows a **predicted** cortical response to that slide, from
+A slide page also shows a **predicted fMRI** response to that slide -- a model's prediction of
+BOLD signal across the cortex, not a measurement of anyone's brain -- from
 [TRIBE v2](https://github.com/facebookresearch/tribev2) (Meta AI), a brain-encoding model trained
 on movie-watching fMRI. It is precomputed, never live, and every constraint below is enforced in
 code rather than left to discipline.
@@ -402,6 +431,22 @@ python run.py --run-id sample-llm-serving --out ../../fixtures/neural
 
 It is resumable: a slide with a `metrics.json` is skipped unless `--force` is passed, so a crash
 costs at most the slide in flight.
+
+## Claims in this file I could not verify
+
+Everything else here was checked against the code. These were not:
+
+- **The latency numbers** (5.4 s and 6.9 s per slide) were measured on Claude, before the OpenAI
+  migration, and have not been re-measured end to end since. The Latency section says so in place.
+- **"About 50 API calls" for `make sample`** is an estimate in the script's docstring, not a
+  counted figure.
+- **The bundled sample still has a scored slide 1.** It was generated before the title-slide rule
+  existed, so it does not show the *Title Slide* page this README describes; every run made after
+  the rule does. Regenerating it costs a full `make sample`, and no saved run has been touched
+  without being asked for. This is a fixture that predates a behaviour change, not a bug in the
+  behaviour.
+- **The GX10 audio upload does not happen.** `sendAudioChunk` is a stub; see
+  [Lecture audio](#lecture-audio). Chunking, duration and the progress UI are real.
 
 ## What these numbers do and do not mean
 
