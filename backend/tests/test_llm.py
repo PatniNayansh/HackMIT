@@ -188,7 +188,9 @@ def test_no_key_means_a_type_error_that_names_the_variable_and_no_value(monkeypa
 def test_no_key_literal_is_in_the_code_and_nothing_is_written_to_disk():
     for path in (Path(llm.__file__).parent).glob("*.py"):
         text = path.read_text(encoding="utf-8")
-        assert not re.search(r"sk-[A-Za-z0-9_\-]{8,}", text), path.name
+        # Anchored to a word boundary: a real key literal follows a quote or a space, where
+        # the "task-performance" of a citation does not (research_lens.py cites one).
+        assert not re.search(r"\bsk-[A-Za-z0-9_\-]{8,}", text), path.name
         assert not re.search(r"api_key\s*=\s*[\"']", text), path.name
     src = Path(llm.__file__).read_text(encoding="utf-8")
     assert "write_text" not in src and "open(" not in src  # llm.py reads .env through dotenv and writes nothing

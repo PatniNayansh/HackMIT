@@ -98,6 +98,11 @@ def run_slide(run_id: str, index: int, text: str, out_dir: Path, model, masks: d
         "language_drive": language_drive,
         "visual_drive": visual_drive,
         "processing_ratio": ratio,
+        # DMN drive: the raw ingredient for the ADHD research lens (research_lens.py). Not
+        # a Z-score yet -- that's relative to the rest of THIS deck, computed once every
+        # slide is in (see CachedNeural.deck_rollup in sightline/neural.py), the same
+        # pattern processing_ratio already uses.
+        "dmn_drive": region_drive(response, masks["dmn"]),
         "gfp_negative_baseline": global_field_power(response),
         "narration_transcript": narration.transcript,
     }

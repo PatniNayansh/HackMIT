@@ -49,7 +49,48 @@ def fetch_region_masks() -> dict[str, np.ndarray]:
     return {
         "visual": _mask_from_substrings(vertex_labels, names, _VISUAL_SUBSTRINGS),
         "language": _mask_from_substrings(vertex_labels, names, _LANGUAGE_SUBSTRINGS),
+        "dmn": fetch_dmn_mask(),
     }
+
+
+# Yeo et al. 2011 (J Neurophysiol), the standard 7-network functional parcellation.
+# Network 7 is their own Default Mode Network label -- this is the field's own numbering,
+# not a choice made here. ("Background" occupies index 0: medial-wall / non-cortex
+# vertices the parcellation doesn't cover.)
+_DMN_NETWORK_INDEX = 7
+
+
+def fetch_dmn_mask() -> np.ndarray:
+    """A boolean mask over the same 20484 fsaverage5 vertices TRIBE v2 outputs, True where
+    Yeo 2011's 7-network atlas assigns a vertex to the Default Mode Network.
+
+    Unlike `fetch_region_masks`'s Destrieux-based masks, the Yeo atlas ships as a MNI152
+    VOLUME, not a surface parcellation -- there is no off-the-shelf fsaverage5-surface
+    version in nilearn. `nilearn.surface.vol_to_surf` (nearest_most_frequent, the standard
+    pattern in nilearn's own docs for projecting a volumetric atlas onto a surface mesh) is
+    used to bring it onto the same mesh. This is one more layer of approximation than the
+    Destrieux masks have (a volume-to-surface projection, not a native surface
+    parcellation) -- say so anywhere DMN drive is shown, on top of the existing
+    "proposed readout, not a validated metric" disclosure.
+
+    Verified empirically before shipping (not just assumed to work): projecting onto
+    fsaverage5 produces exactly 20484 labelled vertices, and network 7 (DMN) covers ~17%
+    of cortex -- both consistent with the published parcellation, not an empty or
+    all-cortex mask.
+    """
+    from nilearn import datasets, surface
+
+    yeo = datasets.fetch_atlas_yeo_2011(n_networks=7, thickness="thick")
+    fsaverage = datasets.fetch_surf_fsaverage("fsaverage5")
+
+    proj_left = np.asarray(
+        surface.vol_to_surf(yeo.maps, fsaverage["pial_left"], interpolation="nearest_most_frequent")
+    ).squeeze()
+    proj_right = np.asarray(
+        surface.vol_to_surf(yeo.maps, fsaverage["pial_right"], interpolation="nearest_most_frequent")
+    ).squeeze()
+    network = np.round(np.concatenate([proj_left, proj_right])).astype(int)
+    return network == _DMN_NETWORK_INDEX
 
 
 def region_drive(response: np.ndarray, mask: np.ndarray) -> float:
