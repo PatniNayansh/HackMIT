@@ -63,6 +63,59 @@ function readDuration(file) {
   });
 }
 
+
+// ----------------------------------------------------------------- saved runs, on request
+// Not linked from anywhere on purpose. The front page is an entry point, not an index, but a
+// presentation needs to reach the runs that are already on disk without uploading anything.
+// Two ways in, because a live demo should not depend on hitting a small target: the invisible
+// button in the corner below, and Shift+R from any screen (see main.js).
+
+export const SAVED_RUNS_HREF = "#/runs";
+
+/** A real, focusable button that happens to be invisible until you hover or tab to it. Not
+ *  display:none and not aria-hidden: it stays operable by keyboard, which is what makes it a
+ *  reliable way in rather than a trick that might not work on the night. */
+export function demoDoor() {
+  return h("a", {
+    class: "demo-door", href: SAVED_RUNS_HREF, title: "Saved runs (Shift+R)",
+    "aria-label": "Open saved runs",
+  }, "\u00b7");
+}
+
+export function savedRuns(root) {
+  document.title = "Saved runs \u2014 ProFe";
+  const body = h("div", null, h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading saved runs\u2026"));
+  mount(root,
+    h("div", { class: "crumbs" }, h("a", { href: "#/" }, "Start"), "\u203a", "Saved runs"),
+    h("div", { class: "page-head" }, h("div", null,
+      h("h1", null, "Saved runs"),
+      h("p", { class: "sub" }, "Every run on disk. Opening one makes no model calls."))),
+    h("section", { class: "card" }, body));
+
+  getJSON("/api/runs").then((runs) => {
+    if (!runs.length) {
+      body.replaceChildren(h("p", { class: "empty" }, "No saved runs yet."));
+      return;
+    }
+    body.replaceChildren(h("table", { class: "rows" },
+      h("thead", null, h("tr", null, h("th", null, "Deck"), h("th", null, "Date"),
+        h("th", { class: "right" }, "Slides"), h("th", null, "Model"), h("th", null, "Status"))),
+      h("tbody", null, ...runs.map((r) => h("tr", {
+        tabindex: 0, on: {
+          click: () => { location.hash = `#/run/${r.run_id}`; },
+          keydown: (e) => { if (e.key === "Enter") location.hash = `#/run/${r.run_id}`; },
+        },
+      },
+        h("td", null, h("strong", null, r.title), r.sample && h("span", null, " ", h("span", { class: "pill sample" }, "sample data"))),
+        h("td", { class: "muted" }, when(r.created_at)),
+        h("td", { class: "right tnum" }, r.slide_count),
+        h("td", { class: "mono" }, r.model || "\u2014"),
+        h("td", null, statusPill(r.status)))))));
+  }).catch((e) => body.replaceChildren(h("p", { class: "err" }, e.message)));
+
+  return () => {};
+}
+
 export function home(root) {
   document.title = "ProFe";
   const banner = h("div");
@@ -199,9 +252,7 @@ export function home(root) {
   idle();
 
   root.replaceChildren(
-    h("div", { class: "page-head" }, h("div", null,
-      h("h1", null, "Review a presentation"),
-      h("p", { class: "sub" }, "See how a novice, a peer and an expert would each read your slides, and where they part ways."))),
+    h("p", { class: "home-lede" }, "See how a novice, a peer and an expert would each read your slides, and where they part ways."),
     banner,
     h("div", { class: "home-grid" },
       h("section", { class: "card" },
@@ -212,7 +263,8 @@ export function home(root) {
         h("h2", { style: "margin-bottom:8px" }, "Lecture audio"),
         h("p", { class: "dek" },
           "We ran sixteen minutes of a real recorded lecture through TRIBE v2 \u2014 no slides, no synthesis \u2014 and watched the language regions over time."),
-        h("a", { class: "btn", href: AUDIO_RUN_HREF, style: "text-decoration:none" }, "Open the audio run \u2192"))));
+        h("a", { class: "btn", href: AUDIO_RUN_HREF, style: "text-decoration:none" }, "Open the audio run \u2192"))),
+    demoDoor());
 
   getJSON("/api/health").then((hl) => {
     if (!hl.can_call_model) {

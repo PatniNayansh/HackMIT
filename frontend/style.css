@@ -212,6 +212,23 @@ main:has(.detail) { max-width: 1240px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
 
+/* The front page says one thing, so it says it large and centred, with no heading above it
+   competing for the same job. */
+.home-lede {
+  font-family: var(--serif); font-size: 30px; line-height: 1.35; text-align: center;
+  max-width: 24ch; margin: 24px auto 40px; color: var(--ink);
+}
+@media (max-width: 700px) { .home-lede { font-size: 24px; max-width: 20ch; } }
+
+/* The way into the saved runs during a presentation. Invisible at rest, but a real link: it
+   takes focus, it has a name, and Shift+R does the same thing from any screen. */
+.demo-door {
+  display: block; width: 28px; height: 28px; margin: 56px auto 0; border-radius: 2px;
+  text-align: center; line-height: 28px; color: var(--muted); text-decoration: none;
+  opacity: 0; transition: opacity .15s ease-out;
+}
+.demo-door:hover, .demo-door:focus-visible { opacity: 1; background: var(--wash); }
+
 /* ---------------------------------------------------------------- condensed persona results */
 /* A persona box leads with its verdict; the table and the term list are evidence, and evidence
    is something you ask for. Each panel is keyed per slide per persona, so they open apart. */

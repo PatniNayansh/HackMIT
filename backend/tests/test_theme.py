@@ -350,3 +350,33 @@ def test_the_subtext_comes_back_on_hover_and_on_focus_within():
 def test_a_device_without_hover_is_not_left_unable_to_read_it():
     block = CSS[CSS.index("@media (hover: none)") :]
     assert "opacity: 1" in block.split("}")[1] + block.split("}")[0]
+
+
+# ------------------------------------------------------------------- the demo door
+
+
+def test_the_saved_runs_door_is_invisible_but_still_a_real_control():
+    """Hidden for the audience, not hidden from the browser: it keeps a name and takes focus, so
+    it works on the night even if the pointer misses a 28px target."""
+    rule = _rules(".demo-door")
+    assert "opacity: 0" in rule
+    assert "display: none" not in rule and "visibility: hidden" not in rule
+    for m in re.finditer(r"([^{}]+)\{([^}]*)\}", CSS):
+        if ".demo-door:hover" in m.group(1):
+            assert ":focus-visible" in m.group(1)  # reachable by keyboard, not just by mouse
+            assert "opacity: 1" in m.group(2)
+            break
+    else:
+        raise AssertionError("the door never becomes visible")
+
+    src = (FRONTEND_DIR / "js" / "views-home.js").read_text(encoding="utf-8")
+    assert 'aria-label": "Open saved runs"' in src  # it has an accessible name
+    assert 'href: SAVED_RUNS_HREF' in src           # and is a link, not a click handler
+
+
+def test_the_shortcut_cannot_eat_a_capital_r_while_someone_is_typing():
+    src = (FRONTEND_DIR / "js" / "main.js").read_text(encoding="utf-8")
+    block = src[src.index('e.key !== "R"') : src.index("location.hash = \"#/runs\"")]
+    for tag in ("INPUT", "TEXTAREA", "SELECT"):
+        assert tag in block, tag
+    assert "isContentEditable" in block
