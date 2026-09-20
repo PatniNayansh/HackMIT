@@ -30,7 +30,7 @@ from .compare import FileStructureCache
 from .diagnose import RecommendationsUnavailable, recommend
 from .deck import rollup
 from .divergence import Embedder, default_embedder
-from .llm import AnthropicClient, LLMClient
+from .llm import LLMClient, OpenAIClient
 from .runner import TolerantEngine, run_deck
 from .store import (
     BACKEND,
@@ -64,30 +64,31 @@ MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 
 def default_client_factory() -> LLMClient | None:
-    """None when no credential resolves (the SDK raises TypeError), so the app still starts and
+    """None when no credential resolves (the client raises TypeError), so the app still starts and
     saved runs still open."""
     try:
-        return AnthropicClient()
+        return OpenAIClient()
     except (TypeError, ImportError):
         return None
 
 
 def default_helper_client_factory() -> LLMClient | None:
-    """The small model for the figure describer (Haiku 4.5): describing marks and labels is
-    extraction, not judgement."""
+    """The cost-tier model for the figure describer (`helper` in llm.CONFIG): describing marks and
+    labels is extraction, not judgement."""
     try:
-        return AnthropicClient(model=os.environ.get("SIGHTLINE_HELPER_MODEL", "claude-haiku-4-5"))
+        return OpenAIClient(role="helper")
     except (TypeError, ImportError):
         return None
 
 
 def default_structuring_client_factory() -> LLMClient | None:
-    """The field-wise structuring + entailment call. Sonnet 5, not Haiku: on hand-written
-    directional fixtures Haiku 4.5 called a plain paraphrase "under-specified" (3 of 4 correct)
-    while Sonnet 5 got 4 of 4, and a false gap is exactly what this comparator exists to avoid.
-    Override with SIGHTLINE_STRUCTURING_MODEL=claude-haiku-4-5 to trade accuracy for speed."""
+    """The field-wise structuring + proposition-coverage call (`structuring` in llm.CONFIG). On
+    Claude the cost tier misjudged the direction of a paraphrase on hand-written fixtures and the
+    balanced tier did not, and a false gap is exactly what this comparator exists to avoid; the
+    role is measured again on the current models (see the README). Override the model with
+    SIGHTLINE_STRUCTURING_MODEL."""
     try:
-        return AnthropicClient(model=os.environ.get("SIGHTLINE_STRUCTURING_MODEL", "claude-sonnet-5"))
+        return OpenAIClient(role="structuring")
     except (TypeError, ImportError):
         return None
 

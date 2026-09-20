@@ -27,14 +27,18 @@ def run_once() -> tuple[dict[str, str], dict]:
     REPORT.unlink(missing_ok=True)  # never read a stale report
     proc = subprocess.run(
         [sys.executable, "-m", "pytest", "-m", "live", "-o", "addopts=", "-q", "--tb=no",
-         "-rA", "-p", "no:cacheprovider"],
+         "-rA", "-p", "no:cacheprovider", "--color=no"],
         cwd=BACKEND, capture_output=True, text=True,
     )
+    # Colour codes (a forced-colour environment) would hide every outcome line from the match below.
+    out = re.sub(r"\x1b\[[0-9;]*m", "", proc.stdout)
     outcomes = {
         m[2]: m[1]
-        for line in proc.stdout.splitlines()
+        for line in out.splitlines()
         if (m := re.match(r"(PASSED|FAILED|ERROR) tests/test_gate_live\.py::(\w+)", line))
     }
+    if not outcomes:  # never report "all pass" for a run whose results could not be read
+        sys.exit("gate output could not be parsed (no test outcomes found):\n" + "\n".join(out.splitlines()[-25:]))
     if not REPORT.exists():
         sys.exit("gate could not run (no report written):\n" + "\n".join(proc.stdout.splitlines()[-25:]))
     return outcomes, json.loads(REPORT.read_text())

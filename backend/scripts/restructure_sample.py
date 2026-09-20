@@ -1,11 +1,11 @@
 """Re-derive the bundled sample's field-wise metrics under the current comparator, keeping its readings.
 
 The three readings per slide are genuine model output and are kept exactly as stored. What is redone is
-the one Sonnet structuring call per slide (fields, the expert claim's propositions, and each reader's
+the one structuring call per slide (fields, the expert claim's propositions, and each reader's
 coverage of them) and the recommendations built from it. Use this instead of make_sample_run.py when only
 the comparison changed: it makes ~16 calls instead of ~50 and leaves the readings, figures and slides alone.
 
-    .venv/bin/python backend/scripts/restructure_sample.py     # needs ANTHROPIC_API_KEY
+    .venv/bin/python backend/scripts/restructure_sample.py     # needs OPENAI_API_KEY
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ sys.path.insert(0, str(BACKEND))
 from sightline.compare import build_fieldwise_metrics, structure_slide  # noqa: E402
 from sightline.diagnose import recommend  # noqa: E402
 from sightline.divergence import default_embedder  # noqa: E402
-from sightline.llm import AnthropicClient  # noqa: E402
+from sightline.llm import OpenAIClient  # noqa: E402
 from sightline.store import BUNDLED_RUNS_DIR, RunStore  # noqa: E402
 
 RUN_ID = "sample-llm-serving"
@@ -28,8 +28,8 @@ RUN_ID = "sample-llm-serving"
 
 async def main() -> None:
     store = RunStore(BUNDLED_RUNS_DIR)
-    client = AnthropicClient(model="claude-sonnet-5")
-    recs_client = AnthropicClient()
+    client = OpenAIClient(role="structuring")
+    recs_client = OpenAIClient()
     embedder = default_embedder()
     for r in store.load_results(RUN_ID):
         if not r["metrics"]:

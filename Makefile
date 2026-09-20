@@ -41,7 +41,7 @@ demo: setup
 	$(PY)/python backend/scripts/try_slide.py $(SLIDE)
 
 # The review UI: FastAPI serves the API and the plain HTML/JS frontend from one port. Saved runs
-# open with no API key; starting a new review needs ANTHROPIC_API_KEY in .env.
+# open with no API key; starting a new review needs OPENAI_API_KEY in .env.
 dev: setup
 	@echo "Sightline: http://localhost:$(PORT)"
 	$(PY)/python -m uvicorn sightline.server:app --app-dir backend --port $(PORT) --reload --reload-dir backend/sightline

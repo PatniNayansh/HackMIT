@@ -18,7 +18,7 @@ import slides  # noqa: E402
 
 from sightline.audiences import AudienceEngine, FileCache  # noqa: E402
 from sightline.divergence import score_slide  # noqa: E402
-from sightline.llm import AnthropicClient  # noqa: E402
+from sightline.llm import OpenAIClient  # noqa: E402
 
 SLIDES = {
     "jargon": (slides.jargon_slide, slides.JARGON_PROFILE, slides.JARGON_INTENT),
@@ -28,7 +28,7 @@ SLIDES = {
 
 async def main(name: str) -> None:
     make_slide, profile, intent = SLIDES[name]
-    engine = AudienceEngine(AnthropicClient(), FileCache(BACKEND / ".cache" / "audiences"))
+    engine = AudienceEngine(OpenAIClient(), FileCache(BACKEND / ".cache" / "audiences"))
     readings = await engine.read_slide(make_slide(), profile)
     s = score_slide(intent, {p: r.response for p, r in readings.items()}, slide_index=1)
 
@@ -56,4 +56,4 @@ if __name__ == "__main__":
     except TypeError as e:  # the SDK's message when no credential resolves
         if "authentication" not in str(e):
             raise
-        sys.exit("No API key found. Put ANTHROPIC_API_KEY=... in the repo-root .env (see .env.example).")
+        sys.exit("No API key found. Put OPENAI_API_KEY=... in the repo-root .env (see .env.example).")

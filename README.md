@@ -20,10 +20,10 @@ Every value on screen is clickable and resolves to the exact text that produced 
 
 ## Setup
 
-Needs Python 3.11 and, to start a *new* review, an Anthropic API key. Saved runs open without one.
+Needs Python 3.11 and, to start a *new* review, an OpenAI API key. Saved runs open without one.
 
 ```bash
-cp .env.example .env        # then put your key in ANTHROPIC_API_KEY=
+cp .env.example .env        # then put your key in OPENAI_API_KEY=
 make setup                  # creates .venv and installs the backend (idempotent)
 make dev                    # http://localhost:8000
 ```
@@ -71,13 +71,13 @@ inverted or dimmed, so they look as they will when projected.
 
 | Path | What it is |
 |---|---|
-| `backend/sightline/audiences.py`, `divergence.py`, `llm.py` | Step 1: the personas, the cosine metrics, the only code that talks to the Anthropic SDK. Untouched |
+| `backend/sightline/audiences.py`, `divergence.py`, `llm.py` | Step 1: the personas, the cosine metrics, step 1's code. `llm.py` was rewritten for OpenAI (see [Models](#models)); the other two are untouched |
 | `backend/sightline/compare.py` | **The field-wise comparator**: structuring call, null table, comparators, proposition coverage and its states, findings |
 | `backend/sightline/ingest.py` | PDF to per-slide records behind `parse(path)`; subfield inference; which slides carry a figure and its neutral description |
-| `backend/sightline/intent.py` | **Kept, unused.** Rephrases the expert's takeaway into a sentence (Haiku, checked). Not in the pipeline: the takeaway itself is the intent |
+| `backend/sightline/intent.py` | **Kept, unused.** Rephrases the expert's takeaway into a sentence (the `intent` model in `llm.CONFIG`). Not in the pipeline: the takeaway itself is the intent |
 | `backend/sightline/tiers.py` | The three tiers, for either comparator. **Every threshold is in `CONFIG` at the top** |
 | `backend/sightline/deck.py` | Deck rollup: pure arithmetic over per-slide results, no model call |
-| `backend/sightline/diagnose.py` | Recommendations: one Sonnet call per slide, generated lazily, evidence enforced in code |
+| `backend/sightline/diagnose.py` | Recommendations: one call per slide on the persona-tier model, generated lazily, evidence enforced in code |
 | `backend/sightline/runner.py`, `store.py` | Runs a deck and saves each slide as it lands |
 | `backend/sightline/server.py` | FastAPI: upload, start, poll, replay. Streaming is polling |
 | `frontend/` | Plain HTML, CSS and ES modules. No build step. `frontend/smoke/render.mjs` renders the real views in Node for the tests |
@@ -125,7 +125,7 @@ afterwards; nothing is re-run and nothing else changes.
 
 | Value | Path | Model calls per slide |
 |---|---|---|
-| **`fieldwise`** (live) | `compare.py` | three persona calls, then one structuring call (Sonnet 5), plus one figure description at upload if the slide carries a figure (Haiku 4.5) |
+| **`fieldwise`** (live) | `compare.py` | three persona calls, then one structuring call (`structuring` role), plus one figure description at upload if the slide carries a figure (`helper` role) |
 | `cosine` | `divergence.py`, whole-takeaway cosine against the expert's takeaway | three persona calls |
 
 **Why not cosine over the prose.** Takeaways that mean the same thing differ in wording, so cosine
@@ -218,8 +218,8 @@ drawn with a hollow marker and its profile is named in the tooltip: a thin slide
 slide. Runs saved before coverage keep their own four-rung ordinal chart and entailment panel; they are
 not rewritten.
 
-**`image_content` is machine-generated and deliberately non-interpretive.** At upload, one Haiku 4.5
-vision call per figure-bearing slide (chosen by image area, vector-path count, or almost no text
+**`image_content` is machine-generated and deliberately non-interpretive.** At upload, one cost-tier
+vision call (the `helper` role) per figure-bearing slide (chosen by image area, vector-path count, or almost no text
 beside graphics, so a text-only deck costs nothing extra; cached, so once per deck) describes marks,
 labels, axes, values and arrangement, and names no principle, draws no conclusion and expands no
 acronym. The same string is given to all three personas under a `FIGURE:` marker, and shown on the
@@ -237,11 +237,6 @@ the readers more. `SIGHTLINE_FIGURE_INPUT=description_only` withholds the image 
 have a description, so the description is the only way the figure reaches them; the default is
 `image+description`.
 
-**Models.** Structuring and coverage run on **Sonnet 5**, not Haiku: on hand-written directional
-fixtures Haiku 4.5 called a plain paraphrase "under-specified" (3 of 4 correct) while Sonnet 5 got
-4 of 4, and a false gap is exactly what this comparator exists to avoid. Set
-`SIGHTLINE_STRUCTURING_MODEL=claude-haiku-4-5` to trade accuracy for speed.
-
 ## The expert baseline is definitional, not measured
 
 A slide's intent is the expert's own takeaway, and the novice and the peer are measured against
@@ -253,17 +248,65 @@ payload and the legend do not change shape (`EXPERT_IS_DEFINITIONAL` in `intent.
 score (expert minus novice alignment) was retired for the same reason: with the expert pinned to the
 reference it equals one minus the novice's alignment and adds nothing.
 
+## Models
+
+`backend/sightline/llm.py` is the only module that talks to an LLM SDK (OpenAI, through the Responses
+API with strict structured outputs). The model and the reasoning effort for every role are in the one
+`CONFIG` dict at the top of that file, and each can be overridden from the environment (`.env.example`).
+Effort is sent explicitly on every call: OpenAI's own default is `medium`, where the Claude setup ran at
+`low`, so leaving it out would spend more and run slower without saying so.
+
+| Role | Model | Effort | Used for |
+|---|---|---|---|
+| `persona` | `gpt-5.6-terra` | low | the three audience readers, and the profile inference and recommendations that share their client |
+| `structuring` | `gpt-5.6-luna` | low | field extraction and proposition coverage (one call per slide) |
+| `helper` | `gpt-5.6-luna` | low | the figure describer (vision, at upload) |
+| `intent` | `gpt-5.6-luna` | low | `intent.py`, kept but unused |
+
+Callers hand `llm.py` a JSON schema and get a plain dict back. The reply is validated inside `llm.py` (a
+Pydantic model built from the same schema) and returned through `.model_dump()`, and nothing is repaired: a
+confidence of 1.4 is handed on as 1.4 and rejected by the caller, never clamped. A refusal, a truncation, a
+failed call, or a reply that is not valid JSON or does not match the schema raises `LLMError`. An API error
+that quotes part of a key is scrubbed before it can reach a log, a retry note or the UI. Token counts
+(`input_tokens`, `output_tokens`, which includes reasoning) are read from `response.usage` and logged as before.
+
+**The persona gate was measured on Claude and has been re-measured on OpenAI.** The step-1 gate figures
+(persona separation on the two hand-written slides) were measured on Claude Sonnet 5 at low effort, and the
+same gate failed on Haiku 4.5, where the novice read like the expert: persona separation depends on the model.
+`make gate-repeat N=5` on `gpt-5.6-terra`, five runs each (the criteria are in `tests/test_gate_live.py`):
+
+| Gate test | terra, low (the default) | terra, medium |
+|---|---|---|
+| clear slide: all three audiences converge | 5/5 | 5/5 |
+| jargon slide: the novice is lost, the expert is not | 3/5 | 5/5 |
+| jargon slide diverges more than the clear slide | 3/5 | 3/5 |
+| term gap recovers the planted jargon | 5/5 | 5/5 |
+| within the 5 s per-slide budget | 5/5 (slowest call 3.5 s) | 2/5 (slowest call 7.0 s) |
+| the expert is not faking confusion | 5/5 | 5/5 |
+
+On Claude at low effort the calibration note in `tests/test_gate_live.py` records these separation tests as
+stable, so this is a weaker result, not a like-for-like one. The two settings trade separation against latency
+(`medium` reads the jargon slide more like a newcomer, and blows the 5 s budget on three runs of five). Nothing
+above `terra` (`sol`, `astra`) was tried. The default in `CONFIG` is `low`, as specified; `medium` is one edit
+away.
+
+**Everything else on this page that quotes a latency or a model comparison was measured on Claude** (the bundled
+sample was generated by Claude Sonnet 5 and Haiku 4.5 and is stored as such; it is read-only and does not need a
+key). On OpenAI, one structuring call takes about 4.5 to 5 s on `luna` and about 2.5 s on `terra` at low effort,
+and the college-decision regression case (below) came out `under-specified` with the missed proposition named 3
+of 3 times on each. The disk cache does not key on the model, so cached persona readings from Claude stay valid
+and offline mode keeps working.
+
 ## Latency
 
-Per slide: three Sonnet persona calls, then (field-wise) one Sonnet structuring call that overlaps
-the *next* slide's persona calls, so the per-slide time is close to the slower of the two, not their
-sum. Measured on the bundled 8-slide sample: **5.4 s and 6.9 s per slide wall-clock** on two runs
-(personas about 3.5 to 4.5 s; structuring about 4.7 to 6.5 s, occasionally 12 to 15 s). That is at
-the edge of a 7 s budget; if runs are slower for you, `SIGHTLINE_COMPARATOR=cosine` drops the
-structuring call, or `SIGHTLINE_STRUCTURING_MODEL=claude-haiku-4-5` shortens it at some cost in
-accuracy. The cosine path is three persona calls a slide (about 3.7 s). Figure descriptions are made
-once at upload, in parallel with the subfield inference. The tripwire's re-ask, one more structuring-sized call, happens only for a `divergent` pair that is also close in wording, which is rare. Recommendations are a separate Sonnet call
-made only when a slide is opened (about 5 s), then cached with the run.
+Per slide: three persona calls, then (field-wise) one structuring call that overlaps the *next* slide's
+persona calls, so the per-slide time is close to the slower of the two, not their sum. Measured on Claude
+on the bundled 8-slide sample: **5.4 s and 6.9 s per slide wall-clock** on two runs. Not yet re-measured
+end to end on OpenAI; the gate's persona calls took 1.8 to 3.5 s at low effort (see above).
+`SIGHTLINE_COMPARATOR=cosine` drops the structuring call. Figure descriptions are made once at upload, in
+parallel with the subfield inference. The tripwire's re-ask, one more structuring-sized call, happens only for
+a `divergent` pair that is also close in wording, which is rare. Recommendations are a separate call made
+only when a slide is opened, then cached with the run.
 
 ## What these numbers do and do not mean
 

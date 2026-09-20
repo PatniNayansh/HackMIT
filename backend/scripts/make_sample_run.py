@@ -5,7 +5,7 @@ model output. The result is written to backend/fixtures/runs/ and marked `sample
 shows as "sample data" and the server never lets anyone re-run or modify. It exists so the demo
 works with no API key and no network: open it from the history list.
 
-    .venv/bin/python backend/scripts/make_sample_run.py        # needs ANTHROPIC_API_KEY; ~50 model calls (three personas, one Sonnet structuring call and one Haiku figure description where needed, per slide, plus recommendations)
+    .venv/bin/python backend/scripts/make_sample_run.py        # needs OPENAI_API_KEY; ~50 model calls (three personas, one structuring call and one figure description where needed, per slide, plus recommendations)
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from sightline.audiences import FileCache  # noqa: E402
 from sightline.compare import FileStructureCache  # noqa: E402
 from sightline.diagnose import recommend  # noqa: E402
 from sightline.divergence import default_embedder  # noqa: E402
-from sightline.llm import AnthropicClient  # noqa: E402
+from sightline.llm import OpenAIClient  # noqa: E402
 from sightline.runner import TolerantEngine, run_deck  # noqa: E402
 from sightline.store import BUNDLED_RUNS_DIR, RunStore, data_dir  # noqa: E402
 
@@ -111,7 +111,7 @@ def build_pdf(path: Path) -> None:
 
 
 async def main() -> None:
-    client = AnthropicClient()
+    client = OpenAIClient()
     store = RunStore(BUNDLED_RUNS_DIR)
     if (BUNDLED_RUNS_DIR / RUN_ID).exists():
         shutil.rmtree(BUNDLED_RUNS_DIR / RUN_ID)
@@ -120,8 +120,8 @@ async def main() -> None:
         build_pdf(pdf)
         slides = ingest.parse(pdf)
     print("slides carrying a figure:", [s.index for s in slides if s.carries_figure])
-    # Figure descriptions are made once, here (Haiku vision), exactly as the upload path does.
-    slides = await ingest.describe_figures(AnthropicClient(model="claude-haiku-4-5"), slides, ingest.FileFigureCache(data_dir() / "cache" / "figures"))
+    # Figure descriptions are made once, here (the helper model, with vision), exactly as the upload path does.
+    slides = await ingest.describe_figures(OpenAIClient(role="helper"), slides, ingest.FileFigureCache(data_dir() / "cache" / "figures"))
     for s in slides:
         if s.image_content:
             print(f"figure description, slide {s.index}:", s.image_content["text"])
@@ -139,7 +139,7 @@ async def main() -> None:
     engine = TolerantEngine(client, FileCache(data_dir() / "cache" / "audiences"))
     await run_deck(
         store, RUN_ID, engine, default_embedder(), comparator="fieldwise",
-        structuring_client=AnthropicClient(model="claude-sonnet-5"), structure_cache=FileStructureCache(data_dir() / "cache" / "structured"),
+        structuring_client=OpenAIClient(role="structuring"), structure_cache=FileStructureCache(data_dir() / "cache" / "structured"),
     )
     final = store.load_meta(RUN_ID)
     print("status:", final["status"], "| model:", final["model"], "| error:", final["error"])

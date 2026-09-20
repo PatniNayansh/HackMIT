@@ -13,7 +13,7 @@ That has a consequence the UI must respect: the expert's alignment is 1.0 by con
 reference was generated from the expert's reading), so it is a definition, not a measurement.
 `divergence`/`deck` never score the expert against it; see `EXPERT_IS_DEFINITIONAL`.
 
-The call is a rephrasing task, so it runs on Haiku, after the three personas finish for the
+The call is a rephrasing task, so it runs on the cost-tier model, after the three personas finish for the
 slide. Its output is checked: it may not contain a content word that appears in neither the
 expert's report nor the slide. If the model breaks that twice, or fails, or there is no client,
 the intent falls back to a template that is the expert's `inferred_claim` verbatim, and the
@@ -36,13 +36,13 @@ from pathlib import Path
 from typing import Any, Literal, Protocol
 
 from .audiences import AudienceResponse
-from .llm import LLMClient
+from .llm import CONFIG, LLMClient
 
 # The expert's alignment to the intent derived from its own reading is 1.0 by definition. Flip to
 # False only when the expert becomes independently measured (a separately trained model).
 EXPERT_IS_DEFINITIONAL = True
 
-DEFAULT_INTENT_MODEL = "claude-haiku-4-5"
+DEFAULT_INTENT_MODEL = CONFIG["models"]["intent"]
 # Bump when the prompt or validation changes meaning; it invalidates cached intents.
 INTENT_PROMPT_VERSION = "1"
 MAX_WORDS = 30

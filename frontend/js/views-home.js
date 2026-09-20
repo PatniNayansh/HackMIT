@@ -65,7 +65,7 @@ export function home(root) {
       banner.style.marginBottom = "16px";
       banner.append(infoIcon(), h("div", null,
         h("strong", null, "No API key found. "),
-        "Saved runs still open and replay offline. Starting a new review needs ANTHROPIC_API_KEY in the repo-root .env (see .env.example)."));
+        "Saved runs still open and replay offline. Starting a new review needs OPENAI_API_KEY in the repo-root .env (see .env.example)."));
     }
   }).catch(() => {});
 
