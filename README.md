@@ -88,7 +88,7 @@ inverted or dimmed, so they look as they will when projected.
 | `backend/sightline/saliency.py`, `scanpath.py` | **Library only, not wired into the app.** Bottom-up visual saliency (OpenCV spectral residual) and a greedy fixation order over it |
 | `backend/sightline/fix.py` | **Library only, not wired into the app.** The revise-and-rescore loop: propose a revision, have the same three audiences read it cold, rescore with the same metrics |
 | `backend/sightline/research_lens.py` | **Library only, not wired into the app.** Pairs `dmn_drive` (deck-relative) with cited fMRI findings for named populations. Reads as a hypothesis, never as a diagnosis |
-| `docs/` | The spec (the source of truth for scope), the GX10 runbook, and the neurodivergent fine-tune research record |
+| `docs/` | The spec (the source of truth for scope), the design system the UI follows, the GX10 runbook, and the neurodivergent fine-tune research record |
 | `backend/fixtures/runs/` | Bundled, read-only sample runs (`make sample` rebuilds them; about 50 API calls. `backend/scripts/restructure_sample.py` re-derives only the comparison and recommendations from the stored readings; about 16 calls) |
 
 ## Tiers
@@ -315,6 +315,41 @@ end to end on OpenAI; the gate's persona calls took 1.8 to 3.5 s at low effort (
 parallel with the subfield inference. The tripwire's re-ask, one more structuring-sized call, happens only for
 a `divergent` pair that is also close in wording, which is rare. Recommendations are a separate call made
 only when a slide is opened, then cached with the run.
+
+## Look and feel
+
+The interface follows `docs/DESIGN_SYSTEM.md`: an academic/editorial system, closer to a
+university-press monograph than to a dashboard. Serif headings (Source Serif 4), sans body
+(Source Sans 3), small uppercase labels in the margin, a 960px measure, corners capped at 4px,
+and **no elevation at all** — separation is a 1px rule, never a shadow. Warm paper in light,
+an archival reading room in dark.
+
+Two places deviate from the system, both because a test caught them:
+
+- Its secondary ink (`#5C5C5C`) misses the **7:1** floor this app holds quoted persona text to,
+  so `--ink-2` is `#4e4c47`.
+- Its tan and brick sit 23° apart, and the three persona series must stay **40° apart** to be
+  told by hue rather than by position. The series are ochre, brick and forest — 49°, 6° and 156°.
+
+The rest is enforced from the tokens themselves in `tests/test_theme.py`, including two tests
+that exist to keep the system honest: depth is never an elevation layer, and nothing is
+pill-shaped or rounder than 4px. The slide page is the one screen allowed a wider measure
+(1240px), because neither the artefact nor the analysis reads well squeezed into half of 960.
+
+## A real lecture, read by the model
+
+The front page carries one artefact that is not a deck at all: 16 minutes of a real recorded
+lecture (CEE 260 / MIE 273, UMass Amherst) run straight through TRIBE with no synthesis —
+the language-drive timecourse with its peak marked, and the left lateral cortex for each
+four-minute chunk beneath it.
+
+Only language drive is plotted. That run had no visual input, so visual drive in it is model
+noise around zero and `processing_ratio` divides by it; the chart the data cannot support is
+the one that is not drawn. Regenerate it with:
+
+```bash
+python backend/scripts/make_lecture_timecourse.py
+```
 
 ## The neural layer
 
