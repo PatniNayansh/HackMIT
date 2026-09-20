@@ -141,15 +141,22 @@ function summary(state, r) {
     row("Novice unresolved terms", numBtn(String(r.readings.novice.unresolved_terms.length), { kind: "unresolved", slide: n, persona: "novice" }, state), "unresolved_count.novice", COLOR.novice));
 }
 
-function intentBand(r) {
+/** The ONE place the slide page states what the slide is for: the intended reading derived from
+ *  the expert's interpretation, with its attribution. The attribution stays: without it the page
+ *  would silently claim to know what the presenter meant. (The presenter's own declared intent is
+ *  stored with the run and is not shown on this page.) */
+function intentBlock(r) {
   const si = r.slide_intent;
-  return h("section", { class: "band" },
-    h("div", { class: "band-head" }, h("strong", null, "What this slide is trying to establish"), h("span", { class: "muted" }, " — "), h("em", { class: "muted" }, "inferred from the expert reading")),
+  return h("div", { class: "intent-box" },
+    h("div", { class: "intent-title" }, "Intent of this slide"),
     si
-      ? h("p", { class: "band-text" }, si.text)
-      : h("p", { class: "band-text muted" }, "No intended reading for this slide: the expert’s reply was unusable, and the intended reading is derived from it."),
-    si && si.source === "template" && h("p", { class: "muted small" },
-      `Built directly from the expert’s claim rather than rephrased by the intent model (${si.reason}).`));
+      ? [
+          h("p", { class: "intent-text" }, si.text),
+          h("p", { class: "intent-attr" }, "Inferred from the expert reading"),
+          si.source === "template" && h("p", { class: "muted small" },
+            `Built directly from the expert\u2019s claim rather than rephrased by the intent model (${si.reason}).`),
+        ]
+      : h("p", { class: "intent-text muted" }, "No intended reading for this slide: the expert\u2019s reply was unusable, and the intended reading is derived from it."));
 }
 
 export function detail(root, runId, n) {
@@ -192,7 +199,7 @@ export function detail(root, runId, n) {
 
     const left = h("div", { class: "slide-col" },
       slideImage(state.imageUrls[n - 1], `Slide ${n}`),
-      meta.intent && h("div", { class: "intent-box" }, h("div", { class: "small muted" }, "Your declared intent (stored; not used for alignment)"), h("p", null, meta.intent)),
+      intentBlock(r),
       h("details", null, h("summary", { class: "small muted", style: "cursor:pointer" }, "Text the audiences were given, alongside the image"),
         h("div", { class: "textbox" }, r.text || "(no extractable text on this slide)")));
 
@@ -213,8 +220,7 @@ export function detail(root, runId, n) {
 
     mount(root, head, chips, ...runBanners(state),
       h("div", { class: "detail" }, left,
-        h("div", null, flagSlot, summary(state, r), ...cards)),
-      intentBand(r));
+        h("div", null, flagSlot, summary(state, r), ...cards)));
   });
   return () => { cleanups.forEach((fn) => fn()); off(); };
 }

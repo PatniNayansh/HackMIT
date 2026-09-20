@@ -80,15 +80,28 @@ def test_confidence_and_blind_spot_appear_nowhere_in_the_ui(tmp_path, payload):
     assert hits == {}
 
 
-def test_every_slide_page_leads_with_a_tier_and_ends_with_the_inferred_intent_band(tmp_path, payload):
+def test_every_slide_page_leads_with_a_tier_and_has_exactly_one_attributed_intent_block(tmp_path, payload):
     out = render(tmp_path, payload, "1,2,3,4,5,6,7")
+    declared = payload["run"]["meta"]["intent"]
+    assert declared  # the sample has a declared intent, so its absence below means something
     for n in range(1, 8):
         page = out[f"slide{n}"]
         intent = payload["run"]["results"][n - 1]["slide_intent"]["text"]
         assert "What this slide demands of its reader" in page
         assert page.index("What this slide demands of its reader") < page.index("Takeaway, verbatim")  # summary above the cards
-        assert page.rstrip().endswith(intent)  # the band is the last thing on the page
-        assert "What this slide is trying to establish" in page and "inferred from the expert reading" in page
+        # one intent block, under the slide image (before the summary and the text well), attributed
+        assert page.count("Intent of this slide") == 1 and page.count(intent) == 1
+        assert page.index("Intent of this slide") < page.index("What this slide demands of its reader")
+        assert (intent + "Inferred from the expert reading") in page  # the attribution follows the sentence
+        assert page.count("Inferred from the expert reading") == 1
+        # the retired band is gone, and the presenter's declared intent is not on the slide page
+        assert "What this slide is trying to establish" not in page
+        assert declared not in page and "declared intent" not in page.lower()
+
+
+def test_the_declared_intent_is_still_stored_and_still_shown_on_the_overview(tmp_path, payload):
+    out = render(tmp_path, payload)
+    assert payload["run"]["meta"]["intent"] in out["overview"]
 
 
 def test_the_expert_card_says_reference_instead_of_a_score(tmp_path, payload):

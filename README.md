@@ -26,22 +26,32 @@ make dev                    # http://localhost:8000
 
 1. **Upload** a PDF. The deck's subfield is inferred once by the model and shown as
    `unconfirmed`; edit it, and the adjacent field the peer comes from. You may also give a
-   **declared intent** (one sentence, optional): it is stored and shown for reference, and is not
-   used for alignment. Start the review.
+   **declared intent** (one sentence, optional): it is stored and shown on the deck overview, and
+   is not used for alignment or shown on the slide page. Start the review.
 2. **Deck overview** fills in as slides land (about 6 s each, in order). It lists the *hardest
    slides for a newcomer*, the terms the novice could not resolve across the deck, and the
    narrative arc: how far each audience falls below the intended reading as the deck goes on.
 3. **Slide detail**: the slide on the left. On the right, the slide's **tier** and what it was
    read from, then three audience cards. The novice and peer cards each carry *What to change*:
    concrete edits, each quoting the persona's report or the slide. They are made the first time
-   you open a slide (about 5 s) and saved with the run. At the bottom, a band states what the
-   slide is trying to establish, inferred from the expert reading. Click any number for the texts
-   it was computed from.
+   you open a slide (about 5 s) and saved with the run. Under the slide image, one block, *Intent of
+   this slide*, states what the slide is trying to establish, attributed as *Inferred from the
+   expert reading* (it is derived from the expert persona's interpretation, not written by you).
+   Click any number for the texts it was computed from.
 4. **History** is the front page's list of saved runs. Runs save automatically, slide by slide,
    to `data/history/<run_id>/` as plain JSON and images. Opening one makes no API calls, so it
    works with no network and no key, and recommendations you opened before saving replay too. The
    bundled **Sample: serving LLMs faster** run works the same way and is your demo insurance.
    Runs saved before per-slide intent existed open in a reduced form with a notice.
+
+### Themes
+
+Light and dark. The header toggle switches on every screen; until you use it the page follows
+your system setting. The choice is saved in `localStorage` (guarded: it throws in private windows,
+and then lasts for that page only) and applied by a small blocking script in `index.html`'s
+`<head>`, so there is no flash of the wrong theme. Every colour is a token in
+`frontend/style.css`; slide images always sit on a light neutral card and are never filtered,
+inverted or dimmed, so they look as they will when projected.
 
 ### Layout
 
@@ -106,9 +116,11 @@ cached with the run.
 
 If your decks run over budget, set `SIGHTLINE_INTENT_MODE=template` in `.env`. The intent call is
 then skipped and each slide's intended reading is the expert's own `inferred_claim`, with the
-"The presenter wants us to believe" framing removed. The same template is the automatic fallback
+"The presenter wants us to believe" framing removed. Which text is live in the *Intent of this slide* block: the sentence written by `intent.py`
+(Haiku, checked against the expert's reading and the slide), unless the template fallback described
+next was used for that slide. The same template is the automatic fallback
 when the intent call fails, or when the model's sentence introduces a term that is in neither the
-expert's reading nor the slide; a slide that used it says so in its intent band.
+expert's reading nor the slide; a slide that used it says so in its intent block.
 
 ## What these numbers do and do not mean
 
