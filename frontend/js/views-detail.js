@@ -1,7 +1,7 @@
 import { h, mount, f2, describe, warnIcon, infoIcon, slideImage, PERSONAS, LABEL, COLOR } from "./dom.js";
 import { getJSON } from "./api.js";
 import { watch } from "./run.js";
-import { numBtn, cmpLine, deckStrip } from "./provenance.js";
+import { numBtn, cmpLine, deckStrip, src, usesTakeawayIntent } from "./provenance.js";
 import { runHref, tierChip, guard, runBanners } from "./run-common.js";
 
 const REFERENCE_NOTE = "The intended reading is derived from this expert interpretation, so it defines the baseline rather than scoring against it.";
@@ -76,6 +76,10 @@ function metricRow(cls, label, valueNode, ...right) {
 function audienceCard(state, r, persona, recsSlot) {
   const rd = r.readings[persona];
   const n = r.index;
+  // The expert's takeaway is the slide's intent and is shown once, under the slide image; the
+  // card does not repeat it. (Runs saved before that measured against a rephrased sentence, so
+  // their expert card keeps its takeaway: it is not the text shown as the intent.)
+  const takeawayShownAsIntent = persona === "expert" && usesTakeawayIntent(r);
   // The persona's reply is validated when it is read, so a stored value outside range is only
   // possible in a damaged file. Either way it is an error to show, never a number to trust.
   const damaged = rd.ok && !(typeof rd.confidence === "number" && rd.confidence >= 0 && rd.confidence <= 1);
@@ -105,8 +109,9 @@ function audienceCard(state, r, persona, recsSlot) {
   return h("article", { class: `aud ${persona}` },
     h("div", { class: "aud-head" }, h("span", { class: "who" }, h("span", { class: `dot ${persona}` }), LABEL[persona]), h("span", { class: "muted small" }, describe(persona, state.meta.profile))),
     h("div", { class: "aud-body" },
-      h("div", { class: "take-label" }, "Takeaway, verbatim"),
-      h("blockquote", { class: "take" }, `“${rd.takeaway}”`),
+      takeawayShownAsIntent
+        ? h("p", { class: "muted small", style: "margin: 6px 0 4px" }, "Its takeaway is the intent of this slide, shown under the slide image.")
+        : [h("div", { class: "take-label" }, "Takeaway, verbatim"), h("blockquote", { class: "take" }, `“${rd.takeaway}”`)],
       ...rows,
       recsSlot && h("div", { class: "recs-slot" }, h("h4", null, "What to change"), recsSlot),
       h("details", null, h("summary", null, "More from this reading"),
@@ -141,22 +146,32 @@ function summary(state, r) {
     row("Novice unresolved terms", numBtn(String(r.readings.novice.unresolved_terms.length), { kind: "unresolved", slide: n, persona: "novice" }, state), "unresolved_count.novice", COLOR.novice));
 }
 
-/** The ONE place the slide page states what the slide is for: the intended reading derived from
- *  the expert's interpretation, with its attribution. The attribution stays: without it the page
- *  would silently claim to know what the presenter meant. (The presenter's own declared intent is
- *  stored with the run and is not shown on this page.) */
+/** The ONE place the slide page states what the slide is for. In the current pipeline the slide's
+ *  intent IS the expert persona's takeaway, and alignment was measured against exactly this string,
+ *  so it is shown verbatim (rendered as returned: no truncation, no re-casing, no added full stop),
+ *  in the same green-dot block used in the provenance panels.
+ *
+ *  Runs saved by the previous version were measured against a rephrased sentence instead. For
+ *  those, the page must show the string that was actually measured, with its attribution, so it
+ *  never claims one thing while the metrics used another. */
 function intentBlock(r) {
   const si = r.slide_intent;
+  if (!si) {
+    return h("div", { class: "intent-box" },
+      h("div", { class: "intent-title" }, "Intent of this slide"),
+      h("p", { class: "intent-text muted" }, "No intent for this slide: the expert’s reply was unusable, and the intent is the expert’s takeaway."));
+  }
+  if (usesTakeawayIntent(r)) {
+    return h("div", { class: "intent-box takeaway" },
+      h("div", { class: "intent-title" }, "Intent of this slide"),
+      h("div", { class: "intent-src" }, src("Expert takeaway, verbatim", si.text, "expert")));
+  }
   return h("div", { class: "intent-box" },
     h("div", { class: "intent-title" }, "Intent of this slide"),
-    si
-      ? [
-          h("p", { class: "intent-text" }, si.text),
-          h("p", { class: "intent-attr" }, "Inferred from the expert reading"),
-          si.source === "template" && h("p", { class: "muted small" },
-            `Built directly from the expert\u2019s claim rather than rephrased by the intent model (${si.reason}).`),
-        ]
-      : h("p", { class: "intent-text muted" }, "No intended reading for this slide: the expert\u2019s reply was unusable, and the intended reading is derived from it."));
+    h("p", { class: "intent-text" }, si.text),
+    h("p", { class: "intent-attr" }, "Inferred from the expert reading"),
+    si.source === "template" && h("p", { class: "muted small" },
+      `Built directly from the expert’s claim rather than rephrased by the intent model (${si.reason}).`));
 }
 
 export function detail(root, runId, n) {

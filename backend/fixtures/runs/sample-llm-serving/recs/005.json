@@ -2,33 +2,33 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Add a one-line explanation of how rejection sampling mathematically preserves the exact output distribution",
-      "evidence": "How does rejection sampling technically preserve exactness?"
+      "bullet": "Define 'gamma tokens' as the number of tokens the draft model proposes per step, on first use",
+      "evidence": "What does 'gamma tokens' specifically mean?"
     },
     {
       "audience": "novice",
-      "bullet": "Add the speedup number attributable to this technique alone",
-      "evidence": "How much speed gain does this technique give alone?"
+      "bullet": "Briefly explain rejection sampling as accepting/rejecting draft tokens based on target model probabilities to keep output identical to target-only sampling",
+      "evidence": "How does rejection sampling ensure exactness?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a short note on why one forward pass verifies multiple tokens faster than generating them sequentially",
+      "evidence": "Why is one forward pass faster than normal?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Specify what determines the value of gamma (e.g., tuning parameter or fixed value used)",
+      "bullet": "Note what determines gamma (e.g., fixed hyperparameter or tuned per task)",
       "evidence": "What determines the value of gamma?"
-    },
-    {
-      "audience": "peer",
-      "bullet": "State the speedup this technique contributes relative to standard decoding",
-      "evidence": "How much speedup does this give over standard decoding?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T00:49:21+00:00",
-    "latency_s": 5.38,
-    "intent": "Speculative decoding achieves lossless speedup by having a draft model propose tokens that a target model verifies through rejection sampling in a single pass.",
-    "dropped_without_evidence": 1
+    "generated_at": "2026-09-20T01:38:36+00:00",
+    "latency_s": 3.94,
+    "intent": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
+    "dropped_without_evidence": 0
   }
 }

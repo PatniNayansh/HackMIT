@@ -175,7 +175,7 @@ def test_other_failures_are_classified():
 
 def test_build_metrics_measures_novice_and_peer_and_declares_the_expert_definitional():
     m = slide_result(1, align=(0.42, 0.66))["metrics"]
-    assert m["intent"] == "INTENT"
+    assert m["intent"] == m["takeaways"]["expert"]  # the slide's intent IS the expert's takeaway
     assert m["intent_alignment"]["novice"]["value"] == pytest.approx(0.42)
     assert m["intent_alignment"]["peer"]["value"] == pytest.approx(0.66)
     expert = m["intent_alignment"]["expert"]
@@ -187,4 +187,4 @@ def test_build_metrics_measures_novice_and_peer_and_declares_the_expert_definiti
 
 def test_measured_alignment_keeps_the_texts_it_was_computed_from():
     m = slide_result(1)["metrics"]
-    assert m["intent_alignment"]["novice"]["inputs"] == {"intent": "INTENT", "novice": m["takeaways"]["novice"]}
+    assert m["intent_alignment"]["novice"]["inputs"] == {"intent": m["takeaways"]["expert"], "novice": m["takeaways"]["novice"]}

@@ -4,109 +4,105 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The new method achieved 2.4x more requests per second on the same hardware without slowing down response times, tested on real chat data.",
-      "confidence": 0.85,
-      "unresolved_terms": [],
-      "questions": [
-        "How exactly was 'latency target' defined?",
-        "What counts as a 'real chat workload'?"
+      "takeaway": "The presenter achieved 2.4 times more processed requests per second using the same hardware and latency, without hurting response time.",
+      "confidence": 0.75,
+      "unresolved_terms": [
+        "GPUs"
       ],
-      "inferred_claim": "The presenter wants me to believe their method significantly improves efficiency without sacrificing speed.",
+      "questions": [
+        "What was the baseline before this improvement?",
+        "How was 'real chat workload' defined or measured?"
+      ],
+      "inferred_claim": "The presenter wants us to believe their method significantly boosts efficiency without tradeoffs.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.612,
+      "latency_s": 2.976,
       "attempts": 1,
       "slide_hash": "6245d954610689860a75b20b"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The presented method achieves 2.4x higher request throughput on the same hardware without increasing median latency, validated on a real chat workload.",
-      "confidence": 0.75,
+      "takeaway": "The presented techniques achieved 2.4x more requests per second on the same hardware without sacrificing median response time, validated on a real chat workload.",
+      "confidence": 0.7,
       "unresolved_terms": [],
       "questions": [
-        "What exactly is the 'latency target' threshold used?",
-        "How was 'real chat workload' generated or sourced?",
-        "Does 2.4x match the earlier p99 goodput claim exactly?"
+        "What was the actual latency target value used?",
+        "How does p99 latency compare, not just median?",
+        "What counts as a 'real chat workload' exactly?"
       ],
-      "inferred_claim": "The presenter wants us to believe their system doubles-plus throughput at no latency cost.",
+      "inferred_claim": "The presenter wants us to believe their optimizations deliver a validated, real-world 2.4x throughput gain at no latency cost.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.521,
+      "latency_s": 2.978,
       "attempts": 1,
       "slide_hash": "6245d954610689860a75b20b"
     },
     "expert": {
       "ok": true,
-      "takeaway": "On the same 8-GPU setup with fixed latency target, the system achieves 2.4x higher requests/sec with unchanged median latency on a real chat workload.",
-      "confidence": 0.65,
+      "takeaway": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+      "confidence": 0.75,
       "unresolved_terms": [],
       "questions": [
-        "Is this p99 goodput or raw throughput, per slide 1's claim?",
-        "What request rate/concurrency defines 'more requests per second'?",
-        "How does median-only reporting align with earlier p99 latency focus?"
+        "Is this p99 goodput or raw RPS being measured?",
+        "What was the latency target value used?",
+        "How does tail (p99) latency compare, not just median?"
       ],
-      "inferred_claim": "The presenter wants the audience to believe the combined techniques deliver a validated 2.4x throughput gain without latency regression.",
+      "inferred_claim": "The presenter wants the audience to accept that their system doubles-plus throughput at no latency cost.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 4.345,
+      "latency_s": 3.053,
       "attempts": 1,
       "slide_hash": "6245d954610689860a75b20b"
     }
   },
   "slide_intent": {
-    "text": "Combined techniques deliver 2.4x higher throughput while maintaining unchanged median latency on real chat workloads.",
-    "source": "model",
-    "model": "claude-haiku-4-5",
-    "reason": null,
-    "attempts": 1,
-    "latency_s": 1.039,
-    "cached": false,
-    "derived_from": {
-      "takeaway": "On the same 8-GPU setup with fixed latency target, the system achieves 2.4x higher requests/sec with unchanged median latency on a real chat workload.",
-      "inferred_claim": "The presenter wants the audience to believe the combined techniques deliver a validated 2.4x throughput gain without latency regression."
-    }
+    "text": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+    "source": "expert_takeaway"
   },
   "metrics": {
-    "intent": "Combined techniques deliver 2.4x higher throughput while maintaining unchanged median latency on real chat workloads.",
+    "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
     "takeaways": {
-      "novice": "The new method achieved 2.4x more requests per second on the same hardware without slowing down response times, tested on real chat data.",
-      "peer": "The presented method achieves 2.4x higher request throughput on the same hardware without increasing median latency, validated on a real chat workload.",
-      "expert": "On the same 8-GPU setup with fixed latency target, the system achieves 2.4x higher requests/sec with unchanged median latency on a real chat workload."
+      "novice": "The presenter achieved 2.4 times more processed requests per second using the same hardware and latency, without hurting response time.",
+      "peer": "The presented techniques achieved 2.4x more requests per second on the same hardware without sacrificing median response time, validated on a real chat workload.",
+      "expert": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload."
     },
     "intent_alignment": {
       "novice": {
-        "value": 0.8120367871661625,
+        "value": 0.6030805756002726,
         "inputs": {
-          "intent": "Combined techniques deliver 2.4x higher throughput while maintaining unchanged median latency on real chat workloads.",
-          "novice": "The new method achieved 2.4x more requests per second on the same hardware without slowing down response times, tested on real chat data."
+          "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+          "novice": "The presenter achieved 2.4 times more processed requests per second using the same hardware and latency, without hurting response time."
         }
       },
       "peer": {
-        "value": 0.8836541568874858,
+        "value": 0.8044600673634272,
         "inputs": {
-          "intent": "Combined techniques deliver 2.4x higher throughput while maintaining unchanged median latency on real chat workloads.",
-          "peer": "The presented method achieves 2.4x higher request throughput on the same hardware without increasing median latency, validated on a real chat workload."
+          "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+          "peer": "The presented techniques achieved 2.4x more requests per second on the same hardware without sacrificing median response time, validated on a real chat workload."
         }
       },
       "expert": {
         "value": 1.0,
         "definitional": true,
         "inputs": {
-          "intent": "Combined techniques deliver 2.4x higher throughput while maintaining unchanged median latency on real chat workloads.",
-          "expert": "On the same 8-GPU setup with fixed latency target, the system achieves 2.4x higher requests/sec with unchanged median latency on a real chat workload."
+          "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+          "expert": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload."
         }
       }
     },
     "term_gap": {
-      "terms": [],
-      "novice_unresolved": [],
+      "terms": [
+        "GPUs"
+      ],
+      "novice_unresolved": [
+        "GPUs"
+      ],
       "expert_unresolved": []
     }
   },
   "metrics_error": null,
   "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
   "timing": {
-    "personas_s": 4.348,
-    "intent_s": 1.039
+    "personas_s": 3.057
   }
 }

@@ -15,7 +15,6 @@ from sightline.store import RunStore
 
 from builders import HashEmbedder
 from conftest import FakeLLM, sentinel_payload
-from test_runner import IntentEcho
 
 
 def pdf_bytes(tmp_path, pages=3) -> bytes:
@@ -75,7 +74,6 @@ def env(tmp_path):
             store=store,
             cache=FileCache(tmp_path / "cache"),
             client_factory=client_factory,
-            intent_client_factory=lambda: IntentEcho(),
             embedder=HashEmbedder(),
             frontend_dir=tmp_path / "no-frontend",
         )
@@ -153,7 +151,7 @@ def test_the_declared_intent_is_optional(env, intent):
 
 
 def test_a_run_streams_slide_by_slide_and_ends_complete(env):
-    _, _, make_app, tmp = env
+    _, factory, make_app, tmp = env
     with TestClient(make_app()) as c:
         run_id = upload(c, tmp, pages=4)["run_id"]
         assert c.post(f"/api/runs/{run_id}/start", json=START).status_code == 202
@@ -165,8 +163,9 @@ def test_a_run_streams_slide_by_slide_and_ends_complete(env):
             "domain": "LLM serving", "adjacent_field": "databases", "confirmed": True, "edited": True,
         }
         assert body["rollup"]["n_scored"] == 4 and body["meta"]["legacy"] is False
-        assert body["meta"]["intent_model"] == "fake-haiku"
-        assert all(r["slide_intent"]["source"] == "model" for r in body["results"])
+        assert all(r["slide_intent"]["source"] == "expert_takeaway" for r in body["results"])
+        assert all(r["slide_intent"]["text"] == r["readings"]["expert"]["takeaway"] == r["metrics"]["intent"] for r in body["results"])
+        assert len(factory.llm.calls) == 4 * 3  # three persona calls a slide, nothing else in the batch
         # `since` returns only what has landed after slide 2
         later = c.get(f"/api/runs/{run_id}?since=2").json()
         assert [r["index"] for r in later["results"]] == [3, 4]

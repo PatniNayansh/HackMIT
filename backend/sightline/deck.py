@@ -15,9 +15,10 @@ Three things this module deliberately does not do:
     each other. Trust separation between slides, never the level.
   * It never clamps or repairs a bad model response. A persona whose output failed validation
     is recorded as an error (`error_record`) and that slide gets no metrics.
-  * It never scores the expert against the reference. Alignment is measured against an intent
-    inferred from the expert's own reading, so the expert's alignment is 1.0 by construction:
-    it is carried in the payload flagged `definitional`, and excluded from the distributions.
+  * It never scores the expert against the reference. A slide's intent IS the expert's takeaway,
+    verbatim, and novice and peer alignment are measured against exactly that string. So the
+    expert's alignment is 1.0 by construction: it is carried in the payload flagged
+    `definitional`, and excluded from the distributions.
 """
 
 from __future__ import annotations
@@ -29,7 +30,7 @@ from typing import Any, Mapping, Sequence, TypedDict
 
 import numpy as np
 
-from .audiences import PERSONAS, AudienceReading, AudienceResponseError, CacheMiss, Persona
+from .audiences import PERSONAS, AudienceReading, AudienceResponse, AudienceResponseError, CacheMiss, Persona
 from .divergence import Embedder, normalize_term, score_slide
 from .intent import EXPERT_IS_DEFINITIONAL
 from .tiers import assign_tiers
@@ -51,14 +52,16 @@ class SlideResult(TypedDict):
     text: str  # what the personas were shown, verbatim
     # persona -> reading_record(...) or error_record(...); an "ok" flag tells them apart
     readings: dict[str, dict[str, Any]]
-    # the intent inferred from the expert's reading (intent.SlideIntent.to_dict()); None if the
-    # expert's reading is unavailable
+    # this slide's intent: {"text", "source"}. source "expert_takeaway" means text IS the expert's
+    # takeaway and is the very string alignment was measured against. Runs saved before round 3
+    # carry source "model"/"template" (a rephrased sentence) and were measured against that.
+    # None if the expert's reading is unavailable.
     slide_intent: dict[str, Any] | None
     # build_metrics(...), or None if any persona failed
     metrics: dict[str, Any] | None
     metrics_error: str | None
     scored_by: str | None  # name of the embedding model behind the metrics
-    timing: dict[str, float]  # seconds: personas, intent
+    timing: dict[str, float]  # seconds the personas took (older runs also have intent_s)
 
 
 def plain(obj: Any) -> Any:
@@ -95,10 +98,18 @@ def error_record(exc: BaseException) -> dict[str, Any]:
     }
 
 
+def expert_takeaway_intent(expert: AudienceResponse) -> dict[str, Any]:
+    """A slide's intent is the expert persona's `takeaway`, exactly as the persona returned it: no
+    rephrasing, truncation or normalisation. The page shows this string as the slide's intent, so
+    it is also the string alignment is measured against (`build_metrics(intent=...)`); the two
+    must never differ. `intent.py`, which rephrases, is kept in the repo but not used."""
+    return {"text": expert.takeaway, "source": "expert_takeaway"}
+
+
 def build_metrics(
     intent: str, responses: Mapping[Persona, Any], embedder: Embedder, slide_index: int
 ) -> dict[str, Any]:
-    """Alignment of each persona's takeaway to the inferred intent, via step 1's `score_slide`
+    """Alignment of each persona's takeaway to the slide's intent, via step 1's `score_slide`
     (the reference string is the only thing that changed). Its divergence, pairwise and
     blind-spot outputs are dropped: blind-spot, expert minus novice, reduces to 1 - novice
     alignment once the expert is the reference, so it carries nothing the novice alignment

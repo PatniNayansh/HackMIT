@@ -313,6 +313,12 @@ details.table-view .scroll { max-height: 320px; overflow: auto; margin-top: 8px;
 .intent-box { border-left: 3px solid var(--ink); padding: 2px 0 2px 12px; }
 .intent-title { font-size: 12.5px; font-weight: 650; color: var(--ink-2); }
 .intent-text { font-size: 16px; line-height: 1.45; margin-top: 2px; }
+.intent-box.takeaway { border-left: 0; padding-left: 0; }
+.intent-src { margin-top: 4px; }
+/* The quotation marks are decoration drawn by CSS, so the text in the page is exactly the takeaway. */
+.intent-src .src p { font-size: 15px; line-height: 1.45; }
+.intent-src .src p::before { content: "\201C"; }
+.intent-src .src p::after { content: "\201D"; }
 .intent-attr { font-style: italic; color: var(--ink-2); font-size: 12.5px; margin-top: 4px; }
 
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
@@ -373,7 +379,7 @@ blockquote.take { margin: 6px 0 12px; padding: 0; font-size: 15px; line-height: 
 .drawer h3 { margin-bottom: 4px; }
 .src { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; background: var(--sunken); }
 .src .who { font-size: 11.5px; color: var(--ink-2); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
-.src p { white-space: pre-wrap; }
+.src p { white-space: pre-wrap; overflow-wrap: anywhere; } /* long quoted text wraps; it is never cut off */
 .calc { font-family: var(--mono); font-size: 12.5px; background: var(--sunken); border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; }
 mark.hl { background: var(--hl-bg); color: var(--hl-fg); border-radius: 3px; padding: 0 1px; }
 .vals { display: grid; gap: 4px; }

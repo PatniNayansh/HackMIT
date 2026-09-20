@@ -12,9 +12,10 @@ model response rather than hide it:
     an error to display, never a value to clamp, and a comparison that is missing a side is
     not computed.
 
-After the three personas finish for a slide, a cheap model call (see `intent`) rephrases the
-EXPERT's reading into that slide's intended reading, and the other two are measured against it.
-The expert is the reference, so its own alignment is definitional (see `deck.build_metrics`).
+A slide's intent is the EXPERT's takeaway, verbatim (see `deck.expert_takeaway_intent`), and the
+novice and the peer are measured against exactly that string. The expert is the reference, so its
+own alignment is definitional (see `deck.build_metrics`). There is no extra model call: the batch
+is the three persona calls per slide.
 
 A run stops early only when a slide fails for reasons that are not the model's output (no key,
 API down, nothing cached while offline), since every later slide would fail the same way.
@@ -37,10 +38,8 @@ from .audiences import (
     SlideInput,
     slide_hash,
 )
-from .deck import SlideResult, build_metrics, error_record, reading_record
+from .deck import SlideResult, build_metrics, error_record, expert_takeaway_intent, reading_record
 from .divergence import Embedder
-from .intent import IntentCache, infer_slide_intent
-from .llm import LLMClient
 from .store import RunStore, now_iso
 
 # Failures that say nothing about the model's reading of a slide.
@@ -71,8 +70,6 @@ async def _build(
     text: str,
     outcomes: Mapping[Persona, AudienceReading | Exception],
     embedder: Embedder,
-    intent_client: LLMClient | None,
-    intent_cache: IntentCache | None,
     personas_s: float,
 ) -> SlideResult:
     readings = {
@@ -80,12 +77,7 @@ async def _build(
         for p, o in outcomes.items()
     }
     expert = outcomes["expert"]
-    slide_intent = None
-    intent_s = 0.0
-    if isinstance(expert, AudienceReading):
-        t0 = time.perf_counter()
-        slide_intent = (await infer_slide_intent(expert.response, text, intent_client, cache=intent_cache)).to_dict()
-        intent_s = time.perf_counter() - t0
+    slide_intent = expert_takeaway_intent(expert.response) if isinstance(expert, AudienceReading) else None
 
     failed = [p for p, o in outcomes.items() if not isinstance(o, AudienceReading)]
     metrics, metrics_error, scored_by = None, None, None
@@ -106,7 +98,7 @@ async def _build(
         "metrics": metrics,
         "metrics_error": metrics_error,
         "scored_by": scored_by,
-        "timing": {"personas_s": round(personas_s, 3), "intent_s": round(intent_s, 3)},
+        "timing": {"personas_s": round(personas_s, 3)},
     }
 
 
@@ -115,8 +107,6 @@ async def run_deck(
     run_id: str,
     engine: TolerantEngine,
     embedder: Embedder,
-    intent_client: LLMClient | None = None,
-    intent_cache: IntentCache | None = None,
 ) -> None:
     """Run every slide of a stored deck, in order. Never raises for a failed run: the outcome is
     in the run's metadata. Cancellation is recorded and re-raised."""
@@ -131,7 +121,6 @@ async def run_deck(
         error=None,
     )
     models: set[str] = set()
-    intent_sources: set[str] = set()
     try:
         memory: dict[Persona, Memory] = {p: () for p in PERSONAS}
         for slide in store.load_slides(run_id):
@@ -143,11 +132,7 @@ async def run_deck(
             if len(errors) == len(PERSONAS) and all(e["kind"] in _INFRASTRUCTURE_ERRORS for e in errors):
                 raise RuntimeError(f"slide {slide.index}: {errors[0]['message']}")
 
-            result = await _build(slide.index, slide.text, outcomes, embedder, intent_client, intent_cache, personas_s)
-            store.save_result(run_id, result)
-            if result["slide_intent"]:
-                si = result["slide_intent"]
-                intent_sources.add(si["model"] if si["source"] == "model" else "template (expert claim)")
+            store.save_result(run_id, await _build(slide.index, slide.text, outcomes, embedder, personas_s))
             for p, o in outcomes.items():
                 if isinstance(o, AudienceReading):
                     models.add(o.model)
@@ -163,5 +148,4 @@ async def run_deck(
         status="complete",
         finished_at=now_iso(),
         model=", ".join(sorted(models)) or meta.get("model"),
-        intent_model=", ".join(sorted(intent_sources)) or None,
     )

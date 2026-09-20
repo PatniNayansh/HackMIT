@@ -124,7 +124,12 @@ function highlight(text, terms) {
 }
 const missing = (text, terms) => terms.filter((t) => !text.toLowerCase().includes(t.toLowerCase()));
 
-function src(label, text, persona) {
+/** True when this slide's intent IS the expert's takeaway (the current pipeline). Runs saved by the
+ *  previous version measured alignment against a rephrased sentence instead, and keep showing it. */
+export const usesTakeawayIntent = (r) => r.slide_intent?.source === "expert_takeaway";
+
+/** A labelled, verbatim text box with a persona-coloured dot: the one "green-dot block" component. */
+export function src(label, text, persona) {
   return h("div", { class: "src" },
     h("div", { class: "who" }, persona && h("span", { class: `dot ${persona}` }), label),
     h("p", null, text));
@@ -179,6 +184,7 @@ const BUILDERS = {
     const r = slideOf(state, slide);
     const m = r.metrics.intent_alignment[persona];
     if (m.definitional) return BUILDERS.reference({ slide }, state);
+    const tk = usesTakeawayIntent(r);
     return {
       title: `Alignment to the intended reading \u2014 ${LABEL[persona]}, slide ${slide}`,
       body: [
@@ -186,10 +192,11 @@ const BUILDERS = {
         h("p", { class: "muted" }, "How close, in topic and wording, this persona\u2019s takeaway is to what the slide is trying to establish. It does not check that the takeaway is right."),
         section("The two texts compared",
           h("div", { class: "stack" },
-            src("Intended reading, inferred from the expert reading (verbatim)", m.inputs.intent),
+            tk ? src("Intent of this slide: the expert takeaway (verbatim)", m.inputs.intent, "expert")
+               : src("Intended reading, inferred from the expert reading (verbatim)", m.inputs.intent),
             src(`${LABEL[persona]} takeaway (verbatim)`, m.inputs[persona], persona))),
-        section("Raw computation", calc(`cosine similarity of two sentence embeddings\nmodel: ${r.scored_by}\ncos(intended reading, ${persona} takeaway) = ${m.value.toFixed(4)}`)),
-        section("Where the intended reading came from", calc(derivation(r.slide_intent))),
+        section("Raw computation", calc(`cosine similarity of two sentence embeddings\nmodel: ${r.scored_by}\ncos(intent, ${persona} takeaway) = ${m.value.toFixed(4)}`)),
+        tk ? null : section("Where the intended reading came from", calc(derivation(r.slide_intent))),
         deckSection(state, `intent_alignment.${persona}`, slide, COLOR[persona]),
       ],
     };
@@ -197,14 +204,18 @@ const BUILDERS = {
 
   reference({ slide }, state) {
     const r = slideOf(state, slide);
+    const tk = usesTakeawayIntent(r);
     return {
       title: `Reference \u2014 Expert, slide ${slide}`,
       body: [
         h("div", null, h("div", { class: "big" }, "reference"), h("span", { class: "pill outline" }, "definitional, not measured")),
         h("p", null, REFERENCE_NOTE),
-        h("p", { class: "muted" }, "Its alignment is 1.0 by construction: the intended reading was generated from this persona\u2019s own reading, so there is nothing to score it against. It is shown so the chart, the payload and the legend keep their shape for when the expert is measured independently."),
-        r.slide_intent ? section("What it defined", intentSources(r)) : null,
-        r.slide_intent ? section("How the intended reading was written", calc(derivation(r.slide_intent))) : null,
+        h("p", { class: "muted" }, tk
+          ? "Its alignment is 1.0 by construction: the slide\u2019s intent is this persona\u2019s own takeaway, so there is nothing to score it against. It is shown so the chart, the payload and the legend keep their shape for when the expert is measured independently."
+          : "Its alignment is 1.0 by construction: the intended reading was generated from this persona\u2019s own reading, so there is nothing to score it against. It is shown so the chart, the payload and the legend keep their shape for when the expert is measured independently."),
+        tk ? section("What it defined", src("Expert takeaway, verbatim: this is the intent of this slide", r.slide_intent.text, "expert")) : null,
+        !tk && r.slide_intent ? section("What it defined", intentSources(r)) : null,
+        !tk && r.slide_intent ? section("How the intended reading was written", calc(derivation(r.slide_intent))) : null,
       ],
     };
   },
@@ -213,6 +224,7 @@ const BUILDERS = {
     const r = slideOf(state, slide);
     const t = state.rollup.per_slide.find((p) => p.slide === slide).tier;
     const m = r.metrics;
+    const tk = usesTakeawayIntent(r);
     return {
       title: `Tier \u2014 slide ${slide}`,
       body: [
@@ -227,10 +239,11 @@ const BUILDERS = {
             h("p", null, c.text))))),
         section("The inputs, with their texts",
           h("div", { class: "stack" },
-            src("Intended reading, inferred from the expert reading", m.intent),
+            tk ? src("Intent of this slide = the expert takeaway, the reference (verbatim)", m.intent, "expert")
+               : src("Intended reading, inferred from the expert reading", m.intent),
             src(`Novice takeaway \u2014 alignment ${f2(m.intent_alignment.novice.value)}`, m.takeaways.novice, "novice"),
             src(`Peer takeaway \u2014 alignment ${f2(m.intent_alignment.peer.value)}`, m.takeaways.peer, "peer"),
-            src("Expert takeaway (the reference)", m.takeaways.expert, "expert"),
+            tk ? null : src("Expert takeaway (the reference)", m.takeaways.expert, "expert"),
             src(`Terms the novice could not resolve (${m.term_gap.novice_unresolved.length})`, m.term_gap.novice_unresolved.join(", ") || "None", "novice"))),
         section("The rule", calc("Self-contained:    novice and peer both align, novice unresolved terms low\nBackground needed: peer aligns, novice does not (or the novice aligns but meets many unknown terms)\nExpert-gated:      neither novice nor peer aligns")),
       ],

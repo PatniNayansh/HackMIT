@@ -28,7 +28,7 @@ def payload(tmp_path_factory):
     tmp = tmp_path_factory.mktemp("render")
     app = create_app(
         store=RunStore(tmp / "history", bundled=[BUNDLED_RUNS_DIR]), cache=FileCache(tmp / "cache"),
-        client_factory=lambda: None, intent_client_factory=lambda: None, embedder=HashEmbedder(),
+        client_factory=lambda: None, embedder=HashEmbedder(),
     )
     with TestClient(app) as c:
         run = c.get(f"/api/runs/{RUN}").json()
@@ -68,7 +68,9 @@ def test_the_overview_ranks_by_novice_difficulty_and_has_no_differ_most_section(
     o = render(tmp_path, payload)["overview"]
     assert "Hardest slides for a newcomer" in o and "Narrative arc" in o
     assert "Where the audiences differ most" not in o and "Slides ranked by novice" not in o
-    for label in ("Self-contained", "Background needed", "Expert-gated"):
+    tiers = {p["tier"]["label"] for p in payload["run"]["rollup"]["per_slide"]}
+    assert tiers and tiers <= {"Self-contained", "Background needed", "Expert-gated"}
+    for label in tiers:  # whichever tiers this deck's slides fell in are shown as chips
         assert label in o
     # each row: takeaway, tier chip, novice unresolved-term count
     assert o.count("Novice takeaway") >= 5 and o.count("Novice unresolved terms") >= 5
@@ -80,23 +82,91 @@ def test_confidence_and_blind_spot_appear_nowhere_in_the_ui(tmp_path, payload):
     assert hits == {}
 
 
-def test_every_slide_page_leads_with_a_tier_and_has_exactly_one_attributed_intent_block(tmp_path, payload):
+def test_every_slide_page_leads_with_a_tier_and_shows_the_expert_takeaway_once_as_the_intent(tmp_path, payload):
     out = render(tmp_path, payload, "1,2,3,4,5,6,7")
     declared = payload["run"]["meta"]["intent"]
     assert declared  # the sample has a declared intent, so its absence below means something
     for n in range(1, 8):
         page = out[f"slide{n}"]
-        intent = payload["run"]["results"][n - 1]["slide_intent"]["text"]
+        res = payload["run"]["results"][n - 1]
+        takeaway = res["readings"]["expert"]["takeaway"]
+        assert res["slide_intent"]["text"] == takeaway
         assert "What this slide demands of its reader" in page
         assert page.index("What this slide demands of its reader") < page.index("Takeaway, verbatim")  # summary above the cards
-        # one intent block, under the slide image (before the summary and the text well), attributed
-        assert page.count("Intent of this slide") == 1 and page.count(intent) == 1
+        # the block under the slide image: heading, then the green-dot label and the takeaway verbatim
+        assert page.count("Intent of this slide") == 1
+        assert ("Intent of this slide" + "Expert takeaway, verbatim" + takeaway) in page
         assert page.index("Intent of this slide") < page.index("What this slide demands of its reader")
-        assert (intent + "Inferred from the expert reading") in page  # the attribution follows the sentence
-        assert page.count("Inferred from the expert reading") == 1
-        # the retired band is gone, and the presenter's declared intent is not on the slide page
+        # ... and that text is on the page exactly once: the expert card does not repeat it
+        assert page.count(takeaway) == 1
+        assert page.count("Takeaway, verbatim") == 2 + page.count("Expert takeaway, verbatim") - 1  # novice and peer cards, plus the one block
+        # the attribution line, the retired band and the declared intent are all gone from this page
+        assert "Inferred from the expert reading" not in page and "derived from (verbatim)" not in page
         assert "What this slide is trying to establish" not in page
         assert declared not in page and "declared intent" not in page.lower()
+
+
+def test_the_expert_card_points_to_the_intent_instead_of_repeating_it(tmp_path, payload):
+    page = render(tmp_path, payload)["slide3"]
+    expert = page[page.index("Works in LLM inference serving systems") :]
+    assert "Its takeaway is the intent of this slide, shown under the slide image." in expert
+    assert payload["run"]["results"][2]["readings"]["expert"]["takeaway"] not in expert
+    assert "reference" in expert  # the rest of the card is unchanged
+
+
+@pytest.mark.parametrize("takeaway", [
+    "throughput rose 2.4x\u2014maybe more...",                     # ellipsis and dash, no final full stop, lower case
+    "a" * 300 + " and then some, with no full stop",               # long: wraps, never truncated
+    'She said "yes" & left \u2026 <b>not markup</b>',              # quotes, ampersand, angle brackets
+])
+def test_the_takeaway_is_rendered_exactly_as_returned(tmp_path, payload, takeaway):
+    p = copy.deepcopy(payload)
+    r = p["run"]["results"][2]
+    r["readings"]["expert"]["takeaway"] = takeaway
+    r["slide_intent"]["text"] = r["metrics"]["intent"] = r["metrics"]["takeaways"]["expert"] = takeaway
+    r["metrics"]["intent_alignment"]["expert"]["inputs"]["expert"] = r["metrics"]["intent_alignment"]["expert"]["inputs"]["intent"] = takeaway
+    for who in ("novice", "peer"):
+        r["metrics"]["intent_alignment"][who]["inputs"]["intent"] = takeaway
+    page = render(tmp_path, p)["slide3"]
+    assert page.count(takeaway) == 1
+    assert takeaway + "." not in page and takeaway + "\u2026" not in page  # nothing appended
+    assert (takeaway + "Inferred") not in page
+
+
+def test_no_provenance_panel_shows_the_expert_takeaway_twice(tmp_path, payload):
+    out = render(tmp_path, payload, "3")
+    takeaway = payload["run"]["results"][2]["readings"]["expert"]["takeaway"]
+    for d in out["slide3:drawers"]:
+        assert d["body"].count(takeaway) <= 1, d["opener"]  # the panel keeps its other content, minus the duplicate
+    tier = next(d["body"] for d in out["slide3:drawers"] if d["opener"] in ("Self-contained", "Background needed", "Expert-gated"))
+    assert takeaway in tier and "the expert takeaway, the reference" in tier
+    assert "Intended reading, inferred" not in tier
+
+
+def older_format(payload):
+    """A run saved by the previous version: alignment was measured against a rephrased sentence."""
+    old = copy.deepcopy(payload)
+    for r in old["run"]["results"]:
+        rephrased = f"A rephrased sentence for slide {r['index']}."
+        r["slide_intent"] = {"text": rephrased, "source": "model", "model": "claude-haiku-4-5", "reason": None, "attempts": 1,
+                             "latency_s": 1.0, "cached": False,
+                             "derived_from": {"takeaway": r["readings"]["expert"]["takeaway"], "inferred_claim": r["readings"]["expert"]["inferred_claim"]}}
+        r["metrics"]["intent"] = rephrased
+        for who in ("novice", "peer", "expert"):
+            r["metrics"]["intent_alignment"][who]["inputs"]["intent"] = rephrased
+    return old
+
+
+def test_a_run_measured_against_a_rephrased_sentence_still_shows_the_string_that_was_measured(tmp_path, payload):
+    """The page must never show one string while the metrics used another. Runs saved before the
+    expert takeaway became the intent keep showing their rephrased sentence, with its attribution."""
+    out = render(tmp_path, older_format(payload), "3")
+    page = out["slide3"]
+    assert out["errors"] == []
+    assert "A rephrased sentence for slide 3." in page and page.count("Inferred from the expert reading") == 1
+    assert "Expert takeaway, verbatim" not in page  # that label would claim the takeaway is the intent
+    assert page.count("Takeaway, verbatim") == 3  # the expert card keeps its takeaway: it is not what was measured against
+    assert any("Inferred from the expert reading" in d["body"] or "rephrased" in d["body"] for d in out["slide3:drawers"])
 
 
 def test_the_declared_intent_is_still_stored_and_still_shown_on_the_overview(tmp_path, payload):
@@ -119,9 +189,21 @@ def test_recommendations_quote_evidence_and_are_grouped_by_audience(tmp_path, pa
         for r in recs[audience]:
             assert r["bullet"] in page and r["evidence"] in page
     assert page.count("What to change") == 2  # novice and peer, never the expert
-    assert recs["expert_flagged"] and "Expert also flagged" in page
+    assert "Expert also flagged" not in page or recs["expert_flagged"]  # only when the expert flagged something
     assert "sample data" in page  # the run is a bundled sample; the recommendations are not
     assert "checked-in fixture" not in page
+
+
+def test_what_the_expert_flagged_is_surfaced_above_the_summary(tmp_path, payload):
+    p = copy.deepcopy(payload)
+    expert = p["run"]["results"][2]["readings"]["expert"]
+    p["recs"][3]["recommendations"]["expert_flagged"] = [
+        {"note": "The expert could not resolve \u201cgamma\u201d.", "evidence": "gamma"},
+        {"note": "The 2.4x has no stated baseline.", "evidence": expert["takeaway"][:20]},
+    ]
+    page = render(tmp_path, p)["slide3"]
+    assert "Expert also flagged" in page and "The 2.4x has no stated baseline." in page
+    assert page.index("Expert also flagged") < page.index("What this slide demands of its reader")
 
 
 def test_every_number_opens_a_drawer_showing_real_text(tmp_path, payload):

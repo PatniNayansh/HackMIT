@@ -145,7 +145,6 @@ class RunStore:
             ),
             "profile_inference_error": inference_error,
             "model": None,
-            "intent_model": None,
             "embedding_model": None,
             "prompt_version": PROMPT_VERSION,
             "error": None,

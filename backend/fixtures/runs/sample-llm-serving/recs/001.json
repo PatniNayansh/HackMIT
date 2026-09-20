@@ -2,23 +2,38 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Replace 'p99' with a plain-language explanation, e.g. 'the slowest 1% of requests'",
-      "evidence": "What does 'p99' refer to?"
+      "bullet": "Define goodput on first use, e.g. 'goodput (requests meeting latency SLO per second)'",
+      "evidence": "What does 'goodput' mean here?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Replace or gloss 'p99' with 'the 99th percentile latency'",
+      "evidence": "What is 'p99' measuring?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a subtitle briefly noting the technique/system used to achieve the speedup",
+      "evidence": "How was the 2.4x improvement achieved?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
       "bullet": "State the baseline the 2.4x improvement is measured against",
-      "evidence": "Compared to what baseline is 2.4x improvement?"
+      "evidence": "What baseline is the 2.4x improvement measured against?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Define goodput briefly in a subtitle or footnote",
+      "evidence": "How is 'goodput' defined here?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T00:49:00+00:00",
-    "latency_s": 3.68,
-    "intent": "A novel approach achieves 2.4x improvement in goodput at p99 latency for LLM serving.",
-    "dropped_without_evidence": 2
+    "generated_at": "2026-09-20T01:38:18+00:00",
+    "latency_s": 3.42,
+    "intent": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
+    "dropped_without_evidence": 0
   }
 }

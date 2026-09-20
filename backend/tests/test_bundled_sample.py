@@ -46,16 +46,15 @@ def test_the_sample_reproduces_the_full_review_payload_offline(client):
 
 
 def test_every_metric_in_the_sample_traces_back_to_the_text_that_produced_it(client):
-    """Every alignment was computed from the slide's inferred intent and the persona's own
-    stored takeaway, and the intent was derived from the expert's stored reading."""
+    """A slide's intent IS the expert's stored takeaway, and every alignment was computed from
+    exactly that string and the persona's own stored takeaway."""
     body = client.get(f"/api/runs/{RUN}").json()
     for r in body["results"]:
         m, si = r["metrics"], r["slide_intent"]
         takeaways = {p: r["readings"][p]["takeaway"] for p in PERSONAS}
-        assert m["takeaways"] == takeaways and m["intent"] == si["text"]
-        assert si["derived_from"] == {
-            "takeaway": r["readings"]["expert"]["takeaway"], "inferred_claim": r["readings"]["expert"]["inferred_claim"],
-        }
+        assert m["takeaways"] == takeaways
+        assert si == {"text": takeaways["expert"], "source": "expert_takeaway"}
+        assert m["intent"] == si["text"] == r["readings"]["expert"]["takeaway"]  # shown == measured, character for character
         for p in ("novice", "peer"):
             assert m["intent_alignment"][p]["inputs"] == {"intent": si["text"], p: takeaways[p]}
         expert = m["intent_alignment"]["expert"]  # the reference: 1.0 by definition, and labelled so

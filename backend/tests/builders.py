@@ -9,7 +9,7 @@ from typing import Sequence
 import numpy as np
 
 from sightline.audiences import PERSONAS, AudienceReading, AudienceResponse
-from sightline.deck import SlideResult, build_metrics, reading_record
+from sightline.deck import SlideResult, build_metrics, expert_takeaway_intent, reading_record
 
 INTENT = "INTENT"
 
@@ -33,8 +33,9 @@ def slide_result(
     terms: tuple[Sequence[str], Sequence[str], Sequence[str]] = ((), (), ()),
     text: str = "[title] A slide",
 ) -> SlideResult:
-    """A scored slide. `align` is (novice, peer) alignment to the inferred intent; the expert is
-    the reference, so its own alignment is definitional (see deck.build_metrics)."""
+    """A scored slide. `align` is (novice, peer) alignment to the slide's intent, which is the
+    expert's takeaway verbatim; the expert is the reference, so its own alignment is definitional
+    (see deck.build_metrics)."""
     cos = (*align, 1.0)
     responses = {
         p: AudienceResponse(
@@ -54,15 +55,11 @@ def slide_result(
         "index": index,
         "text": text,
         "readings": readings,
-        "slide_intent": {
-            "text": INTENT, "source": "model", "model": "fake-haiku", "reason": None, "attempts": 1,
-            "latency_s": 0.1, "cached": False,
-            "derived_from": {"takeaway": responses["expert"].takeaway, "inferred_claim": responses["expert"].inferred_claim},
-        },
-        "metrics": build_metrics(INTENT, responses, AngleEmbedder(), index),
+        "slide_intent": expert_takeaway_intent(responses["expert"]),
+        "metrics": build_metrics(responses["expert"].takeaway, responses, AngleEmbedder(), index),
         "metrics_error": None,
         "scored_by": "angle-embedder",
-        "timing": {"personas_s": 1.0, "intent_s": 0.1},
+        "timing": {"personas_s": 1.0},
     }
 
 

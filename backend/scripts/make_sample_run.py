@@ -5,7 +5,7 @@ model output. The result is written to backend/fixtures/runs/ and marked `sample
 shows as "sample data" and the server never lets anyone re-run or modify. It exists so the demo
 works with no API key and no network: open it from the history list.
 
-    .venv/bin/python backend/scripts/make_sample_run.py        # needs ANTHROPIC_API_KEY; ~37 model calls
+    .venv/bin/python backend/scripts/make_sample_run.py        # needs ANTHROPIC_API_KEY; ~36 model calls
 """
 
 from __future__ import annotations
@@ -25,7 +25,6 @@ from sightline import ingest  # noqa: E402
 from sightline.audiences import FileCache  # noqa: E402
 from sightline.diagnose import recommend  # noqa: E402
 from sightline.divergence import default_embedder  # noqa: E402
-from sightline.intent import FileIntentCache, intent_model  # noqa: E402
 from sightline.llm import AnthropicClient  # noqa: E402
 from sightline.runner import TolerantEngine, run_deck  # noqa: E402
 from sightline.store import BUNDLED_RUNS_DIR, RunStore, data_dir  # noqa: E402
@@ -108,10 +107,9 @@ async def main() -> None:
                  "edited": (inferred.domain, inferred.adjacent_field) != (DOMAIN, ADJACENT)},
     )
     engine = TolerantEngine(client, FileCache(data_dir() / "cache" / "audiences"))
-    intent_client = AnthropicClient(model=intent_model())
-    await run_deck(store, RUN_ID, engine, default_embedder(), intent_client, FileIntentCache(data_dir() / "cache" / "intents"))
+    await run_deck(store, RUN_ID, engine, default_embedder())
     final = store.load_meta(RUN_ID)
-    print("status:", final["status"], "| model:", final["model"], "| intent:", final["intent_model"], "| error:", final["error"])
+    print("status:", final["status"], "| model:", final["model"], "| error:", final["error"])
     results = store.load_results(RUN_ID)
     print("results:", len(results), "of", meta["slide_count"])
 
@@ -120,9 +118,8 @@ async def main() -> None:
     for r in results:
         if r["metrics"]:
             store.save_recs(RUN_ID, r["index"], await recommend(r, r["slide_intent"], client=client))
-    secs = [r["timing"]["personas_s"] + r["timing"]["intent_s"] for r in results]
-    print(f"batch seconds per slide (personas + intent): mean {sum(secs) / len(secs):.1f}, max {max(secs):.1f}")
-    print("intent sources:", [r["slide_intent"]["source"] for r in results])
+    secs = [r["timing"]["personas_s"] for r in results]
+    print(f"batch seconds per slide (three persona calls): mean {sum(secs) / len(secs):.1f}, max {max(secs):.1f}")
 
 
 if __name__ == "__main__":

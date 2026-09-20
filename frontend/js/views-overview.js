@@ -22,7 +22,6 @@ export function overview(root, runId) {
         h("div", { class: "meta-line small" },
           statusPill(meta), h("span", null, when(meta.created_at)), h("span", null, `${total} slides`),
           h("span", { class: "mono" }, meta.model || "no model"),
-          meta.intent_model && h("span", { class: "mono", title: "Writes each slide’s intended reading" }, `intent: ${meta.intent_model}`),
           meta.sample && h("span", { class: "pill sample" }, "sample data")),
         meta.status === "running" && h("div", null,
           h("div", { class: "progress", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": total, "aria-valuenow": done },
@@ -30,7 +29,7 @@ export function overview(root, runId) {
           h("p", { class: "muted small", style: "margin-top:4px" }, `Read ${done} of ${total} slides. Each takes about 6 seconds; the overview fills in as they land.`))));
 
     const context = (meta.intent || meta.profile) && h("div", { class: "card" },
-      meta.intent && h("div", { class: "intent-box" }, h("div", { class: "small muted" }, "Your declared intent (stored; alignment is measured against each slide’s own intended reading)"), h("p", null, meta.intent)),
+      meta.intent && h("div", { class: "intent-box" }, h("div", { class: "small muted" }, "Your declared intent (stored; alignment is measured against each slide’s own intent, the expert’s takeaway)"), h("p", null, meta.intent)),
       h("div", { style: meta.intent ? "margin-top:8px" : "" }, subfieldLine(meta)));
 
     // Streaming film strip: each slide shows as soon as its result lands.

@@ -75,10 +75,10 @@ RECS_SCHEMA: dict[str, Any] = {
 }
 
 _SYSTEM = f"""\
-You help a presenter fix one slide. You are given the slide's text, what the slide is trying to \
-establish (its intended reading), and reports from three simulated viewers who read it: a \
-NOVICE, a PEER, and an EXPERT. The expert's reading is what the intended reading was derived \
-from, so the expert is the reference: never advise on the expert's understanding.
+You help a presenter fix one slide. You are given the slide's text, the slide's intent (what it \
+is trying to establish), and reports from three simulated viewers who read it: a NOVICE, a PEER, \
+and an EXPERT. The intent IS the expert's own takeaway, so the expert is the reference: never \
+advise on the expert's understanding.
 
 For the NOVICE and for the PEER, give up to {MAX_PER_AUDIENCE} edits to THIS slide that would help that \
 viewer arrive at the intended reading. Each edit has:
@@ -145,7 +145,7 @@ def build_user_text(slide_result: SlideResult, intent_text: str) -> str:
     r = slide_result["readings"]
     return (
         f"<slide_text>\n{slide_result['text'] or '(no extractable text; the viewers also saw the slide image)'}\n</slide_text>\n\n"
-        f"<intended_reading>\n{intent_text}\n</intended_reading>\n\n"
+        f"<slide_intent>\n{intent_text}\n</slide_intent>\n\n"
         + "\n\n".join(_report(p, r[p]) for p in ("novice", "peer", "expert"))
         + "\n\nGive the edits as JSON."
     )

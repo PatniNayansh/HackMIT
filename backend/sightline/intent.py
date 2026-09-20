@@ -1,4 +1,11 @@
-"""Per-slide inferred intent: one sentence saying what a slide is trying to establish.
+"""NOT USED BY THE PIPELINE. Kept in the repo in case a rephrased intent is wanted later.
+
+Since round 3 a slide's intent is the expert persona's `takeaway`, verbatim (see
+`deck.expert_takeaway_intent`), and that same string is what alignment is measured against and what
+the page shows. This module would replace it with a rephrased sentence, which is only honest if the
+page then shows that sentence instead. `EXPERT_IS_DEFINITIONAL` below is still used.
+
+Per-slide inferred intent: one sentence saying what a slide is trying to establish.
 
 Alignment used to be measured against one presenter-declared intent for the whole deck. It is
 now measured against an intent derived, slide by slide, from the EXPERT persona's own reading.

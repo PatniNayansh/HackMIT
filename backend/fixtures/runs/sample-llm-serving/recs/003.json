@@ -2,48 +2,23 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Define 'goodput' and 'p99' in plain terms on the slide (e.g., 'p99 = slowest 1% of requests')",
-      "evidence": "What do 'goodput' and 'p99' actually measure?"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Add a one-line explanation of speculative decoding and PagedAttention for readers unfamiliar with the terms",
-      "evidence": "What is speculative decoding and how does it help?"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Spell out 'TTFT SLO' (Time To First Token Service Level Objective) with a brief definition",
-      "evidence": "What does 'TTFT SLO' mean in practice?"
+      "bullet": "Explain what alpha and gamma mean numerically (e.g., 'alpha = probability draft tokens are accepted; gamma = number of tokens drafted per step')",
+      "evidence": "What do 'alpha' and 'gamma' values mean here?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "State the baseline configuration/system the 2.4x p99 goodput improvement is measured against",
-      "evidence": "What baseline is the 2.4x goodput compared against?"
-    },
-    {
-      "audience": "peer",
-      "bullet": "Add a brief note explaining what gamma controls in the speculative decoding process",
-      "evidence": "What is 'gamma' controlling in speculative decoding?"
-    },
-    {
-      "audience": "peer",
-      "bullet": "Add a short phrase on why chunked prefill is turned off and its latency tradeoff",
-      "evidence": "How does chunked prefill affect latency tradeoffs?"
+      "bullet": "Add a short gloss for alpha and gamma as speculative decoding parameters with their meaning",
+      "evidence": "What do alpha and gamma represent numerically?"
     }
   ],
-  "expert_flagged": [
-    {
-      "note": "The expert could not resolve “chunked prefill off”.",
-      "evidence": "chunked prefill off"
-    }
-  ],
+  "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T00:49:11+00:00",
-    "latency_s": 5.93,
-    "intent": "PagedAttention combined with speculative decoding and tuned batching/prefill configuration achieves 2.4x p99 goodput gain.",
-    "dropped_without_evidence": 0
+    "generated_at": "2026-09-20T01:38:28+00:00",
+    "latency_s": 6.4,
+    "intent": "Combining PagedAttention's memory efficiency with speculative decoding and tuned batching/prefill settings yields the claimed 2.4x p99 goodput gain.",
+    "dropped_without_evidence": 3
   }
 }

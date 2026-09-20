@@ -2,10 +2,14 @@
 
 Sightline reads a presentation the way three different audiences would. Three model personas
 (a **novice**, a **peer** and an **expert**), separated only by what they already know, each read
-every slide and report what they took away. The expert's reading is turned into a one-sentence
-statement of what the slide is trying to establish, and the novice and the peer are measured
-against it. From that, each slide gets a tier (what it demands of its reader) and concrete,
-evidence-quoting edits for the novice and the peer.
+every slide and report what they took away. The expert's takeaway, verbatim, is the slide's
+intent, and the novice and the peer are measured against exactly that. From that, each slide gets
+a tier (what it demands of its reader) and concrete, evidence-quoting edits for the novice and the
+peer.
+
+> **Live: the expert's `takeaway` is the alignment reference**, and it is the very string shown as
+> the slide's intent, so what the page shows is what was measured. `intent.py`, which rephrases
+> it, is kept in the repo but is not used by the pipeline.
 
 Every number on screen is clickable and resolves to the exact text that produced it.
 
@@ -31,18 +35,21 @@ make dev                    # http://localhost:8000
 2. **Deck overview** fills in as slides land (about 6 s each, in order). It lists the *hardest
    slides for a newcomer*, the terms the novice could not resolve across the deck, and the
    narrative arc: how far each audience falls below the intended reading as the deck goes on.
-3. **Slide detail**: the slide on the left. On the right, the slide's **tier** and what it was
-   read from, then three audience cards. The novice and peer cards each carry *What to change*:
-   concrete edits, each quoting the persona's report or the slide. They are made the first time
-   you open a slide (about 5 s) and saved with the run. Under the slide image, one block, *Intent of
-   this slide*, states what the slide is trying to establish, attributed as *Inferred from the
-   expert reading* (it is derived from the expert persona's interpretation, not written by you).
-   Click any number for the texts it was computed from.
+3. **Slide detail**: the slide on the left, on a light card in both themes. Directly under it, one
+   block, *Intent of this slide*, shows the expert persona's takeaway **verbatim** (exactly as
+   returned: no truncation or tidying); that is the string the novice and peer were measured
+   against. On the right, the slide's **tier** and what it was read from, then three audience
+   cards. The expert card does not repeat its takeaway. The novice and peer cards each carry *What
+   to change*: concrete edits, each quoting the persona's report or the slide. They are made the
+   first time you open a slide (about 5 s) and saved with the run. Click any number for the texts it
+   was computed from.
 4. **History** is the front page's list of saved runs. Runs save automatically, slide by slide,
    to `data/history/<run_id>/` as plain JSON and images. Opening one makes no API calls, so it
    works with no network and no key, and recommendations you opened before saving replay too. The
    bundled **Sample: serving LLMs faster** run works the same way and is your demo insurance.
-   Runs saved before per-slide intent existed open in a reduced form with a notice.
+   Runs saved before per-slide intent existed open in a reduced form with a notice. Runs saved
+   while the intent was a rephrased sentence still show that sentence (with its attribution), because
+   it is what their alignment was measured against.
 
 ### Themes
 
@@ -59,14 +66,14 @@ inverted or dimmed, so they look as they will when projected.
 |---|---|
 | `backend/sightline/audiences.py`, `divergence.py`, `llm.py` | Step 1: the personas, the metrics, the only code that talks to the Anthropic SDK |
 | `backend/sightline/ingest.py` | PDF to per-slide records behind `parse(path)`; subfield inference |
-| `backend/sightline/intent.py` | Each slide's inferred intent, rephrased from the expert's reading (Haiku, checked, with a template fallback) |
+| `backend/sightline/intent.py` | **Kept, unused.** Rephrases the expert's takeaway into a sentence (Haiku, checked). Not in the pipeline: the takeaway itself is the intent |
 | `backend/sightline/tiers.py` | The three tiers. **Every threshold is in `CONFIG` at the top** |
 | `backend/sightline/deck.py` | Deck rollup: pure arithmetic over per-slide results, no model call |
 | `backend/sightline/diagnose.py` | Recommendations: one Sonnet call per slide, generated lazily, evidence enforced in code |
 | `backend/sightline/runner.py`, `store.py` | Runs a deck and saves each slide as it lands |
 | `backend/sightline/server.py` | FastAPI: upload, start, poll, replay. Streaming is polling |
 | `frontend/` | Plain HTML, CSS and ES modules. No build step. `frontend/smoke/render.mjs` renders the real views in Node for the tests |
-| `backend/fixtures/runs/` | Bundled, read-only sample runs (`make sample` rebuilds them; about 37 API calls) |
+| `backend/fixtures/runs/` | Bundled, read-only sample runs (`make sample` rebuilds them; about 36 API calls) |
 
 ## Tiers
 
@@ -79,7 +86,7 @@ fill weight, never by a red/amber/green colour.
 | **Background needed** | Needs some familiarity with the field; a newcomer drifts. |
 | **Expert-gated** | Only a specialist recovers the intended point. |
 
-Assigned from, in order of weight: the novice's alignment to the slide's inferred intent, the
+Assigned from, in order of weight: the novice's alignment to the slide's intent, the
 peer's alignment to it, and the novice's unresolved-term count.
 
 - **Self-contained**: novice and peer both align, and the novice's unresolved terms are low.
@@ -97,30 +104,22 @@ them there against real decks.
 
 ## The expert baseline is definitional, not measured
 
-Alignment is measured against each slide's *inferred intent*, and that intent is derived from the
-expert's own reading. So the expert's alignment is 1.0 by construction. It is a definition, not a
-score, and the UI never shows it as one: the expert card says **reference**, with a note, and the
-arc draws the expert on the reference line, labelled as definitional today. The series is kept so
-that when the expert becomes an independently measured model, the chart, the payload and the
-legend do not change shape (`EXPERT_IS_DEFINITIONAL` in `intent.py`). The blind-spot score
-(expert minus novice alignment) was retired for the same reason: with the expert pinned to the
+A slide's intent is the expert's own takeaway, and the novice and the peer are measured against
+it. So the expert's alignment is 1.0 by construction. It is a definition, not a score, and the UI
+never shows it as one: the expert card says **reference**, with a note, and the arc draws the expert
+on the reference line, thicker than the measured series and labelled as definitional today. The
+series is kept so that when the expert becomes an independently measured model, the chart, the
+payload and the legend do not change shape (`EXPERT_IS_DEFINITIONAL` in `intent.py`). The blind-spot
+score (expert minus novice alignment) was retired for the same reason: with the expert pinned to the
 reference it equals one minus the novice's alignment and adds nothing.
 
 ## Latency
 
-Per slide the batch makes three Sonnet persona calls, then one Haiku 4.5 call that writes the
-intended reading. Measured on the bundled 7-slide sample: **5.6 s per slide on average, 9.7 s at
-worst** (personas plus intent), under the roughly 7 s budget, so the intent stays a model call.
-Recommendations are a separate Sonnet call made only when a slide is opened (about 5 s), then
-cached with the run.
-
-If your decks run over budget, set `SIGHTLINE_INTENT_MODE=template` in `.env`. The intent call is
-then skipped and each slide's intended reading is the expert's own `inferred_claim`, with the
-"The presenter wants us to believe" framing removed. Which text is live in the *Intent of this slide* block: the sentence written by `intent.py`
-(Haiku, checked against the expert's reading and the slide), unless the template fallback described
-next was used for that slide. The same template is the automatic fallback
-when the intent call fails, or when the model's sentence introduces a term that is in neither the
-expert's reading nor the slide; a slide that used it says so in its intent block.
+The batch is three Sonnet persona calls per slide and nothing else, because the intent is the
+expert's takeaway rather than a further model call. Measured on the bundled 7-slide sample: **3.7 s
+per slide on average, 4.6 s at worst** (the earlier design, which added a Haiku call to rephrase the
+takeaway, measured 5.6 s and 9.7 s). Recommendations are a separate Sonnet call made only when a
+slide is opened (about 5 s), then cached with the run.
 
 ## What these numbers do and do not mean
 

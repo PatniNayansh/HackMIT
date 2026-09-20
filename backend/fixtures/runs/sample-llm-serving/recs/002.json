@@ -2,28 +2,38 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Replace 'p99' with a plain-language explanation like 'the slowest 1% of requests'",
-      "evidence": "What does p99 measure precisely?"
+      "bullet": "Define KV-cache briefly on the slide (e.g., 'KV-cache: per-request memory storing past tokens' attention data')",
+      "evidence": "KV-cache"
     },
     {
       "audience": "novice",
-      "bullet": "Add a brief note on how memory fragmentation occurs",
-      "evidence": "How does memory fragmentation happen technically?"
+      "bullet": "Replace or gloss 'p99' with plain language like 'the slowest 1% of requests'",
+      "evidence": "p99"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a short phrase explaining how fragmentation wastes GPU capacity",
+      "evidence": "How does memory fragmentation waste GPU capacity?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Add a phrase linking these three challenges explicitly to the proposed solution's goodput goal",
-      "evidence": "The presenter wants me to understand these three challenges motivate their proposed serving method."
+      "bullet": "Define KV-cache briefly on the slide since it's still unresolved for this reader",
+      "evidence": "KV-cache"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Add a brief note on what causes fragmentation to waste GPU capacity",
+      "evidence": "How does fragmentation specifically waste GPU capacity?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T00:49:05+00:00",
-    "latency_s": 4.76,
-    "intent": "Growing KV-cache, memory fragmentation, and tail latency are the core challenges that the proposed system addresses to achieve goodput improvements.",
-    "dropped_without_evidence": 2
+    "generated_at": "2026-09-20T01:38:22+00:00",
+    "latency_s": 3.85,
+    "intent": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
+    "dropped_without_evidence": 0
   }
 }

@@ -27,7 +27,6 @@ from pydantic import BaseModel
 from . import ingest
 from .audiences import DeckProfile, FileCache
 from .diagnose import RecommendationsUnavailable, recommend
-from .intent import FileIntentCache, intent_model
 from .deck import rollup
 from .divergence import Embedder, default_embedder
 from .llm import AnthropicClient, LLMClient
@@ -56,16 +55,8 @@ def default_client_factory() -> LLMClient | None:
         return None
 
 
-def default_intent_client_factory() -> LLMClient | None:
-    """The small model that rephrases the expert's reading (Haiku by default)."""
-    try:
-        return AnthropicClient(model=intent_model())
-    except (TypeError, ImportError):
-        return None
-
-
 class StartRequest(BaseModel):
-    intent: str | None = None  # the presenter's declared intent: optional, stored, not used for alignment
+    intent: str | None = None  # the presenter's declared intent: optional, stored, never used for alignment
     domain: str
     adjacent_field: str
 
@@ -75,13 +66,11 @@ def create_app(
     store: RunStore | None = None,
     cache: FileCache | None = None,
     client_factory: Callable[[], LLMClient | None] = default_client_factory,
-    intent_client_factory: Callable[[], LLMClient | None] = default_intent_client_factory,
     embedder: Embedder | None = None,
     frontend_dir: Path = FRONTEND_DIR,
 ) -> FastAPI:
     store = store or RunStore(data_dir() / "history", bundled=[BUNDLED_RUNS_DIR])
     cache = cache or FileCache(data_dir() / "cache" / "audiences", read_only_dirs=[BACKEND / "bundled_cache"])
-    intent_cache = FileIntentCache(data_dir() / "cache" / "intents") if cache is None else FileIntentCache(cache.write_dir.parent / "intents")
     active: dict[str, asyncio.Task] = {}
     in_flight: dict[tuple[str, int], asyncio.Future] = {}
     embedder_ref: dict[str, Embedder] = {}
@@ -198,7 +187,7 @@ def create_app(
             finished_at=None,
         )
         engine = TolerantEngine(client_factory(), cache)
-        task = asyncio.create_task(run_deck(store, run_id, engine, get_embedder(), intent_client_factory(), intent_cache))
+        task = asyncio.create_task(run_deck(store, run_id, engine, get_embedder()))
         active[run_id] = task
         task.add_done_callback(lambda _: active.pop(run_id, None))
         return {"run_id": run_id, "status": "running"}

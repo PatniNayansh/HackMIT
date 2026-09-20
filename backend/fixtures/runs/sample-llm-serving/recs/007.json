@@ -1,12 +1,29 @@
 {
-  "novice": [],
-  "peer": [],
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Specify what will be open-sourced (code, weights, or benchmarks)",
+      "evidence": "Which specific model or system is being open-sourced?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "State an approximate release date within the quarter",
+      "evidence": "When exactly this quarter will it be released?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Add the repository or license details for the open-source release",
+      "evidence": "What is the open-source release timeline exactly?"
+    }
+  ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T00:49:27+00:00",
-    "latency_s": 1.81,
-    "intent": "A technique improves GPU efficiency without changing model outputs and will be released as open-source this quarter.",
+    "generated_at": "2026-09-20T01:38:42+00:00",
+    "latency_s": 2.71,
+    "intent": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter.",
     "dropped_without_evidence": 0
   }
 }

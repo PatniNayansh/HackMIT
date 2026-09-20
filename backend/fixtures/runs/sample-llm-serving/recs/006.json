@@ -2,43 +2,43 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "State what the 2.4x is compared against (i.e., the baseline before combining techniques)",
-      "evidence": "The presenter wants me to believe their method significantly improves efficiency without sacrificing speed."
+      "bullet": "State the baseline throughput the 2.4x improvement is measured against",
+      "evidence": "What was the baseline before this improvement?"
     },
     {
       "audience": "novice",
-      "bullet": "Define or give a concrete example of the 'latency target' used",
-      "evidence": "How exactly was 'latency target' defined?"
+      "bullet": "Define what 'real chat workload' means (e.g., dataset, request pattern)",
+      "evidence": "How was 'real chat workload' defined or measured?"
     },
     {
       "audience": "novice",
-      "bullet": "Briefly describe what the 'real chat workload' consists of (e.g., source, size)",
-      "evidence": "What counts as a 'real chat workload'?"
+      "bullet": "Briefly define GPUs or clarify their role in the setup",
+      "evidence": "GPUs"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Clarify whether the 2.4x figure refers to raw throughput or ties back to the earlier p99 goodput metric",
-      "evidence": "Does 2.4x match the earlier p99 goodput claim exactly?"
+      "bullet": "State the actual latency target value used",
+      "evidence": "What was the actual latency target value used?"
     },
     {
       "audience": "peer",
-      "bullet": "Specify the exact latency target threshold used for the comparison",
-      "evidence": "What exactly is the 'latency target' threshold used?"
+      "bullet": "Add p99 (tail) latency comparison alongside median",
+      "evidence": "How does p99 latency compare, not just median?"
     },
     {
       "audience": "peer",
-      "bullet": "Note the source/generation method of the real chat workload",
-      "evidence": "How was 'real chat workload' generated or sourced?"
+      "bullet": "Clarify the definition/criteria for 'real chat workload'",
+      "evidence": "What counts as a 'real chat workload' exactly?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T00:49:25+00:00",
-    "latency_s": 4.44,
-    "intent": "Combined techniques deliver 2.4x higher throughput while maintaining unchanged median latency on real chat workloads.",
+    "generated_at": "2026-09-20T01:38:39+00:00",
+    "latency_s": 3.11,
+    "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
     "dropped_without_evidence": 0
   }
 }
