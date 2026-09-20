@@ -1,6 +1,8 @@
 import { closeDrawer } from "./provenance.js";
+import { initTheme } from "./theme.js";
 import { home, setup } from "./views-home.js";
-import { overview, detail } from "./views-run.js";
+import { overview } from "./views-overview.js";
+import { detail } from "./views-detail.js";
 
 const root = document.getElementById("app");
 let cleanup = null;
@@ -29,5 +31,6 @@ async function route() {
   window.scrollTo(0, 0);
 }
 
+initTheme();
 addEventListener("hashchange", route);
 route();

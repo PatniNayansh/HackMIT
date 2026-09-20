@@ -11,7 +11,7 @@ only by prior knowledge produce measurably different readings) is unsound, and n
 built on top of it means anything. So this file FAILS, loudly, when it cannot run; it
 never skips. It always calls the live model (fresh cache) so it is a real test each time.
 
-Thresholds are relative wherever possible. Calibration history (Sonnet 5, effort low, 5 runs,
+Thresholds are relative wherever possible. Calibration history (Claude Sonnet 5, effort low, 5 runs,
 `make gate-repeat`): clear-slide blind spot ranged -0.28..0.00 and jargon 0.15..0.48, so an
 absolute blind-spot magnitude on ONE slide is not stable (two of five runs failed on it) and
 was removed. What is stable, and asserted, is the separation between the slides, the sign of
@@ -39,7 +39,7 @@ from slides import (
 
 from sightline.audiences import AudienceEngine, FileCache
 from sightline.divergence import default_embedder, normalize_term, score_slide
-from sightline.llm import AnthropicClient
+from sightline.llm import OpenAIClient
 
 pytestmark = pytest.mark.live
 
@@ -51,7 +51,7 @@ def _fail_loudly(why: str, e: BaseException) -> None:
         "\n\n=== SIGHTLINE GATE COULD NOT RUN ===\n"
         f"{why}: {e!r}\n"
         "The gate is the go/no-go test for the whole project and is never skipped.\n"
-        "Put ANTHROPIC_API_KEY=... in the repo-root .env (see .env.example), then re-run `make gate`.\n",
+        "Put OPENAI_API_KEY=... in the repo-root .env (see .env.example), then re-run `make gate`.\n",
         pytrace=False,
     )
 
@@ -59,9 +59,9 @@ def _fail_loudly(why: str, e: BaseException) -> None:
 @pytest.fixture(scope="module")
 def results():
     try:
-        client = AnthropicClient()
+        client = OpenAIClient()
     except Exception as e:  # noqa: BLE001
-        _fail_loudly("cannot construct the Anthropic client", e)
+        _fail_loudly("cannot construct the OpenAI client", e)
 
     with tempfile.TemporaryDirectory() as tmp:
         engine = AudienceEngine(client, FileCache(tmp), offline=False)
@@ -100,7 +100,8 @@ def results():
                 "jargon": {"scores": jargon.to_dict(), "responses": {p: r.response.model_dump() for p, r in jargon_readings.items()}},
             },
             indent=2,
-        )
+        ),
+        encoding="utf-8",
     )
     return clear, jargon, clear_readings, jargon_readings
 

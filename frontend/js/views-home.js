@@ -1,4 +1,4 @@
-import { h, mount, when, warnIcon, infoIcon } from "./dom.js";
+import { h, mount, when, warnIcon, infoIcon, slideImage } from "./dom.js";
 import { api, getJSON, postJSON } from "./api.js";
 import { forget } from "./run.js";
 
@@ -65,7 +65,7 @@ export function home(root) {
       banner.style.marginBottom = "16px";
       banner.append(infoIcon(), h("div", null,
         h("strong", null, "No API key found. "),
-        "Saved runs still open and replay offline. Starting a new review needs ANTHROPIC_API_KEY in the repo-root .env (see .env.example)."));
+        "Saved runs still open and replay offline. Starting a new review needs OPENAI_API_KEY in the repo-root .env (see .env.example)."));
     }
   }).catch(() => {});
 
@@ -153,7 +153,7 @@ export async function setup(root, runId) {
     h("div", { class: "page-head" }, h("div", null, h("h1", null, meta.title), h("p", { class: "sub" }, `${meta.slide_count} slides read from ${meta.source_filename}`))),
     meta.status !== "draft" && meta.error && h("div", { class: "banner bad", style: "margin-bottom:16px" }, warnIcon(), h("div", null, h("strong", null, "The last attempt did not finish. "), meta.error)),
     h("section", { class: "card stack" },
-      h("div", { class: "thumbs-strip" }, ...run.image_urls.map((u, i) => h("img", { src: u, alt: `Slide ${i + 1}`, loading: "lazy" }))),
+      h("div", { class: "thumbs-strip" }, ...run.image_urls.map((u, i) => slideImage(u, `Slide ${i + 1}`))),
       h("div", { class: "form-grid" },
         h("label", { class: "field" },
           h("span", { class: "label" }, "Declared intent", h("span", { class: "pill" }, "required")),

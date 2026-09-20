@@ -4,129 +4,280 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
+      "takeaway": "The presenter wants us to remember that their new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
       "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "What does 'open-sourced' specifically include?",
-        "Which model or system is being open-sourced?"
+        "When exactly will the open-source release happen?",
+        "Which GPUs or hardware setups does this apply to?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember the efficiency gains are free upgrades with no quality tradeoff, coming soon publicly.",
+      "inferred_claim": "The presenter wants us to believe this improvement is efficient, safe, and will soon be publicly available.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.972,
+      "latency_s": 2.738,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-      "confidence": 0.75,
+      "takeaway": "The presentation's efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
+      "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "What specific project or code is being open-sourced?",
-        "What license will the open-source release use?"
+        "Which open-source project or repo will be released?",
+        "What license or platform will host the release?"
       ],
-      "inferred_claim": "The presenter wants viewers to remember the efficiency gain, output fidelity, and upcoming open-source release.",
+      "inferred_claim": "The presenter wants the audience to remember these gains are efficiency-only and soon publicly available.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.226,
+      "latency_s": 2.963,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "expert": {
       "ok": true,
-      "takeaway": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter.",
-      "confidence": 0.9,
+      "takeaway": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+      "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "Which components exactly will be open-sourced?",
-        "Any licensing or integration details for the release?"
+        "Which specific components/code will be open-sourced?",
+        "Does 'no change to what the model says' mean bitwise identical outputs, including with speculative decoding?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember and anticipate the open-source release as a lossless throughput win.",
+      "inferred_claim": "The presenter wants the audience to remember the serving efficiency gains are lossless and will be publicly released soon.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.367,
+      "latency_s": 2.946,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     }
   },
+  "slide_intent": {
+    "text": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+    "source": "expert_takeaway"
+  },
   "metrics": {
-    "slide_index": 7,
-    "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
     "takeaways": {
-      "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-      "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-      "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
+      "novice": "The presenter wants us to remember that their new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
+      "peer": "The presentation's efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
+      "expert": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.36289273677769945,
-        "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter."
+        "concept": null,
+        "claim": "A new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": null,
+        "claim": "Efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": null,
+        "claim": "Optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "claim"
+      ],
+      "scored": [
+        "claim"
+      ],
+      "thin": true,
+      "text": "This slide states a claim; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The optimizations increase serving capacity"
+      },
+      {
+        "id": "p2",
+        "text": "This is achieved without altering model outputs"
+      },
+      {
+        "id": "p3",
+        "text": "The work will be open-sourced this quarter"
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+          "audience": "A new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The optimizations increase serving capacity",
+                "status": "covered",
+                "evidence": "serves more users on existing hardware"
+              },
+              {
+                "id": "p2",
+                "text": "This is achieved without altering model outputs",
+                "status": "covered",
+                "evidence": "without changing model outputs"
+              },
+              {
+                "id": "p3",
+                "text": "The work will be open-sourced this quarter",
+                "status": "covered",
+                "evidence": "will be released as open source this quarter"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers all three propositions in different phrasing.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.38760209469788787,
-        "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter."
+        "concept": {
+          "field": "concept",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+          "audience": "Efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The optimizations increase serving capacity",
+                "status": "covered",
+                "evidence": "let more users be served on the same hardware"
+              },
+              {
+                "id": "p2",
+                "text": "This is achieved without altering model outputs",
+                "status": "covered",
+                "evidence": "without altering model outputs"
+              },
+              {
+                "id": "p3",
+                "text": "The work will be open-sourced this quarter",
+                "status": "covered",
+                "evidence": "the work will be open-sourced this quarter"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer covers all three propositions closely tracking expert's wording.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": true
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": true
       },
       "expert": {
-        "value": 0.3475989969535913,
-        "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-        }
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": true,
+        "definitional": true
       }
     },
-    "audience_divergence": {
-      "value": 0.3769976813498319,
-      "inputs": {
-        "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-        "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-        "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-      }
+    "reach": {
+      "novice": "ok",
+      "peer": "ok"
     },
-    "pairwise_distance": {
-      "novice-peer": {
-        "value": 0.287629636885259,
-        "inputs": {
-          "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-          "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter."
-        }
-      },
-      "novice-expert": {
-        "value": 0.4464022438303672,
-        "inputs": {
-          "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-          "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-        }
-      },
-      "peer-expert": {
-        "value": 0.39696116333386966,
-        "inputs": {
-          "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-          "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-        }
-      }
-    },
-    "blind_spot_score": {
-      "value": -0.015293739824108143,
-      "inputs": {
-        "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-        "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-        "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-      }
-    },
+    "findings": [],
     "term_gap": {
       "terms": [],
       "novice_unresolved": [],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 4.744
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2"
+  "scored_by": "claude-sonnet-5",
+  "timing": {
+    "personas_s": 2.968,
+    "structuring_s": 4.744
+  },
+  "image_content": null
 }

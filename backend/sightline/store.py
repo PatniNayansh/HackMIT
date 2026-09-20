@@ -6,6 +6,8 @@
         slides/001.png    the rendered slide images they were shown
         results/001.json  one SlideResult per completed slide: all three persona readings
                           (or the reason one failed) and every metric with its provenance
+        recs/001.json     that slide's recommendations, written the first time someone opens
+                          the slide (see `diagnose`), so a saved run replays them offline
 
 Everything the review UI shows is in these files, so opening a saved run needs no network and
 no API key: the server reads the directory and nothing else. Runs are written slide by slide as
@@ -39,6 +41,11 @@ BUNDLED_RUNS_DIR = BACKEND / "fixtures" / "runs"
 def data_dir() -> Path:
     return Path(os.environ.get("SIGHTLINE_DATA_DIR") or REPO_ROOT / "data")
 
+
+# 2: per-slide inferred intent; alignment measured against it; confidence, blind-spot and
+# divergence no longer part of the results. Runs saved before that have no version and open in a
+# reduced view (see server.public_meta).
+SCHEMA_VERSION = 2
 
 RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
@@ -118,7 +125,10 @@ class RunStore:
         for s in slides:
             (d / "slides").mkdir(parents=True, exist_ok=True)
             (d / "slides" / f"{s.index:03d}.png").write_bytes(s.image_png)
-        _write_json(d / "input.json", [{"index": s.index, "text": s.text} for s in slides])
+        _write_json(
+            d / "input.json",
+            [{"index": s.index, "text": s.text, "image_content": s.image_content, "figure_signals": s.figure_signals} for s in slides],
+        )
         meta = {
             "run_id": run_id,
             "title": title,
@@ -126,6 +136,7 @@ class RunStore:
             "created_at": now_iso(),
             "started_at": None,
             "finished_at": None,
+            "schema_version": SCHEMA_VERSION,
             "status": "draft",
             "slide_count": len(slides),
             "intent": None,
@@ -138,6 +149,8 @@ class RunStore:
             "profile_inference_error": inference_error,
             "model": None,
             "embedding_model": None,
+            "comparator": None,  # "cosine" | "fieldwise": which path produced this run's numbers
+            "structuring_model": None,
             "prompt_version": PROMPT_VERSION,
             "error": None,
             "sample": False,
@@ -156,9 +169,23 @@ class RunStore:
         return meta
 
     def clear_results(self, run_id: str) -> None:
-        """Forget earlier results before a failed run is started again."""
-        for p in (self._writable(run_id) / "results").glob("*.json"):
-            p.unlink()
+        """Forget earlier results (and the recommendations made from them) before a failed run
+        is started again."""
+        d = self._writable(run_id)
+        for sub in ("results", "recs"):
+            for p in (d / sub).glob("*.json"):
+                p.unlink()
+
+    def save_recs(self, run_id: str, index: int, recs: dict[str, Any]) -> None:
+        _write_json(self._writable(run_id) / "recs" / f"{index:03d}.json", recs)
+
+    def load_recs(self, run_id: str, index: int) -> dict[str, Any] | None:
+        d, _ = self._dir(run_id)
+        p = d / "recs" / f"{index:03d}.json"
+        try:
+            return json.loads(p.read_text(encoding="utf-8")) if p.is_file() else None
+        except json.JSONDecodeError:
+            return None  # half-written: regenerate
 
     def save_result(self, run_id: str, result: SlideResult) -> None:
         _write_json(self._writable(run_id) / "results" / f"{result['index']:03d}.json", result)
@@ -172,7 +199,8 @@ class RunStore:
     def load_slides(self, run_id: str) -> list[Slide]:
         d, _ = self._dir(run_id)
         return [
-            Slide(rec["index"], rec["text"], (d / "slides" / f"{rec['index']:03d}.png").read_bytes())
+            Slide(rec["index"], rec["text"], (d / "slides" / f"{rec['index']:03d}.png").read_bytes(),
+                  rec.get("image_content"), rec.get("figure_signals"))
             for rec in json.loads((d / "input.json").read_text(encoding="utf-8"))
         ]
 

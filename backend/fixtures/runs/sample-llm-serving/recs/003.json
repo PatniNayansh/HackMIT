@@ -1,0 +1,39 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Add a one-sentence definition of goodput and p99 (e.g., 'p99 = the slowest 1% of requests')",
+      "evidence": "What do 'alpha' and 'gamma' values actually measure?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a closing statement explicitly connecting the four bullets to the 2.4x result, e.g. 'Together, these four changes produce the 2.4x p99 goodput gain'",
+      "evidence": "The presenter wants us to believe these specific technical optimizations caused the 2.4x performance gain."
+    },
+    {
+      "audience": "novice",
+      "bullet": "Define TTFT SLO and explain why disabling chunked prefill helps hold it",
+      "evidence": "Why would turning chunked prefill 'off' help?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "State the baseline the 2.4x goodput is measured against directly on the slide",
+      "evidence": "What baseline is the 2.4x goodput measured against?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Add an explicit summary sentence stating that the combination (not any single technique) yields the claimed 2.4x p99 goodput improvement",
+      "evidence": "The presenter wants me to believe these specific techniques jointly drive the claimed 2.4x improvement."
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T03:47:02+00:00",
+    "latency_s": 4.82,
+    "intent": "Combining PagedAttention's memory efficiency with speculative decoding and tuned batching/prefill settings yields the claimed 2.4x p99 goodput improvement.",
+    "dropped_without_evidence": 0
+  }
+}

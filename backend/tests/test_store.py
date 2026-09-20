@@ -57,7 +57,7 @@ def test_results_round_trip_and_come_back_in_slide_order(store):
 def test_a_half_written_result_reads_as_pending_not_a_crash(store):
     run_id = draft(store)["run_id"]
     store.save_result(run_id, slide_result(1))
-    (store.root / run_id / "results" / "002.json").write_text('{"index": 2, "rea')
+    (store.root / run_id / "results" / "002.json").write_text('{"index": 2, "rea', encoding="utf-8")
     assert [r["index"] for r in store.load_results(run_id)] == [1]
 
 
@@ -83,7 +83,7 @@ def test_a_corrupt_run_does_not_take_the_list_down(store):
     store.update_meta(good, status="complete")
     bad = store.root / "20260101-000000-bad"
     bad.mkdir()
-    (bad / "run.json").write_text("{not json")
+    (bad / "run.json").write_text("{not json", encoding="utf-8")
     assert [r["run_id"] for r in store.list_runs()] == [good]
 
 
@@ -103,7 +103,8 @@ def test_bundled_runs_are_listed_and_readable_but_never_writable(tmp_path):
     (bundled / "sample-1").mkdir(parents=True)
     (bundled / "sample-1" / "run.json").write_text(
         json.dumps({"run_id": "sample-1", "title": "Sample", "status": "complete", "sample": True,
-                    "created_at": "2026-01-01T00:00:00+00:00"})
+                    "created_at": "2026-01-01T00:00:00+00:00"}),
+        encoding="utf-8",
     )
     s = RunStore(tmp_path / "history", bundled=[bundled])
     assert [r["run_id"] for r in s.list_runs()] == ["sample-1"]

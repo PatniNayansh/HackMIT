@@ -237,7 +237,7 @@ async def test_corrupt_cache_entry_is_a_miss_not_a_crash(tmp_path):
     cache = FileCache(tmp_path)
     await AudienceEngine(FakeLLM(), cache).read_slide(slide, CLEAR_PROFILE)
     for f in tmp_path.glob("*.json"):
-        f.write_text("{not json")
+        f.write_text("{not json", encoding="utf-8")
     llm = FakeLLM()
     await AudienceEngine(llm, cache).read_slide(slide, CLEAR_PROFILE)
     assert len(llm.calls) == 3

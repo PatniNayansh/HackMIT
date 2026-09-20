@@ -4,145 +4,306 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The slide lists three technical reasons why serving large language models efficiently is difficult, related to memory use and response speed.",
-      "confidence": 0.5,
+      "takeaway": "The slide lists three technical reasons why serving AI models efficiently is difficult: growing memory needs, wasted capacity, and slow worst-case response times.",
+      "confidence": 0.55,
       "unresolved_terms": [
         "KV-cache",
-        "GPU",
         "p99"
       ],
       "questions": [
         "What exactly is a KV-cache?",
-        "Why does fragmented memory waste GPU capacity?",
-        "What does p99 latency specifically measure?"
+        "What causes memory fragmentation here?",
+        "How does p99 relate to average latency?"
       ],
-      "inferred_claim": "The presenter wants me to understand the core technical challenges their system aims to solve.",
+      "inferred_claim": "The presenter wants me to understand the key technical challenges their system solves.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.156,
+      "latency_s": 3.178,
       "attempts": 1,
       "slide_hash": "986108ace36f108c8be95602"
     },
     "peer": {
       "ok": true,
-      "takeaway": "Serving large language models is difficult because growing memory demands, inefficient memory usage, and tail latency together create performance bottlenecks.",
+      "takeaway": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
       "confidence": 0.6,
       "unresolved_terms": [
         "KV-cache"
       ],
       "questions": [
-        "What exactly is a KV-cache in this context?",
-        "How does memory fragmentation specifically waste GPU capacity?",
-        "How do these three challenges relate to the 2.4x improvement?"
+        "What exactly is a KV-cache technically?",
+        "How does fragmentation specifically waste GPU capacity?",
+        "How do these three issues connect to the 2.4x claim?"
       ],
-      "inferred_claim": "The presenter wants me to understand these three core challenges motivate their proposed serving improvements.",
+      "inferred_claim": "The presenter wants to justify why their solution's improvements in serving efficiency matter.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.048,
+      "latency_s": 2.876,
       "attempts": 1,
       "slide_hash": "986108ace36f108c8be95602"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on slide 1.",
-      "confidence": 0.9,
+      "takeaway": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
+      "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "What technique addresses fragmentation, e.g. PagedAttention-like scheme?",
-        "How does the fix target p99 specifically?"
+        "Will PagedAttention or similar be presented as the fix?",
+        "How does fragmentation quantitatively affect throughput here?",
+        "What baseline system exhibits these problems?"
       ],
-      "inferred_claim": "These three problems are the key bottlenecks the presenter's system solves to boost p99 goodput.",
+      "inferred_claim": "These three problems are the key obstacles the presenter's system solves to achieve the 2.4x p99 goodput gain.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.351,
+      "latency_s": 3.696,
       "attempts": 1,
       "slide_hash": "986108ace36f108c8be95602"
     }
   },
+  "slide_intent": {
+    "text": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
+    "source": "expert_takeaway"
+  },
   "metrics": {
-    "slide_index": 2,
-    "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
     "takeaways": {
-      "novice": "The slide lists three technical reasons why serving large language models efficiently is difficult, related to memory use and response speed.",
-      "peer": "Serving large language models is difficult because growing memory demands, inefficient memory usage, and tail latency together create performance bottlenecks.",
-      "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on slide 1."
+      "novice": "The slide lists three technical reasons why serving AI models efficiently is difficult: growing memory needs, wasted capacity, and slow worst-case response times.",
+      "peer": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
+      "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.3448890592301408,
-        "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "novice": "The slide lists three technical reasons why serving large language models efficiently is difficult, related to memory use and response speed."
+        "concept": null,
+        "claim": "Serving AI models efficiently is difficult due to growing memory needs, wasted capacity, and slow worst-case response times.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "tail latency",
+        "claim": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "KV-cache",
+        "claim": "There are three core challenges in LLM serving: growing KV-cache, memory fragmentation, and tail latency.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "Growing KV-cache is a core challenge in LLM serving"
+      },
+      {
+        "id": "p2",
+        "text": "Memory fragmentation is a core challenge in LLM serving"
+      },
+      {
+        "id": "p3",
+        "text": "Tail latency is a core challenge in LLM serving"
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "KV-cache",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "There are three core challenges in LLM serving: growing KV-cache, memory fragmentation, and tail latency.",
+          "audience": "Serving AI models efficiently is difficult due to growing memory needs, wasted capacity, and slow worst-case response times.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Growing KV-cache is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "growing memory needs"
+              },
+              {
+                "id": "p2",
+                "text": "Memory fragmentation is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "wasted capacity"
+              },
+              {
+                "id": "p3",
+                "text": "Tail latency is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "slow worst-case response times"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers all three challenges in general terms.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.4119720889934727,
-        "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "peer": "Serving large language models is difficult because growing memory demands, inefficient memory usage, and tail latency together create performance bottlenecks."
+        "concept": {
+          "field": "concept",
+          "expert": "KV-cache",
+          "audience": "tail latency",
+          "status": "compared",
+          "outcome": "mismatch",
+          "comparator": "fuzzy",
+          "normalised": [
+            "kv cache",
+            "tail latency"
+          ],
+          "how": "edit similarity 0.20"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "There are three core challenges in LLM serving: growing KV-cache, memory fragmentation, and tail latency.",
+          "audience": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
+          "status": "compared",
+          "outcome": "over-claimed",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Growing KV-cache is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "growing memory caches"
+              },
+              {
+                "id": "p2",
+                "text": "Memory fragmentation is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "memory fragmentation"
+              },
+              {
+                "id": "p3",
+                "text": "Tail latency is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "tail latency"
+              }
+            ],
+            "extra_assertions": [
+              "strain GPU resources and user experience"
+            ],
+            "note": "Peer covers all three challenges and adds an effect claim.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition is covered, and the reading also asserts something the expert's claim does not."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "over-claimed",
+        "thin": false
       },
       "expert": {
-        "value": 0.5712155227221267,
-        "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on slide 1."
-        }
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
       }
     },
-    "audience_divergence": {
-      "value": 0.4136538664701577,
-      "inputs": {
-        "novice": "The slide lists three technical reasons why serving large language models efficiently is difficult, related to memory use and response speed.",
-        "peer": "Serving large language models is difficult because growing memory demands, inefficient memory usage, and tail latency together create performance bottlenecks.",
-        "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on slide 1."
-      }
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
     },
-    "pairwise_distance": {
-      "novice-peer": {
-        "value": 0.17911098652824164,
-        "inputs": {
-          "novice": "The slide lists three technical reasons why serving large language models efficiently is difficult, related to memory use and response speed.",
-          "peer": "Serving large language models is difficult because growing memory demands, inefficient memory usage, and tail latency together create performance bottlenecks."
-        }
-      },
-      "novice-expert": {
-        "value": 0.5296656402337184,
-        "inputs": {
-          "novice": "The slide lists three technical reasons why serving large language models efficiently is difficult, related to memory use and response speed.",
-          "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on slide 1."
-        }
-      },
-      "peer-expert": {
-        "value": 0.532184972648513,
-        "inputs": {
-          "peer": "Serving large language models is difficult because growing memory demands, inefficient memory usage, and tail latency together create performance bottlenecks.",
-          "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on slide 1."
-        }
-      }
-    },
-    "blind_spot_score": {
-      "value": 0.22632646349198593,
-      "inputs": {
-        "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-        "novice": "The slide lists three technical reasons why serving large language models efficiently is difficult, related to memory use and response speed.",
-        "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on slide 1."
-      }
-    },
+    "findings": [],
     "term_gap": {
       "terms": [
         "KV-cache",
-        "GPU",
         "p99"
       ],
       "novice_unresolved": [
         "KV-cache",
-        "GPU",
         "p99"
       ],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 4.872
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2"
+  "scored_by": "claude-sonnet-5",
+  "timing": {
+    "personas_s": 3.705,
+    "structuring_s": 4.872
+  },
+  "image_content": null
 }

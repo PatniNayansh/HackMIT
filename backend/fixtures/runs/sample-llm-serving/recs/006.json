@@ -1,0 +1,34 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "State what system/configuration the 2.4x is compared against (i.e., name the baseline)",
+      "evidence": "Result: 2.4x more requests per second"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Define or briefly describe how the 'real chat workload' was constructed",
+      "evidence": "How was 'real chat workload' data collected or defined?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "State the baseline system the 2.4x improvement is measured against",
+      "evidence": "How does 'real chat workload' compare to prior benchmarks?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Clarify that latency was measured at median (and note whether p99 was also checked) to preempt confusion about which percentile the claim covers",
+      "evidence": "Is the 2.4x measured at p99 or median latency SLO?"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T03:47:38+00:00",
+    "latency_s": 3.68,
+    "intent": "The combined optimizations achieved a measured 2.4x throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
+    "dropped_without_evidence": 0
+  }
+}

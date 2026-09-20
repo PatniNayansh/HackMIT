@@ -103,7 +103,7 @@ def run_slide(run_id: str, index: int, text: str, out_dir: Path, model, masks: d
     }
     slide_dir = out_dir / run_id / str(index)
     slide_dir.mkdir(parents=True, exist_ok=True)
-    (slide_dir / "metrics.json").write_text(json.dumps(metrics, indent=2))
+    (slide_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     _render_surface(response, masks, slide_dir)
     return metrics
 

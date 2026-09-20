@@ -82,7 +82,8 @@ def _write_metrics(root, run_id, slide, language_drive, visual_drive, gfp=0.01, 
                 "gfp_negative_baseline": gfp,
                 "narration_transcript": transcript,
             }
-        )
+        ),
+        encoding="utf-8",
     )
     return d
 

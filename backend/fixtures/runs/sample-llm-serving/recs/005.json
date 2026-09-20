@@ -1,0 +1,18 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Briefly explain rejection sampling's role in preserving output distribution, since the term is opaque",
+      "evidence": "How does 'rejection sampling' work here?"
+    }
+  ],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T03:47:28+00:00",
+    "latency_s": 4.03,
+    "intent": "The slide gives a standard summary of speculative decoding mechanics as one component behind the earlier-claimed 2.4x goodput gain.",
+    "dropped_without_evidence": 4
+  }
+}

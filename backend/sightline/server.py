@@ -28,11 +28,13 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import diagnose, ingest
+from . import ingest
 from .audiences import DeckProfile, FileCache
+from .compare import FileStructureCache
+from .diagnose import RecommendationsUnavailable, recommend
 from .deck import rollup
 from .divergence import Embedder, default_embedder
-from .llm import AnthropicClient, LLMClient
+from .llm import LLMClient, OpenAIClient
 from .neural import OVERLAY_LABEL, SURFACE_VIEWS, CachedNeural, NeuralNotCached
 from .runner import TolerantEngine, run_deck
 from .store import (
@@ -41,25 +43,63 @@ from .store import (
     REPO_ROOT,
     ReadOnlyRun,
     RunNotFound,
+    SCHEMA_VERSION,
     RunStore,
     data_dir,
 )
 
 FRONTEND_DIR = REPO_ROOT / "frontend"
+
+# THE FLAG. Which comparator produces a run's numbers: "fieldwise" (compare.py) or "cosine" (the
+# original whole-takeaway cosine, divergence.py, left intact). Flip it with no code change:
+#     SIGHTLINE_COMPARATOR=cosine make dev
+# It applies to runs STARTED after it changes; a saved run keeps and shows the comparator that made it.
+COMPARATORS = ("cosine", "fieldwise")
+
+
+def default_comparator() -> str:
+    value = os.environ.get("SIGHTLINE_COMPARATOR", "fieldwise").strip().lower()
+    if value not in COMPARATORS:
+        raise ValueError(f"SIGHTLINE_COMPARATOR must be one of {COMPARATORS}, got {value!r}")
+    return value
+
+
+COMPARATOR = default_comparator()
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 
 def default_client_factory() -> LLMClient | None:
-    """None when no credential resolves (the SDK raises TypeError), so the app still starts and
+    """None when no credential resolves (the client raises TypeError), so the app still starts and
     saved runs still open."""
     try:
-        return AnthropicClient()
+        return OpenAIClient()
+    except (TypeError, ImportError):
+        return None
+
+
+def default_helper_client_factory() -> LLMClient | None:
+    """The cost-tier model for the figure describer (`helper` in llm.CONFIG): describing marks and
+    labels is extraction, not judgement."""
+    try:
+        return OpenAIClient(role="helper")
+    except (TypeError, ImportError):
+        return None
+
+
+def default_structuring_client_factory() -> LLMClient | None:
+    """The field-wise structuring + proposition-coverage call (`structuring` in llm.CONFIG). On
+    Claude the cost tier misjudged the direction of a paraphrase on hand-written fixtures and the
+    balanced tier did not, and a false gap is exactly what this comparator exists to avoid; the
+    role is measured again on the current models (see the README). Override the model with
+    SIGHTLINE_STRUCTURING_MODEL."""
+    try:
+        return OpenAIClient(role="structuring")
     except (TypeError, ImportError):
         return None
 
 
 class StartRequest(BaseModel):
-    intent: str
+    intent: str | None = None  # the presenter's declared intent: optional, stored, never used for alignment
     domain: str
     adjacent_field: str
 
@@ -69,16 +109,25 @@ def create_app(
     store: RunStore | None = None,
     cache: FileCache | None = None,
     client_factory: Callable[[], LLMClient | None] = default_client_factory,
+    helper_client_factory: Callable[[], LLMClient | None] = default_helper_client_factory,
+    structuring_client_factory: Callable[[], LLMClient | None] = default_structuring_client_factory,
+    comparator: str | None = None,
     embedder: Embedder | None = None,
     neural_cache: CachedNeural | None = None,
     frontend_dir: Path = FRONTEND_DIR,
 ) -> FastAPI:
     store = store or RunStore(data_dir() / "history", bundled=[BUNDLED_RUNS_DIR])
     cache = cache or FileCache(data_dir() / "cache" / "audiences", read_only_dirs=[BACKEND / "bundled_cache"])
+    comparator = comparator or COMPARATOR
+    if comparator not in COMPARATORS:
+        raise ValueError(f"comparator must be one of {COMPARATORS}, got {comparator!r}")
+    figure_cache = ingest.FileFigureCache(cache.write_dir.parent / "figures")
+    structure_cache = FileStructureCache(cache.write_dir.parent / "structured")
     # Precomputed only, and only ever for the bundled sample decks (spec 5, 9): there is no
     # writable neural store, unlike run history or the audience cache.
     neural_cache = neural_cache or CachedNeural(BACKEND / "fixtures" / "neural")
     active: dict[str, asyncio.Task] = {}
+    in_flight: dict[tuple[str, int], asyncio.Future] = {}
     embedder_ref: dict[str, Embedder] = {}
 
     def get_embedder() -> Embedder:
@@ -108,6 +157,7 @@ def create_app(
 
     def public_meta(meta: dict[str, Any]) -> dict[str, Any]:
         # A run that says "running" with no live task behind it was cut off by a restart.
+        meta = {**meta, "legacy": meta.get("schema_version", 1) < SCHEMA_VERSION}
         if meta["status"] == "running" and meta["run_id"] not in active:
             return {**meta, "status": "interrupted"}
         return meta
@@ -122,6 +172,7 @@ def create_app(
         client = client_factory()
         return {
             "can_call_model": client is not None,
+            "comparator": comparator,
             "model": client.model if client else None,
             "offline": os.environ.get("SIGHTLINE_OFFLINE") == "1",
         }
@@ -159,13 +210,26 @@ def create_app(
         inferred: DeckProfile | None = None
         error: str | None = None
         client = client_factory()
-        if client is None:
-            error = "No API key is configured, so the subfield could not be inferred. Enter it yourself."
-        else:
+
+        async def infer() -> None:
+            nonlocal inferred, error
+            if client is None:
+                error = "No API key is configured, so the subfield could not be inferred. Enter it yourself."
+                return
             try:
                 inferred = await ingest.infer_profile(client, slides)
             except Exception as e:  # noqa: BLE001 - shown to the presenter, who can type it in
                 error = f"Could not infer the subfield ({type(e).__name__}). Enter it yourself."
+
+        # Figure descriptions are made ONCE per deck, here, in parallel with the subfield: a
+        # text-only deck sends nothing, and the personas never make this call themselves.
+        described: list[ingest.Slide] = slides
+        async def describe() -> None:
+            nonlocal described
+            described = await ingest.describe_figures(helper_client_factory(), slides, figure_cache)
+
+        await asyncio.gather(infer(), describe())
+        slides = described
 
         meta = store.create_draft(
             title=Path(name).stem or "Untitled deck",
@@ -181,9 +245,7 @@ def create_app(
         meta = store.load_meta(run_id)  # 404 if unknown
         if store.is_read_only(run_id):
             raise ReadOnlyRun(f"{run_id} is a bundled sample and cannot be run again")
-        intent, domain, adjacent = body.intent.strip(), body.domain.strip(), body.adjacent_field.strip()
-        if not intent:
-            raise HTTPException(422, "Declared intent is required: alignment cannot be measured without it.")
+        intent, domain, adjacent = (body.intent or "").strip() or None, body.domain.strip(), body.adjacent_field.strip()
         if not domain or not adjacent:
             raise HTTPException(422, "Both the deck's subfield and the adjacent field are required.")
         if run_id in active:
@@ -205,7 +267,13 @@ def create_app(
             finished_at=None,
         )
         engine = TolerantEngine(client_factory(), cache)
-        task = asyncio.create_task(run_deck(store, run_id, engine, get_embedder()))
+        task = asyncio.create_task(
+            run_deck(
+                store, run_id, engine, get_embedder(), comparator=comparator,
+                structuring_client=structuring_client_factory() if comparator == "fieldwise" else None,
+                structure_cache=structure_cache,
+            )
+        )
         active[run_id] = task
         task.add_done_callback(lambda _: active.pop(run_id, None))
         return {"run_id": run_id, "status": "running"}
@@ -237,16 +305,43 @@ def create_app(
             store.image_path(run_id, index), media_type="image/png", headers={"Cache-Control": "max-age=3600"}
         )
 
-    @app.get("/api/runs/{run_id}/slides/{index}/findings")
-    def findings(run_id: str, index: int):
-        results = store.load_results(run_id)
-        result = next((r for r in results if r["index"] == index), None)
+    @app.get("/api/runs/{run_id}/slides/{index}/recommendations")
+    async def recommendations(run_id: str, index: int):
+        """Recommendations for one slide, made the first time the slide is opened and saved with
+        the run. A saved run replays them from disk with no key. Concurrent opens share one call."""
+        cached = store.load_recs(run_id, index)
+        if cached is not None:
+            return {"available": True, "cached": True, "recommendations": cached}
+        result = next((r for r in store.load_results(run_id) if r["index"] == index), None)
         if result is None:
             raise HTTPException(404, f"slide {index} has no result yet")
-        return {
-            "fixture": diagnose.FIXTURE_BACKED,  # the UI badges these as sample data
-            "findings": diagnose.diagnose(result, rollup(results)),
-        }
+        if not result.get("slide_intent"):
+            return {"available": False, "reason": "This slide has no inferred intent to work from."}
+        client = client_factory()
+        if client is None:
+            return {"available": False, "reason": "No API key is configured, and no recommendations were saved for this slide."}
+
+        key = (run_id, index)
+        if key not in in_flight:
+            async def generate():
+                try:
+                    recs = await recommend(result, result["slide_intent"], client=client)
+                    try:
+                        store.save_recs(run_id, index, recs)
+                    except ReadOnlyRun:
+                        pass  # a bundled sample: show it, do not write into the repo
+                    return recs
+                finally:
+                    in_flight.pop(key, None)
+
+            in_flight[key] = asyncio.ensure_future(generate())
+        try:
+            recs = await asyncio.shield(in_flight[key])
+        except RecommendationsUnavailable as e:
+            return {"available": False, "reason": str(e).capitalize() + "."}
+        except Exception as e:  # noqa: BLE001 - shown next to a retry button
+            raise HTTPException(502, f"Could not generate recommendations ({type(e).__name__}).") from e
+        return {"available": True, "cached": False, "recommendations": recs}
 
     # ------------------------------------------------------------------------- neural
     # Precomputed only (spec 5, 9): these never trigger a model call, only ever read what

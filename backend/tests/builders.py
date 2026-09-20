@@ -9,8 +9,7 @@ from typing import Sequence
 import numpy as np
 
 from sightline.audiences import PERSONAS, AudienceReading, AudienceResponse
-from sightline.deck import SlideResult, plain, reading_record
-from sightline.divergence import score_slide
+from sightline.deck import SlideResult, build_metrics, expert_takeaway_intent, reading_record
 
 INTENT = "INTENT"
 
@@ -29,11 +28,15 @@ class AngleEmbedder:
 
 def slide_result(
     index: int,
-    align: tuple[float, float, float] = (0.5, 0.5, 0.5),
+    align: tuple[float, float] = (0.5, 0.5),
     conf: tuple[float, float, float] = (0.5, 0.5, 0.5),
     terms: tuple[Sequence[str], Sequence[str], Sequence[str]] = ((), (), ()),
     text: str = "[title] A slide",
 ) -> SlideResult:
+    """A scored slide. `align` is (novice, peer) alignment to the slide's intent, which is the
+    expert's takeaway verbatim; the expert is the reference, so its own alignment is definitional
+    (see deck.build_metrics)."""
+    cos = (*align, 1.0)
     responses = {
         p: AudienceResponse(
             takeaway=f"cos={a:.2f} takeaway of {p}",
@@ -42,20 +45,21 @@ def slide_result(
             questions=[],
             inferred_claim=f"{p} claim",
         )
-        for p, a, c, t in zip(PERSONAS, align, conf, terms)
+        for p, a, c, t in zip(PERSONAS, cos, conf, terms)
     }
     readings = {
         p: reading_record(AudienceReading(p, index, f"hash{index}", r, "fake-model", False, 1.0))
         for p, r in responses.items()
     }
-    metrics = score_slide(INTENT, responses, AngleEmbedder(), index)
     return {
         "index": index,
         "text": text,
         "readings": readings,
-        "metrics": plain(metrics.to_dict()),
+        "slide_intent": expert_takeaway_intent(responses["expert"]),
+        "metrics": build_metrics(responses["expert"].takeaway, responses, AngleEmbedder(), index),
         "metrics_error": None,
         "scored_by": "angle-embedder",
+        "timing": {"personas_s": 1.0},
     }
 
 
@@ -72,3 +76,64 @@ class HashEmbedder:
             raw = np.frombuffer(hashlib.sha256(t.encode()).digest(), dtype=np.uint8).astype(float) - 127.5
             rows.append(raw / np.linalg.norm(raw))
         return np.array(rows)
+
+
+# ------------------------------------------------------------------ field-wise (compare.py) slides
+
+
+# The states, as coverage of a two-proposition expert claim: (statuses, extra assertions).
+_STATE_COVERAGE = {
+    "equivalent": (("covered", "covered"), ()),
+    "over-claimed": (("covered", "covered"), ("and more besides",)),
+    "under-specified": (("covered", "omitted"), ()),
+    "divergent": (("covered", "contradicted"), ()),
+    "absent": (("omitted", "omitted"), ()),
+}
+
+
+def fw_slide_result(
+    index: int,
+    novice: dict | None = None,
+    peer: dict | None = None,
+    expert: dict | None = None,
+    states: dict | None = None,
+    unresolved: tuple = ((), (), ()),
+    text: str = "[title] A slide",
+    image: str | None = None,
+) -> SlideResult:
+    """A scored slide under the field-wise comparator, built through the REAL `build_fieldwise_metrics`
+    so the payload shape cannot drift. Fields default to a slide where everyone reached everything.
+    `states` maps an audience to the claim state it should land in (default equivalent); the expert's
+    claim has two propositions, and evidence is always the audience's own claim, word for word."""
+    from sightline.compare import all_omitted, build_fieldwise_metrics, clean_propositions, judge_coverage
+
+    full = {"concept": "isotope", "claim": "Isotopes are atoms of one element with different neutron counts.", "result": "6", "vehicle": "carbon-12 and carbon-14"}
+    fields = {"novice": novice if novice is not None else dict(full), "peer": peer if peer is not None else dict(full), "expert": expert if expert is not None else dict(full)}
+    props = clean_propositions([{"id": "p1", "text": "Isotopes are atoms of one element"}, {"id": "p2", "text": "They differ in neutron counts"}], fields["expert"]["claim"]) if fields["expert"]["claim"] else []
+
+    def coverage(aud):
+        claim = fields[aud]["claim"]
+        if not props:
+            return None
+        if claim is None:
+            return all_omitted(props)
+        statuses, extras = _STATE_COVERAGE[(states or {}).get(aud, "equivalent")]
+        raw = {"judgements": [{"id": p["orig"], "status": st, "evidence": claim if st != "omitted" else ""} for p, st in zip(props, statuses)],
+               "extra_assertions": [claim] if extras else [], "note": "n"}
+        return judge_coverage(raw, props, claim)
+
+    structured = {"fields": fields, "propositions": props, "coverage": {"novice": coverage("novice"), "peer": coverage("peer")},
+                  "meta": {"model": "fake-sonnet", "attempts": 1, "latency_s": 0.1, "dropped": [], "retried_because": [], "tripwire": []}}
+    takeaways = {p: f"takeaway of {p} on slide {index}" for p in PERSONAS}
+    responses = {
+        p: AudienceResponse(takeaway=takeaways[p], confidence=0.5, unresolved_terms=list(u), questions=[], inferred_claim=f"{p} claim")
+        for p, u in zip(PERSONAS, unresolved)
+    }
+    readings = {p: reading_record(AudienceReading(p, index, f"hash{index}", r, "fake-model", False, 1.0)) for p, r in responses.items()}
+    return {
+        "index": index, "text": text, "readings": readings,
+        "slide_intent": expert_takeaway_intent(responses["expert"]),
+        "metrics": build_fieldwise_metrics(takeaways, structured, {p: list(u) for p, u in zip(PERSONAS, unresolved)}, image),
+        "metrics_error": None, "scored_by": "fake-sonnet", "timing": {"personas_s": 1.0, "structuring_s": 1.0},
+        "image_content": {"text": image, "model": "fake-haiku", "source": "vision", "machine_generated": True} if image else None,
+    }
