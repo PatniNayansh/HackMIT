@@ -1,0 +1,29 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Explain 'p99' as the 99th percentile latency (slowest 1% of requests)",
+      "evidence": "What is p99 referring to?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a subtitle stating the baseline comparison, e.g. 'vs. baseline serving system X'",
+      "evidence": "What method achieves the 2.4x improvement?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "State the baseline the 2.4x improvement is measured against directly on the slide",
+      "evidence": "What baseline is the 2.4x improvement compared against?"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T03:46:42+00:00",
+    "latency_s": 4.14,
+    "intent": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow.",
+    "dropped_without_evidence": 2
+  }
+}
