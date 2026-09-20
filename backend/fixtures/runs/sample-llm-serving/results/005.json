@@ -4,115 +4,111 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The slide explains a technique called speculative decoding where a small model quickly guesses several tokens, which a bigger model checks in one step, speeding things up without changing the final output.",
+      "takeaway": "A small draft model quickly guesses several tokens which a larger target model checks at once, speeding things up without changing the final output.",
       "confidence": 0.55,
       "unresolved_terms": [
         "gamma tokens",
-        "forward pass",
         "Rejection sampling"
       ],
       "questions": [
-        "What exactly is a 'forward pass'?",
-        "How does 'rejection sampling' work here?",
-        "Why is it called 'gamma' tokens specifically?"
+        "What exactly is 'gamma' referring to numerically?",
+        "How does rejection sampling technically preserve exactness?",
+        "How much speed gain does this technique give alone?"
       ],
       "inferred_claim": "The presenter wants me to believe speculative decoding speeds up AI responses without sacrificing accuracy.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.22,
+      "latency_s": 3.334,
       "attempts": 1,
       "slide_hash": "db5e7a31f2a208b5da315ff6"
     },
     "peer": {
       "ok": true,
-      "takeaway": "A small draft model proposes multiple tokens which a larger target model verifies at once, using rejection sampling to speed decoding without changing output distribution.",
-      "confidence": 0.6,
+      "takeaway": "A small draft model quickly proposes multiple tokens which a larger target model verifies in one pass, speeding decoding while preserving exact output distribution via rejection sampling.",
+      "confidence": 0.65,
       "unresolved_terms": [
-        "gamma tokens"
+        "gamma"
       ],
       "questions": [
         "What determines the value of gamma?",
-        "How much speedup does this give versus baseline decoding?",
-        "How does this combine with the block table technique?"
+        "How much speedup does this give over standard decoding?",
+        "Does this interact with the KV-cache blocks from slide 4?"
       ],
-      "inferred_claim": "The presenter wants me to believe speculative decoding speeds up inference while preserving exact output correctness.",
+      "inferred_claim": "Speculative decoding is a key technique contributing to the overall throughput/latency improvement.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.865,
+      "latency_s": 3.163,
       "attempts": 1,
       "slide_hash": "db5e7a31f2a208b5da315ff6"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The slide summarizes the standard speculative decoding mechanism: draft model proposes tokens, target model verifies in parallel, rejection sampling preserves exact output distribution.",
-      "confidence": 0.9,
+      "takeaway": "The slide summarizes standard speculative decoding mechanics: draft proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
+      "confidence": 0.95,
       "unresolved_terms": [],
       "questions": [
-        "What value of gamma was used in the system?",
-        "How does draft model choice affect acceptance rate?",
-        "What speedup does this contribute to the 2.4x figure?"
+        "How does gamma=5 interact with 0.78 acceptance rate here?",
+        "What speedup does this specific setup contribute vs PagedAttention alone?"
       ],
-      "inferred_claim": "The presenter wants the audience to accept speculative decoding as a lossless speedup technique used in their system.",
+      "inferred_claim": "The presenter wants the audience to accept speculative decoding as a lossless speedup technique underlying their 2.4x claim.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.169,
+      "latency_s": 3.119,
       "attempts": 1,
       "slide_hash": "db5e7a31f2a208b5da315ff6"
     }
   },
   "slide_intent": {
-    "text": "Speculative decoding uses draft model proposals verified by target model with rejection sampling to achieve lossless speedup.",
+    "text": "Speculative decoding achieves lossless speedup by having a draft model propose tokens that a target model verifies through rejection sampling in a single pass.",
     "source": "model",
     "model": "claude-haiku-4-5",
     "reason": null,
-    "attempts": 2,
-    "latency_s": 1.964,
+    "attempts": 1,
+    "latency_s": 1.149,
     "cached": false,
     "derived_from": {
-      "takeaway": "The slide summarizes the standard speculative decoding mechanism: draft model proposes tokens, target model verifies in parallel, rejection sampling preserves exact output distribution.",
-      "inferred_claim": "The presenter wants the audience to accept speculative decoding as a lossless speedup technique used in their system."
+      "takeaway": "The slide summarizes standard speculative decoding mechanics: draft proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
+      "inferred_claim": "The presenter wants the audience to accept speculative decoding as a lossless speedup technique underlying their 2.4x claim."
     }
   },
   "metrics": {
-    "intent": "Speculative decoding uses draft model proposals verified by target model with rejection sampling to achieve lossless speedup.",
+    "intent": "Speculative decoding achieves lossless speedup by having a draft model propose tokens that a target model verifies through rejection sampling in a single pass.",
     "takeaways": {
-      "novice": "The slide explains a technique called speculative decoding where a small model quickly guesses several tokens, which a bigger model checks in one step, speeding things up without changing the final output.",
-      "peer": "A small draft model proposes multiple tokens which a larger target model verifies at once, using rejection sampling to speed decoding without changing output distribution.",
-      "expert": "The slide summarizes the standard speculative decoding mechanism: draft model proposes tokens, target model verifies in parallel, rejection sampling preserves exact output distribution."
+      "novice": "A small draft model quickly guesses several tokens which a larger target model checks at once, speeding things up without changing the final output.",
+      "peer": "A small draft model quickly proposes multiple tokens which a larger target model verifies in one pass, speeding decoding while preserving exact output distribution via rejection sampling.",
+      "expert": "The slide summarizes standard speculative decoding mechanics: draft proposes tokens, target verifies in one pass, rejection sampling preserves exactness."
     },
     "intent_alignment": {
       "novice": {
-        "value": 0.6884129109546763,
+        "value": 0.5308391362362507,
         "inputs": {
-          "intent": "Speculative decoding uses draft model proposals verified by target model with rejection sampling to achieve lossless speedup.",
-          "novice": "The slide explains a technique called speculative decoding where a small model quickly guesses several tokens, which a bigger model checks in one step, speeding things up without changing the final output."
+          "intent": "Speculative decoding achieves lossless speedup by having a draft model propose tokens that a target model verifies through rejection sampling in a single pass.",
+          "novice": "A small draft model quickly guesses several tokens which a larger target model checks at once, speeding things up without changing the final output."
         }
       },
       "peer": {
-        "value": 0.6804619615869059,
+        "value": 0.7822735670263332,
         "inputs": {
-          "intent": "Speculative decoding uses draft model proposals verified by target model with rejection sampling to achieve lossless speedup.",
-          "peer": "A small draft model proposes multiple tokens which a larger target model verifies at once, using rejection sampling to speed decoding without changing output distribution."
+          "intent": "Speculative decoding achieves lossless speedup by having a draft model propose tokens that a target model verifies through rejection sampling in a single pass.",
+          "peer": "A small draft model quickly proposes multiple tokens which a larger target model verifies in one pass, speeding decoding while preserving exact output distribution via rejection sampling."
         }
       },
       "expert": {
         "value": 1.0,
         "definitional": true,
         "inputs": {
-          "intent": "Speculative decoding uses draft model proposals verified by target model with rejection sampling to achieve lossless speedup.",
-          "expert": "The slide summarizes the standard speculative decoding mechanism: draft model proposes tokens, target model verifies in parallel, rejection sampling preserves exact output distribution."
+          "intent": "Speculative decoding achieves lossless speedup by having a draft model propose tokens that a target model verifies through rejection sampling in a single pass.",
+          "expert": "The slide summarizes standard speculative decoding mechanics: draft proposes tokens, target verifies in one pass, rejection sampling preserves exactness."
         }
       }
     },
     "term_gap": {
       "terms": [
         "gamma tokens",
-        "forward pass",
         "Rejection sampling"
       ],
       "novice_unresolved": [
         "gamma tokens",
-        "forward pass",
         "Rejection sampling"
       ],
       "expert_unresolved": []
@@ -121,7 +117,7 @@
   "metrics_error": null,
   "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
   "timing": {
-    "personas_s": 3.222,
-    "intent_s": 1.964
+    "personas_s": 3.335,
+    "intent_s": 1.149
   }
 }

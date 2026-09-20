@@ -1,0 +1,127 @@
+import { h, mount, f2, when, infoIcon } from "./dom.js";
+import { watch } from "./run.js";
+import { arcChart } from "./charts.js";
+import { numBtn, openProvenance } from "./provenance.js";
+import { runHref, statusPill, subfieldLine, tierChip, guard, runBanners } from "./run-common.js";
+
+const firstLine = (text) => (text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? text);
+
+export function overview(root, runId) {
+  let showAllTerms = false, showAllHardest = false;
+
+  const paint = (state) => {
+    if (guard(root, state)) return;
+    const { meta, rollup } = state;
+    const total = meta.slide_count, done = state.results.size;
+    document.title = `${meta.title} — Sightline`;
+
+    const head = h("div", { class: "page-head" },
+      h("div", null,
+        h("div", { class: "crumbs" }, h("a", { href: "#/" }, "Saved runs"), "›", meta.title),
+        h("h1", null, meta.title),
+        h("div", { class: "meta-line small" },
+          statusPill(meta), h("span", null, when(meta.created_at)), h("span", null, `${total} slides`),
+          h("span", { class: "mono" }, meta.model || "no model"),
+          meta.intent_model && h("span", { class: "mono", title: "Writes each slide’s intended reading" }, `intent: ${meta.intent_model}`),
+          meta.sample && h("span", { class: "pill sample" }, "sample data")),
+        meta.status === "running" && h("div", null,
+          h("div", { class: "progress", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": total, "aria-valuenow": done },
+            h("i", { style: `width:${(done / total) * 100}%` })),
+          h("p", { class: "muted small", style: "margin-top:4px" }, `Read ${done} of ${total} slides. Each takes about 6 seconds; the overview fills in as they land.`))));
+
+    const context = (meta.intent || meta.profile) && h("div", { class: "card" },
+      meta.intent && h("div", { class: "intent-box" }, h("div", { class: "small muted" }, "Your declared intent (stored; alignment is measured against each slide’s own intended reading)"), h("p", null, meta.intent)),
+      h("div", { style: meta.intent ? "margin-top:8px" : "" }, subfieldLine(meta)));
+
+    // Streaming film strip: each slide shows as soon as its result lands.
+    const nextPending = state.pending[0];
+    const filmstrip = h("div", { class: "filmstrip" }, ...state.imageUrls.map((url, i) => {
+      const n = i + 1, r = state.results.get(n);
+      const img = h("div", { class: "thumb" }, h("img", { src: url, alt: `Slide ${n}`, loading: "lazy" }));
+      if (!r) return h("div", { class: `tile pending${meta.status === "running" && n === nextPending ? " next" : ""}` }, img, h("div", { class: "cap" }, h("b", null, n), h("span", null, "pending")));
+      // A saved-before-tiers run has nowhere to go: its slide page was retired with the metrics it showed.
+      const label = meta.legacy ? h("span", null, "read") : (r.metrics ? tierMini(state, n) : h("span", { class: "pill bad" }, "bad response"));
+      const tag = meta.legacy ? "div" : "a";
+      return h(tag, { class: "tile", href: meta.legacy ? null : runHref(state, n) }, img, h("div", { class: "cap" }, h("b", null, n), label));
+    }));
+
+    const parts = [head, ...runBanners(state), context,
+      h("section", { class: "section" }, h("header", null, h("h2", null, "Slides")), filmstrip)];
+
+    if (!done) {
+      parts.push(h("p", { class: "empty" }, meta.status === "running" ? "Waiting for the first slide…" : "No slide finished."));
+      mount(root, ...parts);
+      return;
+    }
+
+    if (!meta.legacy && rollup.notes.length) {
+      parts.push(h("section", { class: "section" },
+        h("header", null, h("h2", null, "What the numbers say")),
+        h("p", { class: "lede" }, "Written from the counts and ranks below; each opens the evidence it was built from."),
+        h("div", { class: "card" }, ...rollup.notes.map((n) => h("div", { class: "note" }, infoIcon(), numBtn(n.text, { kind: "note", id: n.id }, state, `${n.text} Show the evidence.`))))));
+    }
+
+    if (!meta.legacy) parts.push(hardestSection(state, showAllHardest, () => { showAllHardest = !showAllHardest; paint(state); }));
+
+    // Terms: the novice's deck-wide vocabulary problem.
+    const terms = rollup.terms;
+    const shown = showAllTerms ? terms : terms.slice(0, 8);
+    parts.push(h("section", { class: "section" },
+      h("header", null, h("h2", null, "Terms the novice could not resolve, across the deck")),
+      h("p", { class: "lede" }, "A term that stays unresolved on several slides is a vocabulary problem for the whole deck, not for one slide."),
+      terms.length
+        ? h("div", { class: "card" },
+            ...shown.map((t) => h("div", { class: "term-row" },
+              h("span", { class: "term" }, t.term),
+              h("span", { class: "term-bar" }, ...t.slides.map((n) => h("a", { href: meta.legacy ? null : runHref(state, n), title: `Slide ${n}`, "aria-label": `Slide ${n}` }, n))),
+              h("span", { class: "right tnum", style: "text-align:right" }, numBtn(`${t.count} slide${t.count === 1 ? "" : "s"}`, { kind: "term", key: t.key }, state)))),
+            terms.length > 8 && h("div", { style: "margin-top:10px" }, h("button", { class: "btn small", on: { click: () => { showAllTerms = !showAllTerms; paint(state); } } }, showAllTerms ? "Show fewer" : `Show all ${terms.length} terms`)))
+        : h("p", { class: "empty" }, "The novice listed no unresolved terms on the slides read so far.")));
+
+    if (!meta.legacy && rollup.arc.some((a) => a.novice != null)) {
+      parts.push(h("section", { class: "section" },
+        h("header", null, h("h2", null, "Narrative arc")),
+        h("p", { class: "lede" }, "How far each audience falls below the intended reading as the deck goes on. Where the novice line drops and stays down, a newcomer was lost and did not recover. Alignment is semantic similarity: the weaker instrument, so read the shape across slides, not any one level."),
+        h("div", { class: "card" }, arcChart(rollup, {
+          onPoint: (slide, persona) => openProvenance({ kind: "alignment", slide, persona }, state),
+          tableNumber: (slide, persona, v, isReference) => (isReference
+            ? numBtn("reference", { kind: "reference", slide }, state, "reference. Show why this is definitional.")
+            : numBtn(f2(v), { kind: "alignment", slide, persona }, state)),
+        }))));
+    }
+
+    mount(root, ...parts);
+  };
+  return watch(runId, paint);
+}
+
+/** A tier as a quiet label under a thumbnail. Clicking the thumbnail opens the slide, so this
+ *  one is not a button: the chip on the slide page and the ranking is the clickable one. */
+function tierMini(state, n) {
+  const t = state.rollup.per_slide.find((p) => p.slide === n)?.tier;
+  return t ? h("span", { class: `tier-mini ${t.tier}` }, t.label) : h("span", null, "read");
+}
+
+function hardestSection(state, showAll, toggle) {
+  const { rollup, meta } = state;
+  const rows = showAll ? rollup.hardest : rollup.hardest.slice(0, 5);
+  return h("section", { class: "section" },
+    h("header", null, h("h2", null, "Hardest slides for a newcomer")),
+    h("p", { class: "lede" },
+      "Ordered by how far the novice’s reading falls from what the slide is trying to establish, then by how many terms they could not resolve. It is a ranking inside this deck: read the order, not any one slide’s level.",
+      meta.status === "running" && " Tiers are read against the slides read so far and can shift as more arrive."),
+    rows.length
+      ? h("div", { class: "card" },
+          ...rows.map((row) => {
+            const n = row.slide, r = state.results.get(n);
+            const take = r.readings.novice.takeaway;
+            return h("div", { class: "rank-row wide" },
+              h("a", { href: runHref(state, n), "aria-label": `Open slide ${n}` }, h("img", { src: state.imageUrls[n - 1], alt: "" }), h("div", { class: "small", style: "margin-top:4px;font-weight:600" }, `Slide ${n}`)),
+              h("div", { class: "rank-take" }, h("div", { class: "take-label" }, "Novice takeaway"), h("div", { class: "clamp" }, `“${firstLine(take)}”`)),
+              h("div", { class: "rank-tier" }, tierChip(state, n)),
+              h("div", { class: "fact" }, h("span", { class: "k" }, "Novice unresolved terms"),
+                h("span", { class: "v" }, numBtn(String(row.novice_unresolved), { kind: "unresolved", slide: n, persona: "novice" }, state))));
+          }),
+          rollup.hardest.length > 5 && h("div", { style: "margin-top:10px" }, h("button", { class: "btn small", on: { click: toggle } }, showAll ? "Show fewer" : `Show all ${rollup.hardest.length} slides`)))
+      : h("p", { class: "empty" }, "No slide has all three readings yet."));
+}

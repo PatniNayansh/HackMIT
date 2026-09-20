@@ -24,25 +24,31 @@ export function strip(dist, slide, color = "var(--ink)") {
 }
 
 // -------------------------------------------------------------- narrative arc
-// Alignment to declared intent for each persona across slide order: three lines, one axis.
+// Alignment to each slide's inferred intent, per persona, in slide order. The reference is the
+// flat dashed line at 1.0. Novice and peer are measured; the expert IS the reference (the intent
+// was derived from its reading), so it lies on the line, and is drawn and labelled as such. The
+// space between each series and the reference is shaded: that gap is what is being read.
 
-const W = 1000, H = 300, M = { l: 44, r: 96, t: 14, b: 30 };
+const W = 1000, H = 320, M = { l: 44, r: 108, t: 28, b: 30 };
 
 export function arcChart(rollup, { onPoint, tableNumber }) {
-  const pts = rollup.arc;
-  const vals = pts.flatMap((p) => PERSONAS.map((k) => p[k])).filter((v) => v != null);
+  const pts = rollup.arc.filter((p) => PERSONAS.some((k) => p[k] != null));
+  const definitional = new Set(rollup.definitional || []);
+  const measured = PERSONAS.filter((k) => !definitional.has(k));
+  const vals = pts.flatMap((p) => measured.map((k) => p[k])).filter((v) => v != null);
   if (!vals.length) return h("p", { class: "empty" }, "No slide has been scored yet.");
 
-  const lo = Math.min(0, Math.floor(Math.min(...vals) * 2) / 2);
-  const hi = Math.max(1, Math.ceil(Math.max(...vals) * 2) / 2);
+  const lo = Math.min(0, Math.floor(Math.min(...vals) * 4) / 4);
+  const hi = 1;
   const n = pts.length;
   const X = (i) => (n === 1 ? (M.l + W - M.r) / 2 : M.l + (i / (n - 1)) * (W - M.l - M.r));
-  const Y = (v) => H - M.b - ((v - lo) / (hi - lo)) * (H - M.t - M.b);
+  const Y = (v) => H - M.b - ((Math.min(v, hi) - lo) / (hi - lo)) * (H - M.t - M.b);
+  const kind = (k) => (definitional.has(k) ? "definitional today" : "measured");
 
-  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Alignment to declared intent for the novice, peer and expert across slide order" });
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Alignment to each slide\u2019s intended reading for the novice, peer and expert across slide order, against the reference line at 1.0" });
 
   const ticks = [];
-  for (let t = lo; t <= hi + 1e-9; t += 0.5) ticks.push(t);
+  for (let t = lo; t <= hi + 1e-9; t += 0.25) ticks.push(t);
   svg.append(s("g", { class: "grid" }, ...ticks.map((t) => s("line", { x1: M.l, x2: W - M.r, y1: Y(t), y2: Y(t) }))));
   svg.append(...ticks.map((t) => s("text", { x: M.l - 8, y: Y(t) + 4, "text-anchor": "end" }, f2(t))));
   svg.append(s("g", { class: "axis" }, s("line", { x1: M.l, x2: W - M.r, y1: Y(lo), y2: Y(lo) })));
@@ -52,7 +58,26 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
     if (i % every === 0 || i === n - 1) svg.append(s("text", { x: X(i), y: H - 8, "text-anchor": "middle" }, p.slide));
   });
 
-  // Lines: 2px, broken where a persona has no value for a slide.
+  // Shade the gap between each measured series and the reference, per run of consecutive slides.
+  for (const k of measured) {
+    let run = [];
+    const flush = () => {
+      if (run.length > 1) {
+        const top = run.map((i) => `${X(i).toFixed(1)},${Y(hi).toFixed(1)}`);
+        const bottom = [...run].reverse().map((i) => `${X(i).toFixed(1)},${Y(pts[i][k]).toFixed(1)}`);
+        svg.append(s("polygon", { points: [...top, ...bottom].join(" "), fill: COLOR[k], opacity: 0.1 }));
+      }
+      run = [];
+    };
+    pts.forEach((p, i) => (p[k] == null ? flush() : run.push(i)));
+    flush();
+  }
+
+  // The reference: flat, dashed, at 1.0, labelled.
+  svg.append(s("line", { x1: M.l, x2: W - M.r, y1: Y(hi), y2: Y(hi), stroke: "var(--ink-2)", "stroke-width": 1.5, "stroke-dasharray": "6 5" }));
+  svg.append(s("text", { x: M.l, y: Y(hi) - 8, style: "fill: var(--ink-2); font-size: 12.5px" }, "inferred intent (reference)"));
+
+  // Series lines: 2px, broken where a persona has no value for a slide. Same weight for all three.
   for (const k of PERSONAS) {
     let d = "", pen = false;
     pts.forEach((p, i) => {
@@ -72,7 +97,7 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
   for (const e of ends) { e.ly = Math.max(e.y, last + 15); last = e.ly; }
   for (const e of ends) {
     if (Math.abs(e.ly - e.y) > 1) svg.append(s("line", { x1: e.x + 6, y1: e.y, x2: W - M.r + 8, y2: e.ly, stroke: "var(--baseline)", "stroke-width": 1 }));
-    svg.append(s("text", { x: W - M.r + 12, y: e.ly + 4, style: "fill: var(--ink-2); font-size: 12.5px" }, LABEL[e.k]));
+    svg.append(s("text", { x: W - M.r + 12, y: e.ly + 4, style: "fill: var(--ink-2); font-size: 12.5px" }, `${LABEL[e.k]}${definitional.has(e.k) ? " (reference)" : ""}`));
   }
 
   // Markers: 8px+ dots with a 2px surface ring; a 24px transparent target opens the provenance.
@@ -89,7 +114,9 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
       if (p[k] == null) return;
       svg.append(s("circle", {
         class: "mk", cx: X(i), cy: Y(p[k]), r: 12, fill: "transparent", tabindex: 0, role: "button",
-        "aria-label": `${LABEL[k]}, slide ${p.slide}, alignment ${f2(p[k])}. Show the text behind it.`,
+        "aria-label": definitional.has(k)
+          ? `${LABEL[k]}, slide ${p.slide}, reference (definitional). Show why.`
+          : `${LABEL[k]}, slide ${p.slide}, alignment ${f2(p[k])}. Show the text behind it.`,
         on: {
           click: () => onPoint(p.slide, k),
           keydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPoint(p.slide, k); } },
@@ -111,7 +138,7 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
       h("div", { class: "h" }, `Slide ${p.slide}`),
       ...PERSONAS.map((k) => h("div", { class: "r" },
         h("span", { class: "k" }, h("i", { style: `border-color:${COLOR[k]}` }), LABEL[k]),
-        h("b", null, p[k] == null ? "not scored" : f2(p[k])))),
+        h("b", null, p[k] == null ? "not scored" : definitional.has(k) ? "reference" : f2(p[k])))),
       h("div", { class: "foot" }, "Click a dot for the text behind it"),
     );
     tip.style.display = "block";
@@ -123,7 +150,13 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
   svg.addEventListener("pointerleave", () => { cross.style.display = "none"; tip.style.display = "none"; });
 
   const legend = h("div", { class: "legend" },
-    ...PERSONAS.map((k) => h("span", null, h("i", { style: `border-color:${COLOR[k]}` }), LABEL[k])));
+    ...PERSONAS.map((k) => h("span", null, h("i", { style: `border-color:${COLOR[k]}` }), LABEL[k], h("em", { class: "legend-kind" }, ` (${kind(k)})`))),
+    h("span", null, h("i", { class: "ref-key" }), "inferred intent (reference)"));
+
+  const note = definitional.size
+    ? h("p", { class: "caveat", style: "margin-top:8px" },
+        `${[...definitional].map((k) => LABEL[k]).join(" and ")} sits on the reference at 1.0 because the intended reading is derived from that reading: it is a definition, not a measurement. It is drawn anyway so the chart, the payload and the legend keep their shape when the expert is measured independently.`)
+    : null;
 
   const table = h("details", { class: "table-view" },
     h("summary", null, "Show as a table"),
@@ -132,7 +165,8 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
         h("thead", null, h("tr", null, h("th", null, "Slide"), ...PERSONAS.map((k) => h("th", { class: "right" }, LABEL[k])))),
         h("tbody", null, ...pts.map((p) => h("tr", null,
           h("td", null, p.slide),
-          ...PERSONAS.map((k) => h("td", { class: "right tnum" }, p[k] == null ? "not scored" : tableNumber(p.slide, k, p[k])))))))));
+          ...PERSONAS.map((k) => h("td", { class: "right tnum" },
+            p[k] == null ? "not scored" : tableNumber(p.slide, k, p[k], definitional.has(k))))))))));
 
-  return h("div", null, legend, wrap, table);
+  return h("div", null, legend, wrap, note, table);
 }

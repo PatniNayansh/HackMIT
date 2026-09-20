@@ -1,0 +1,44 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "State what the 2.4x is compared against (i.e., the baseline before combining techniques)",
+      "evidence": "The presenter wants me to believe their method significantly improves efficiency without sacrificing speed."
+    },
+    {
+      "audience": "novice",
+      "bullet": "Define or give a concrete example of the 'latency target' used",
+      "evidence": "How exactly was 'latency target' defined?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Briefly describe what the 'real chat workload' consists of (e.g., source, size)",
+      "evidence": "What counts as a 'real chat workload'?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Clarify whether the 2.4x figure refers to raw throughput or ties back to the earlier p99 goodput metric",
+      "evidence": "Does 2.4x match the earlier p99 goodput claim exactly?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Specify the exact latency target threshold used for the comparison",
+      "evidence": "What exactly is the 'latency target' threshold used?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Note the source/generation method of the real chat workload",
+      "evidence": "How was 'real chat workload' generated or sourced?"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T00:49:25+00:00",
+    "latency_s": 4.44,
+    "intent": "Combined techniques deliver 2.4x higher throughput while maintaining unchanged median latency on real chat workloads.",
+    "dropped_without_evidence": 0
+  }
+}

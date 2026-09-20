@@ -1,0 +1,29 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Replace 'p99' with a plain-language explanation like 'the slowest 1% of requests'",
+      "evidence": "What does p99 measure precisely?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a brief note on how memory fragmentation occurs",
+      "evidence": "How does memory fragmentation happen technically?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Add a phrase linking these three challenges explicitly to the proposed solution's goodput goal",
+      "evidence": "The presenter wants me to understand these three challenges motivate their proposed serving method."
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T00:49:05+00:00",
+    "latency_s": 4.76,
+    "intent": "Growing KV-cache, memory fragmentation, and tail latency are the core challenges that the proposed system addresses to achieve goodput improvements.",
+    "dropped_without_evidence": 2
+  }
+}

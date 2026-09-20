@@ -1,0 +1,34 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Add a brief plain-language explanation of copy-on-write, e.g. 'reuses memory instead of duplicating it'",
+      "evidence": "What does copy-on-write mean here?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a sentence connecting prefix caching hit rate to performance improvement (e.g. 'higher hit rate = fewer recomputations = faster responses')",
+      "evidence": "How does prefix caching improve performance?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Add a note linking block tables to PagedAttention mentioned earlier in the deck",
+      "evidence": "How does this relate to PagedAttention from slide 3?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Clarify what determines a prefix cache hit vs miss in this context",
+      "evidence": "What causes prefix cache hits/misses here?"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T00:49:15+00:00",
+    "latency_s": 4.71,
+    "intent": "Block-table based memory management with copy-on-write sharing and prefix caching achieves high cache efficiency and improves serving performance.",
+    "dropped_without_evidence": 1
+  }
+}

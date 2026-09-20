@@ -4,94 +4,94 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter.",
-      "confidence": 0.8,
+      "takeaway": "The presentation's key points are that this method serves more users on the same hardware, doesn't alter the AI's output, and will be released as open source this quarter.",
+      "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "When exactly this quarter will it be released?",
-        "Which GPUs or systems does this apply to?"
+        "When exactly will the code be released?",
+        "Which platform will host the open-source release?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember this efficiency gain is safe, real, and soon freely available.",
+      "inferred_claim": "The presenter wants the audience to remember these three benefits and expect an open-source release soon.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.743,
+      "latency_s": 3.425,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The presenter summarizes that their optimization lets more users be served on the same hardware without altering model outputs, and will be open-sourced this quarter.",
-      "confidence": 0.8,
+      "takeaway": "The presenter is summarizing that their system boosts GPU efficiency without altering model outputs, and will be open-sourced this quarter.",
+      "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "Which open-source project or repo will host this?",
-        "What license will the release use?"
+        "When exactly this quarter will it be released?",
+        "Which projects or frameworks will host the open-source code?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember the efficiency gain, output fidelity, and upcoming open-source release.",
+      "inferred_claim": "The audience should expect and adopt this open-sourced efficiency improvement soon.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.78,
+      "latency_s": 3.42,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter.",
+      "takeaway": "The presenter is summarizing the closing message: the technique improves GPU efficiency without altering model outputs and will be open-sourced this quarter.",
       "confidence": 0.75,
       "unresolved_terms": [],
       "questions": [
-        "Will the code be released under a specific license?",
-        "Does 'this quarter' refer to a specific date?"
+        "Which repo or license for the open-source release?",
+        "What framework will this integrate with (vLLM, TGI)?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember the efficiency gain, output fidelity, and upcoming open-source release.",
+      "inferred_claim": "Adopt or watch for this open-source release as a lossless throughput improvement.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.234,
+      "latency_s": 3.425,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     }
   },
   "slide_intent": {
-    "text": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
+    "text": "A technique improves GPU efficiency without changing model outputs and will be released as open-source this quarter.",
     "source": "model",
     "model": "claude-haiku-4-5",
     "reason": null,
     "attempts": 1,
-    "latency_s": 1.0,
+    "latency_s": 1.149,
     "cached": false,
     "derived_from": {
-      "takeaway": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter.",
-      "inferred_claim": "The presenter wants the audience to remember the efficiency gain, output fidelity, and upcoming open-source release."
+      "takeaway": "The presenter is summarizing the closing message: the technique improves GPU efficiency without altering model outputs and will be open-sourced this quarter.",
+      "inferred_claim": "Adopt or watch for this open-source release as a lossless throughput improvement."
     }
   },
   "metrics": {
-    "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
+    "intent": "A technique improves GPU efficiency without changing model outputs and will be released as open-source this quarter.",
     "takeaways": {
-      "novice": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter.",
-      "peer": "The presenter summarizes that their optimization lets more users be served on the same hardware without altering model outputs, and will be open-sourced this quarter.",
-      "expert": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter."
+      "novice": "The presentation's key points are that this method serves more users on the same hardware, doesn't alter the AI's output, and will be released as open source this quarter.",
+      "peer": "The presenter is summarizing that their system boosts GPU efficiency without altering model outputs, and will be open-sourced this quarter.",
+      "expert": "The presenter is summarizing the closing message: the technique improves GPU efficiency without altering model outputs and will be open-sourced this quarter."
     },
     "intent_alignment": {
       "novice": {
-        "value": 0.5996173541487573,
+        "value": 0.5214647015098264,
         "inputs": {
-          "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
-          "novice": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter."
+          "intent": "A technique improves GPU efficiency without changing model outputs and will be released as open-source this quarter.",
+          "novice": "The presentation's key points are that this method serves more users on the same hardware, doesn't alter the AI's output, and will be released as open source this quarter."
         }
       },
       "peer": {
-        "value": 0.6397011341543664,
+        "value": 0.8221207168446245,
         "inputs": {
-          "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
-          "peer": "The presenter summarizes that their optimization lets more users be served on the same hardware without altering model outputs, and will be open-sourced this quarter."
+          "intent": "A technique improves GPU efficiency without changing model outputs and will be released as open-source this quarter.",
+          "peer": "The presenter is summarizing that their system boosts GPU efficiency without altering model outputs, and will be open-sourced this quarter."
         }
       },
       "expert": {
         "value": 1.0,
         "definitional": true,
         "inputs": {
-          "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
-          "expert": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter."
+          "intent": "A technique improves GPU efficiency without changing model outputs and will be released as open-source this quarter.",
+          "expert": "The presenter is summarizing the closing message: the technique improves GPU efficiency without altering model outputs and will be open-sourced this quarter."
         }
       }
     },
@@ -104,7 +104,7 @@
   "metrics_error": null,
   "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
   "timing": {
-    "personas_s": 3.238,
-    "intent_s": 1.0
+    "personas_s": 3.429,
+    "intent_s": 1.149
   }
 }

@@ -1,0 +1,24 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Replace 'p99' with a plain-language explanation, e.g. 'the slowest 1% of requests'",
+      "evidence": "What does 'p99' refer to?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "State the baseline the 2.4x improvement is measured against",
+      "evidence": "Compared to what baseline is 2.4x improvement?"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T00:49:00+00:00",
+    "latency_s": 3.68,
+    "intent": "A novel approach achieves 2.4x improvement in goodput at p99 latency for LLM serving.",
+    "dropped_without_evidence": 2
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Add a one-line explanation of how rejection sampling mathematically preserves the exact output distribution",
+      "evidence": "How does rejection sampling technically preserve exactness?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add the speedup number attributable to this technique alone",
+      "evidence": "How much speed gain does this technique give alone?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Specify what determines the value of gamma (e.g., tuning parameter or fixed value used)",
+      "evidence": "What determines the value of gamma?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "State the speedup this technique contributes relative to standard decoding",
+      "evidence": "How much speedup does this give over standard decoding?"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T00:49:21+00:00",
+    "latency_s": 5.38,
+    "intent": "Speculative decoding achieves lossless speedup by having a draft model propose tokens that a target model verifies through rejection sampling in a single pass.",
+    "dropped_without_evidence": 1
+  }
+}
