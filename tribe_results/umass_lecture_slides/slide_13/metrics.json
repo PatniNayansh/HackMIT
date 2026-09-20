@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.17597843706607819,
+  "visual_drive": 0.07402043044567108,
+  "processing_ratio": 2.377430609448312,
+  "gfp_negative_baseline": 0.16113686561584473,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Using boxplots A boxplot1 displays the distribution of data \u2022 Useful for identifying outliers \u2022 Efficient for comparing multiple datasets \u2022 The lines indicating the \u201cmaximum/minimum\u201d points (excluding outliers) are called whiskers 1Figure source: https://towardsdatascience.com/understanding-boxplots-5e2df7bcbd51 Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 13 / 16"
+}

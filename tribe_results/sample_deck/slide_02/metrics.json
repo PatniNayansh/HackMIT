@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.10162187367677689,
+  "visual_drive": -0.013145877979695797,
+  "processing_ratio": -7.730322298269839,
+  "gfp_negative_baseline": 0.1522713452577591,
+  "narration_transcript": "Why serving is hard Every request grows a KV-cache as it generates tokens Fragmented memory wastes GPU capacity Tail latency (p99) is what users feel"
+}

@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.23542022705078125,
+  "visual_drive": 0.08276417851448059,
+  "processing_ratio": 2.8444700506462666,
+  "gfp_negative_baseline": 0.1853909194469452,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Quantiles (cont.) Certain quantiles are equivalent to others: m = Q2 Q1 Q3 \u2022 The median is the second quartile Q2 \u2022 The 25th percentile is equivalent to the first quartile Q1 Questions 1 Quintiles (QU1, QU2, . . .) partition a distribution into 5 equal groups.How many quintiles are there? 2 The second quartile Q2 can be expressed as which percentile?a Answers: Q1: There are 4 quintiles; Q2: Q2 = P50 (fiftieth percentile) aRecall that a quartile splits a sample into 4 equal groups. Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 12 / 16"
+}

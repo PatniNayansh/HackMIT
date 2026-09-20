@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.24337266385555267,
+  "visual_drive": 0.0677405297756195,
+  "processing_ratio": 3.5927186377444738,
+  "gfp_negative_baseline": 0.1855156123638153,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Standard deviation and variance The sample variance and standard deviation are measures of dispersion. Sample variance n X s2 (xi \u2212\u00afx)2 (3) X = 1 n i=1 Sample standard deviation This is the square root of the variance: n X (xi \u2212\u00afx)2 (4) sX = v u u t1 n i=1 Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 6 / 16"
+}

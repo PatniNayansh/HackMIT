@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.2415851354598999,
+  "visual_drive": 0.09118647873401642,
+  "processing_ratio": 2.649352610320486,
+  "gfp_negative_baseline": 0.18158692121505737,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Sampling error and coefficient of variation The sample variance and standard deviation measure the aleatory uncertainty in the data. Sampling error Defined as the standard deviation of the sample mean: sx = sX \u221an (5) Measures how well the sample mean x estimates the population mean. Also known as standard error. Coefficient of variation Measures dispersion relative to the mean. \u03b4X = sX x (6) Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 9 / 16"
+}

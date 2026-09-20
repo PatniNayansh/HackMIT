@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.15033695101737976,
+  "visual_drive": 0.07319630682468414,
+  "processing_ratio": 2.053887109051263,
+  "gfp_negative_baseline": 0.1487937569618225,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Summarizing data Example 10: Walking cadence In the article \u201cCan We Really Walk Straight?\u201d (Amer. J. of Physical Anthropology, 1992: 19\u201327) reported on an experiment in which each of 20 healthy men was asked to walk as straight as possible to a target 60m away at normal speed. Consider the following observations on cadence (number of strides per second): .95 .85 .92 .95 .93 .86 1.00 .92 .85 .81 .78 .93 .93 1.05 .93 1.06 .96 .81 .96 Summarize the data; interpret and discuss. Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 15 / 16"
+}
