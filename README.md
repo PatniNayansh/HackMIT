@@ -380,6 +380,19 @@ from an actual GX10 run: slides 1-7, four cortical surface renders and a `metric
 8 was added to the deck later and was never run, so it 404s and the page says so — the empty state
 is an unlit surface, which stands for the absence and never for a result.
 
+### Reviewing a deck that is not ours to ship
+
+The bundled sample is the only run committed to this repo. To review a real deck locally —
+a lecture handout, say — and have it appear in Saved runs like any other run:
+
+```bash
+python backend/scripts/make_local_run.py path/to/deck.pdf     --run-id my-deck --title "A title"
+```
+
+It writes to `data/history/`, which is git-ignored, so someone else's slides never end up in
+this repo. If that deck has precomputed neural output, drop it under
+`backend/fixtures/neural/<run-id>/<slide>/` and the panel picks it up.
+
 To compute more, on a CUDA machine (see `docs/GX10_SETUP.md` for the full path):
 
 ```bash

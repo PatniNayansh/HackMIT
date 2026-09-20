@@ -360,7 +360,7 @@ const fw = {
     return {
       title: `Reference \u2014 Expert, slide ${slide}`,
       body: [
-        h("div", null, h("div", { class: "big" }, "reference"), h("span", { class: "pill outline" }, "definitional, not measured")),
+        h("div", null, h("div", { class: "big" }, "reference"), h("span", { class: "pill outline" }, "definitional")),
         h("p", null, REFERENCE_NOTE),
         h("p", { class: "muted" }, "The expert\u2019s takeaway is the slide\u2019s intent, its extracted fields define which fields the slide has, and its claim defines the propositions everyone else is counted against. There is nothing to score it against. It stays in the payload and on the arc so they keep their shape for when the expert is measured independently."),
         section("What it defined", h("div", { class: "stack" },
@@ -423,7 +423,7 @@ const BUILDERS = {
     return {
       title: `Reference \u2014 Expert, slide ${slide}`,
       body: [
-        h("div", null, h("div", { class: "big" }, "reference"), h("span", { class: "pill outline" }, "definitional, not measured")),
+        h("div", null, h("div", { class: "big" }, "reference"), h("span", { class: "pill outline" }, "definitional")),
         h("p", null, REFERENCE_NOTE),
         h("p", { class: "muted" }, tk
           ? "Its alignment is 1.0 by construction: the slide\u2019s intent is this persona\u2019s own takeaway, so there is nothing to score it against. It is shown so the chart, the payload and the legend keep their shape for when the expert is measured independently."

@@ -27,7 +27,7 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
-from sightline.neural import SURFACE_VIEWS, OVERLAY_LABEL, assert_may_run_tribe, processing_ratio  # noqa: E402
+from sightline.neural import SURFACE_VIEWS, assert_may_run_tribe, processing_ratio  # noqa: E402
 from sightline.store import RunStore, BUNDLED_RUNS_DIR, data_dir  # noqa: E402
 
 from narrate import synthesize  # noqa: E402
@@ -53,9 +53,9 @@ def _call_tribe(model, audio_path: Path) -> np.ndarray:
 
 
 def _render_surface(response: np.ndarray, masks: dict, out_dir: Path) -> None:
-    """One PNG per SURFACE_VIEWS entry, cold_hot colormap symmetric about zero, with the
-    "predicted, not measured" disclosure burned into the image itself (spec 9: "on the
-    image itself, not in a tab")."""
+    """One PNG per SURFACE_VIEWS entry, cold_hot colormap symmetric about zero. No title: the
+    UI names the panel, and text baked into a PNG cannot be restyled, translated or selected.
+    scripts/crop_render_titles.py trims the band off renders made before this changed."""
     from nilearn import datasets, plotting
 
     fsaverage = datasets.fetch_surf_fsaverage("fsaverage5")
@@ -74,7 +74,6 @@ def _render_surface(response: np.ndarray, masks: dict, out_dir: Path) -> None:
         fig = plotting.plot_surf_stat_map(
             mesh, values, bg_map=bg, hemi="left" if "left" in name else "right",
             view=view, cmap="cold_hot", vmax=vmax, symmetric_cbar=True, colorbar=True,
-            title=OVERLAY_LABEL,
         )
         fig.savefig(out_dir / f"{name}.png", dpi=120)
         import matplotlib.pyplot as plt

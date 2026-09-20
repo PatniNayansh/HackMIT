@@ -57,7 +57,7 @@ export function overview(root, runId) {
     if (!meta.legacy && rollup.notes.length) {
       parts.push(h("section", { class: "section" },
         h("header", null, h("h2", null, "What the numbers say")),
-        h("p", { class: "lede" }, "Written from the counts and ranks below; each opens the evidence it was built from."),
+        h("p", { class: "lede" }, "Each one opens the evidence it came from."),
         h("div", { class: "card" }, ...rollup.notes.map((n) => h("div", { class: "note" }, infoIcon(), numBtn(n.text, { kind: "note", id: n.id }, state, `${n.text} Show the evidence.`))))));
     }
 
@@ -68,7 +68,7 @@ export function overview(root, runId) {
     const shown = showAllTerms ? terms : terms.slice(0, 8);
     parts.push(h("section", { class: "section" },
       h("header", null, h("h2", null, "Terms the novice could not resolve, across the deck")),
-      h("p", { class: "lede" }, "A term that stays unresolved on several slides is a vocabulary problem for the whole deck, not for one slide."),
+      h("p", { class: "lede" }, "A term missed on several slides is a deck problem, not a slide problem."),
       terms.length
         ? h("div", { class: "card" },
             ...shown.map((t) => h("div", { class: "term-row" },
@@ -83,9 +83,9 @@ export function overview(root, runId) {
         h("header", null, h("h2", null, "Narrative arc")),
         h("p", { class: "lede" }, rollup.comparator === "fieldwise"
           ? (rollup.arc_kind === "coverage"
-              ? "How many of the expert\u2019s propositions each audience covered, slide by slide: a count, not a similarity or a rank. Where the novice line drops and stays down, a newcomer was lost and did not recover. A hollow marker is a slide with a thin profile, not a low-comprehension slide."
-              : "How each audience\u2019s reading of the claim compares with the expert\u2019s as the deck goes on, on an ordinal with four rungs: equivalent, over-claimed, under-specified, and divergent or absent. It is a rank, not a similarity or a probability. Where the novice line drops and stays down, a newcomer was lost and did not recover. A hollow marker is a slide with a thin profile, not a low-comprehension slide.")
-          : "How far each audience falls below the intended reading as the deck goes on. Where the novice line drops and stays down, a newcomer was lost and did not recover. Alignment is semantic similarity: the weaker instrument, so read the shape across slides, not any one level."),
+              ? "Propositions of the expert\u2019s claim each audience covered, slide by slide. Where the novice line drops and stays down, a newcomer was lost."
+              : "Where each audience\u2019s reading of the claim lands against the expert\u2019s: equivalent, over-claimed, under-specified, divergent or absent.")
+          : "How far each audience falls below the intended reading as the deck goes on."),
         h("div", { class: "card" }, arcChart(rollup, {
           onPoint: (slide, persona) => openProvenance(rollup.comparator === "fieldwise"
             ? (rollup.definitional.includes(persona) ? { kind: "reference", slide } : { kind: "state", slide, persona })
@@ -121,10 +121,10 @@ function hardestSection(state, showAll, toggle) {
     h("p", { class: "lede" },
       rollup.comparator === "fieldwise"
         ? (rollup.arc_kind === "coverage"
-          ? "Ordered by how many of the expert claim’s propositions the novice covered (a contradicted proposition counts as none), then by how many of the slide’s fields they missed, then by unresolved terms. It is a ranking inside this deck: read the order."
-          : "Ordered by where the novice’s reading of the claim falls against the expert’s (absent and divergent first), then by how many of the slide’s fields they missed, then by unresolved terms. It is a ranking inside this deck: read the order.")
-        : "Ordered by how far the novice’s reading falls from what the slide is trying to establish, then by how many terms they could not resolve. It is a ranking inside this deck: read the order, not any one slide’s level.",
-      meta.status === "running" && " Tiers are read against the slides read so far and can shift as more arrive."),
+          ? "Propositions covered first, then fields missed, then unresolved terms. A ranking inside this deck."
+          : "Where the novice’s claim lands first, then fields missed, then unresolved terms. A ranking inside this deck.")
+        : "How far the novice falls from the slide’s point, then unresolved terms. A ranking inside this deck.",
+      meta.status === "running" && " Tiers can shift as more slides arrive."),
     rows.length
       ? h("div", { class: "card" },
           ...rows.map((row) => {

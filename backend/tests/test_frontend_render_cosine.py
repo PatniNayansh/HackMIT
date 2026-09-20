@@ -238,7 +238,7 @@ def test_every_number_opens_a_drawer_showing_real_text(tmp_path, payload):
     by_opener = {d["opener"]: d["body"] for d in drawers}
     assert r["metrics"]["takeaways"]["novice"] in by_opener[f"{r['metrics']['intent_alignment']['novice']['value']:.2f}"]
     assert r["slide_intent"]["text"] in by_opener[f"{r['metrics']['intent_alignment']['peer']['value']:.2f}"]
-    assert "definitional, not measured" in by_opener["reference"]
+    assert "definitional" in by_opener["reference"]
     tier = next(v for k, v in by_opener.items() if k in ("Self-contained", "Background needed", "Expert-gated"))
     assert "not met" in tier or "met" in tier
     assert r["metrics"]["takeaways"]["expert"] in tier  # the three takeaways drive it, and are shown

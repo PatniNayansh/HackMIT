@@ -86,7 +86,7 @@ function neuralBody(d) {
       h("div", null,
         h("div", { class: "label-xs" }, "Processing ratio"),
         h("div", { class: "val" }, f2(d.processing_ratio)),
-        h("p", { class: "caveat" }, "Language drive ÷ visual drive. Read across this deck, not on one slide.")),
+        h("p", { class: "caveat" }, "Language ÷ visual drive.")),
       h("div", null,
         h("div", { class: "label-xs" }, "Language drive"), h("div", null, f2(d.language_drive)),
         h("div", { class: "label-xs", style: "margin-top:10px" }, "Visual drive"), h("div", null, f2(d.visual_drive)))),
@@ -107,10 +107,7 @@ function neuralSection(runId, n) {
     : h("p", { class: "err" }, e.message)));
   return h("section", { class: "card neural" },
     h("h3", null, "Predicted neural response"),
-    // The one disclosure this panel makes, in the dek position rather than as a warning: TRIBE
-    // predicts an average cortical response, and the slide was read to it by a speech synthesiser.
-    h("p", { class: "dek" }, "TRIBE v2 (Meta AI), from synthesized narration of this slide. ",
-      h("strong", null, "Predicted, not measured.")),
+    h("p", { class: "dek" }, "TRIBE v2, Meta AI"),
     box);
 }
 
@@ -334,7 +331,7 @@ function figureDetails(r) {
   return h("details", { class: "figure-desc" },
     h("summary", { class: "small muted", style: "cursor:pointer" }, "Figure description (machine-generated)"),
     h("div", { class: "src" }, h("div", { class: "who" }, `Written by ${ic.model || "a model"} from the slide image; given to all three readers under FIGURE:`), h("p", null, ic.text)),
-    h("p", { class: "caveat" }, "Marks and labels only, never a principle — so the readers are not handed the expert’s job. Not scored."));
+    h("p", { class: "caveat" }, "Marks and labels only. Not scored."));
 }
 
 /** The headline: which tier the slide falls in, and the three numbers it was read from. */

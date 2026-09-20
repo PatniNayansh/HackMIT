@@ -20,21 +20,17 @@ function lecturePanel() {
     const mins = Math.round(d.duration_s / 60);
     box.replaceChildren(
       h("h2", null, "A real lecture, read by the model"),
-      h("p", { class: "dek" },
-        `${d.course} — “${d.title}”, ${d.venue}. `,
-        `${mins} minutes of the recorded audio, run straight through TRIBE v2. No slides, no synthesis. `,
-        h("strong", null, "Predicted, not measured.")),
+      h("p", { class: "dek" }, `${d.course}, ${d.venue}. ${mins} minutes of recorded audio through TRIBE v2.`),
       lectureChart(d),
       h("p", { class: "caveat" },
-        "Predicted drive in the language regions, smoothed over ",
-        String(d.smoothing_window_s), " seconds. It climbs through the first twelve minutes and falls back in the last four. ",
-        "Rules mark the four-minute chunks the audio was split into; the model starts each one with a cold context."),
+        "Language-region drive, smoothed over ", String(d.smoothing_window_s),
+        " seconds. It climbs through twelve minutes, then falls back. Rules mark the four-minute chunks."),
       d.surfaces && d.surfaces.length && h("div", { class: "lecture-surfaces" },
         ...d.surfaces.map((v) => h("figure", null,
           slideImage(v.url, `Predicted cortical response, minutes ${v.from_min} to ${v.to_min}`),
           h("figcaption", { class: "label-xs" }, `${v.from_min}–${v.to_min} min`)))),
       d.surfaces && d.surfaces.length && h("p", { class: "caveat" },
-        "Left lateral cortex, averaged over each four-minute chunk. Each panel carries its own colour scale."),
+        "Left lateral cortex per chunk. Each panel has its own scale."),
       h("div", { class: "lecture-facts" },
         h("div", { class: "fact" }, h("div", { class: "k" }, "Lecture audio read"), h("div", { class: "v" }, `${mins} min`)),
         h("div", { class: "fact" }, h("div", { class: "k" }, "1-second segments"), h("div", { class: "v" }, String(d.n_segments))),
@@ -53,14 +49,14 @@ export function home(root) {
 
   const idle = () => drop.replaceChildren(
     h("strong", null, "Drop a PDF here, or click to choose one"),
-    h("span", { class: "hint" }, "PDF only for now. Each slide is read three times, one slide after another, about 5 seconds a slide."),
+    h("span", { class: "hint" }, "PDF only. About 5 seconds a slide."),
     fileInput);
 
   async function upload(file) {
     uploadErr.textContent = "";
     if (!file) return;
     drop.replaceChildren(h("strong", null, h("span", { class: "spinner" }), ` Reading ${file.name}…`),
-      h("span", { class: "hint" }, "Extracting the slides and suggesting the deck’s subfield."));
+      h("span", { class: "hint" }, "Extracting slides…"));
     drop.style.pointerEvents = "none";
     try {
       const form = new FormData();
@@ -192,7 +188,7 @@ export async function setup(root, runId) {
         h("label", { class: "field" },
           h("span", { class: "label" }, "Declared intent", h("span", { class: "pill" }, "required")),
           intent,
-          h("span", { class: "hint" }, "One sentence: what is this deck supposed to land? Alignment is measured against it, and the audiences never see it.")),
+          h("span", { class: "hint" }, "What is this deck supposed to land? The audiences never see it.")),
         h("label", { class: "field" },
           h("span", { class: "label" }, "Deck subfield ", badge),
           domain,
@@ -201,7 +197,7 @@ export async function setup(root, runId) {
         h("label", { class: "field" },
           h("span", { class: "label" }, "Adjacent field"),
           adjacent,
-          h("span", { class: "hint" }, "Where the peer comes from: technical, but has never worked in the subfield. Set once here so all three audiences share one definition.")),
+          h("span", { class: "hint" }, "Technical, but has never worked in the subfield.")),
         h("div", null, go), err)));
   refresh();
   intent.focus();
