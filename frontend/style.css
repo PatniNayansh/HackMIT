@@ -130,9 +130,16 @@ a { color: inherit; }
 .brand { text-decoration: none; display: flex; align-items: center; }
 /* Height-constrained, width auto: the wordmark is 3.65:1 and is never stretched. */
 .brand-logo { height: 26px; width: auto; display: block; }
-.topbar nav { display: flex; gap: 24px; margin: 0 auto; }
-.topbar nav a { text-decoration: none; color: var(--ink-2); font-size: 14px; transition: color .15s ease-out; }
+.topbar nav { display: flex; gap: 56px; margin: 0 auto; }
+.topbar nav a {
+  text-decoration: none; color: var(--ink-2); font-size: 14px; transition: color .15s ease-out;
+  display: inline-flex; align-items: center; gap: 9px;
+}
 .topbar nav a:hover, .topbar nav a[aria-current="page"] { color: var(--ink); }
+/* Icons are currentColor, not a fixed white: white would vanish on the light theme. They follow
+   the link's own colour, so they are near-white in the dark room and near-black on paper. */
+.topbar nav svg { width: 17px; height: 17px; flex: none; stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .topbar .icon-btn { margin-left: auto; }
 
 main { max-width: 960px; margin: 0 auto; padding: 32px 48px 96px; }
@@ -212,13 +219,34 @@ main:has(.detail) { max-width: 1240px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
 
+/* ------------------------------------------------------------------------------- history */
+/* A ruled editorial list, not a grid of cards: rows separated by a hairline, name on the left,
+   state on the right. Deck runs and the audio run sit in one list because they are one thing --
+   something we ran -- and the kind is a word in the row rather than a separate section. */
+.history .card { padding: 4px 24px; }
+.hrow {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 16px 0; border-bottom: 1px solid var(--grid); text-decoration: none; color: inherit;
+}
+.hrow:last-child { border-bottom: 0; }
+.hrow:hover { background: var(--wash); }
+.hrow-main { min-width: 0; }
+.hrow-title { font-family: var(--serif); font-size: 17px; font-weight: 600; }
+.hrow-meta { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.hrow-right { display: flex; align-items: center; gap: 14px; flex: none; }
+/* The front page is one column: the upload card and the history list share a measure so the
+   page reads as a single column rather than two things that happen to be stacked. */
+.upload-card, .history { max-width: 620px; margin-left: auto; margin-right: auto; }
+.history { margin-top: 48px; }
+
 /* The front page says one thing, so it says it large and centred, with no heading above it
    competing for the same job. */
+/* One line, whatever the window: the size follows the viewport so the sentence never wraps and
+   never runs off the edge. nowrap is what makes it a statement rather than a paragraph. */
 .home-lede {
-  font-family: var(--serif); font-size: 30px; line-height: 1.35; text-align: center;
-  max-width: 24ch; margin: 24px auto 40px; color: var(--ink);
+  font-family: var(--serif); font-size: clamp(12px, 1.92vw, 30px); line-height: 1.3;
+  text-align: center; white-space: nowrap; margin: 28px auto 44px; color: var(--ink);
 }
-@media (max-width: 700px) { .home-lede { font-size: 24px; max-width: 20ch; } }
 
 /* The way into the saved runs during a presentation. Invisible at rest, but a real link: it
    takes focus, it has a name, and Shift+R does the same thing from any screen. */

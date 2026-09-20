@@ -64,31 +64,31 @@ function readDuration(file) {
 }
 
 
-// ----------------------------------------------------------------- saved runs, on request
+// -------------------------------------------------------------------- history, on request
 // Not linked from anywhere on purpose. The front page is an entry point, not an index, but a
 // presentation needs to reach the runs that are already on disk without uploading anything.
 // Two ways in, because a live demo should not depend on hitting a small target: the invisible
 // button in the corner below, and Shift+R from any screen (see main.js).
 
-export const SAVED_RUNS_HREF = "#/runs";
+export const HISTORY_HREF = "#/runs";
 
 /** A real, focusable button that happens to be invisible until you hover or tab to it. Not
  *  display:none and not aria-hidden: it stays operable by keyboard, which is what makes it a
  *  reliable way in rather than a trick that might not work on the night. */
 export function demoDoor() {
   return h("a", {
-    class: "demo-door", href: SAVED_RUNS_HREF, title: "Saved runs (Shift+R)",
-    "aria-label": "Open saved runs",
+    class: "demo-door", href: HISTORY_HREF, title: "History (Shift+R)",
+    "aria-label": "Open history",
   }, "\u00b7");
 }
 
 export function savedRuns(root) {
-  document.title = "Saved runs \u2014 ProFe";
-  const body = h("div", null, h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading saved runs\u2026"));
+  document.title = "History \u2014 ProFe";
+  const body = h("div", null, h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading\u2026"));
   mount(root,
-    h("div", { class: "crumbs" }, h("a", { href: "#/" }, "Start"), "\u203a", "Saved runs"),
+    h("div", { class: "crumbs" }, h("a", { href: "#/" }, "Start"), "\u203a", "History"),
     h("div", { class: "page-head" }, h("div", null,
-      h("h1", null, "Saved runs"),
+      h("h1", null, "History"),
       h("p", { class: "sub" }, "Every run on disk. Opening one makes no model calls."))),
     h("section", { class: "card" }, body));
 
@@ -114,6 +114,51 @@ export function savedRuns(root) {
   }).catch((e) => body.replaceChildren(h("p", { class: "err" }, e.message)));
 
   return () => {};
+}
+
+
+/** Everything that has been run, deck or audio, newest first. The audio run is not in
+ *  /api/runs -- it took a recording rather than a PDF and has no slides to stream -- so it is
+ *  fetched alongside and folded in, because from here it is simply another thing we ran. */
+function historySection() {
+  const body = h("div", null, h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading\u2026"));
+
+  const row = ({ href, title, kind, when: date, slides, model, status }) =>
+    h("a", { class: "hrow", href },
+      h("div", { class: "hrow-main" },
+        h("div", { class: "hrow-title" }, title),
+        h("div", { class: "hrow-meta" }, kind, date && [" \u00b7 ", date], slides && [" \u00b7 ", slides])),
+      h("div", { class: "hrow-right" },
+        model && h("span", { class: "mono small muted" }, model),
+        status));
+
+  Promise.allSettled([getJSON("/api/runs"), getJSON("/api/lecture")]).then(([runsR, lectureR]) => {
+    const rows = [];
+    if (lectureR.status === "fulfilled") {
+      const d = lectureR.value;
+      rows.push(row({
+        href: AUDIO_RUN_HREF, title: d.title, kind: "Lecture audio",
+        when: `${d.venue}`, slides: `${Math.round(d.duration_s / 60)} min`,
+        model: "TRIBE v2", status: h("span", { class: "pill" }, "complete"),
+      }));
+    }
+    if (runsR.status === "fulfilled") {
+      for (const r of runsR.value) {
+        rows.push(row({
+          href: `#/run/${r.run_id}`, title: r.title,
+          kind: r.sample ? "Slides \u00b7 sample" : "Slides",
+          when: when(r.created_at), slides: `${r.slide_count} slides`,
+          model: r.model || null, status: statusPill(r.status),
+        }));
+      }
+    }
+    body.replaceChildren(...(rows.length ? rows : [h("p", { class: "empty" }, "Nothing has been run yet.")]));
+  });
+
+  return h("section", { class: "section history" },
+    h("header", null, h("h2", null, "History")),
+    h("p", { class: "lede" }, "Everything run so far. Opening one makes no model calls."),
+    h("div", { class: "card" }, body));
 }
 
 export function home(root) {
@@ -254,16 +299,10 @@ export function home(root) {
   root.replaceChildren(
     h("p", { class: "home-lede" }, "See how a novice, a peer and an expert would each read your slides, and where they part ways."),
     banner,
-    h("div", { class: "home-grid" },
-      h("section", { class: "card" },
-        h("h2", { style: "margin-bottom:12px" }, "New review"),
-        drop, audioRow, stage, uploadErr,
-        h("div", { class: "go-row" }, go)),
-      h("section", { class: "card audio-card" },
-        h("h2", { style: "margin-bottom:8px" }, "Lecture audio"),
-        h("p", { class: "dek" },
-          "We ran sixteen minutes of a real recorded lecture through TRIBE v2 \u2014 no slides, no synthesis \u2014 and watched the language regions over time."),
-        h("a", { class: "btn", href: AUDIO_RUN_HREF, style: "text-decoration:none" }, "Open the audio run \u2192"))),
+    h("section", { class: "card upload-card" },
+      drop, audioRow, stage, uploadErr,
+      h("div", { class: "go-row" }, go)),
+    historySection(),
     demoDoor());
 
   getJSON("/api/health").then((hl) => {

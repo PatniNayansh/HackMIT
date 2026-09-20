@@ -370,8 +370,8 @@ def test_the_saved_runs_door_is_invisible_but_still_a_real_control():
         raise AssertionError("the door never becomes visible")
 
     src = (FRONTEND_DIR / "js" / "views-home.js").read_text(encoding="utf-8")
-    assert 'aria-label": "Open saved runs"' in src  # it has an accessible name
-    assert 'href: SAVED_RUNS_HREF' in src           # and is a link, not a click handler
+    assert 'aria-label": "Open history"' in src  # it has an accessible name
+    assert 'href: HISTORY_HREF' in src           # and is a link, not a click handler
 
 
 def test_the_shortcut_cannot_eat_a_capital_r_while_someone_is_typing():
@@ -380,3 +380,14 @@ def test_the_shortcut_cannot_eat_a_capital_r_while_someone_is_typing():
     for tag in ("INPUT", "TEXTAREA", "SELECT"):
         assert tag in block, tag
     assert "isContentEditable" in block
+
+
+def test_the_list_of_runs_is_called_history_and_carries_the_audio_run_too():
+    """It is "History" everywhere it is named, and the audio run belongs in the same list as the
+    deck runs: from a reader's side they are both simply things that were run."""
+    src = (FRONTEND_DIR / "js" / "views-home.js").read_text(encoding="utf-8")
+    assert '"History"' in src
+    assert "Saved runs" not in src
+    section = src[src.index("function historySection") : src.index("export function home")]
+    assert "/api/lecture" in section and "/api/runs" in section
+    assert "AUDIO_RUN_HREF" in section
