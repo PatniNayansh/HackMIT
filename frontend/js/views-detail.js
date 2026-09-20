@@ -1,4 +1,4 @@
-import { h, mount, f2, describe, warnIcon, infoIcon, PERSONAS, LABEL, COLOR } from "./dom.js";
+import { h, mount, f2, describe, warnIcon, infoIcon, slideImage, PERSONAS, LABEL, COLOR } from "./dom.js";
 import { getJSON } from "./api.js";
 import { watch } from "./run.js";
 import { numBtn, cmpLine, deckStrip } from "./provenance.js";
@@ -191,7 +191,7 @@ export function detail(root, runId, n) {
     }
 
     const left = h("div", { class: "slide-col" },
-      h("img", { class: "slide-img", src: state.imageUrls[n - 1], alt: `Slide ${n}` }),
+      slideImage(state.imageUrls[n - 1], `Slide ${n}`),
       meta.intent && h("div", { class: "intent-box" }, h("div", { class: "small muted" }, "Your declared intent (stored; not used for alignment)"), h("p", null, meta.intent)),
       h("details", null, h("summary", { class: "small muted", style: "cursor:pointer" }, "Text the audiences were given, alongside the image"),
         h("div", { class: "textbox" }, r.text || "(no extractable text on this slide)")));

@@ -65,7 +65,7 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
       if (run.length > 1) {
         const top = run.map((i) => `${X(i).toFixed(1)},${Y(hi).toFixed(1)}`);
         const bottom = [...run].reverse().map((i) => `${X(i).toFixed(1)},${Y(pts[i][k]).toFixed(1)}`);
-        svg.append(s("polygon", { points: [...top, ...bottom].join(" "), fill: COLOR[k], opacity: 0.1 }));
+        svg.append(s("polygon", { points: [...top, ...bottom].join(" "), fill: COLOR[k], style: "opacity: var(--chart-shade-opacity)" }));
       }
       run = [];
     };
@@ -73,11 +73,10 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
     flush();
   }
 
-  // The reference: flat, dashed, at 1.0, labelled.
-  svg.append(s("line", { x1: M.l, x2: W - M.r, y1: Y(hi), y2: Y(hi), stroke: "var(--ink-2)", "stroke-width": 1.5, "stroke-dasharray": "6 5" }));
-  svg.append(s("text", { x: M.l, y: Y(hi) - 8, style: "fill: var(--ink-2); font-size: 12.5px" }, "inferred intent (reference)"));
-
-  // Series lines: 2px, broken where a persona has no value for a slide. Same weight for all three.
+  // Series lines, broken where a persona has no value for a slide. The measured series are 2px. The
+  // definitional one (the expert, lying exactly on the reference) is drawn 4px, and the dashed
+  // reference is laid over it afterwards, so the two stay tellable apart in either theme by stroke
+  // width and dash pattern, not by colour.
   for (const k of PERSONAS) {
     let d = "", pen = false;
     pts.forEach((p, i) => {
@@ -85,8 +84,12 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
       d += `${pen ? "L" : "M"}${X(i).toFixed(1)},${Y(p[k]).toFixed(1)}`;
       pen = true;
     });
-    svg.append(s("path", { d, fill: "none", stroke: COLOR[k], "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    svg.append(s("path", { d, fill: "none", stroke: COLOR[k], "stroke-width": definitional.has(k) ? 4 : 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
   }
+
+  // The reference: flat, dashed, at 1.0, labelled, on top of the series.
+  svg.append(s("line", { x1: M.l, x2: W - M.r, y1: Y(hi), y2: Y(hi), stroke: "var(--chart-ref)", "stroke-width": 1.5, "stroke-dasharray": "6 5" }));
+  svg.append(s("text", { x: M.l, y: Y(hi) - 8, style: "fill: var(--ink-2); font-size: 12.5px" }, "inferred intent (reference)"));
 
   // Direct labels at the right edge; nudged apart, with leader lines when they would collide.
   const ends = PERSONAS.map((k) => {
@@ -96,7 +99,7 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
   let last = -Infinity;
   for (const e of ends) { e.ly = Math.max(e.y, last + 15); last = e.ly; }
   for (const e of ends) {
-    if (Math.abs(e.ly - e.y) > 1) svg.append(s("line", { x1: e.x + 6, y1: e.y, x2: W - M.r + 8, y2: e.ly, stroke: "var(--baseline)", "stroke-width": 1 }));
+    if (Math.abs(e.ly - e.y) > 1) svg.append(s("line", { x1: e.x + 6, y1: e.y, x2: W - M.r + 8, y2: e.ly, stroke: "var(--chart-axis)", "stroke-width": 1 }));
     svg.append(s("text", { x: W - M.r + 12, y: e.ly + 4, style: "fill: var(--ink-2); font-size: 12.5px" }, `${LABEL[e.k]}${definitional.has(e.k) ? " (reference)" : ""}`));
   }
 
@@ -107,7 +110,7 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
       svg.append(s("circle", { cx: X(i), cy: Y(p[k]), r: 4.5, fill: COLOR[k], stroke: "var(--surface)", "stroke-width": 2, "pointer-events": "none" }));
     });
   }
-  const cross = s("line", { y1: M.t, y2: H - M.b, stroke: "var(--baseline)", "stroke-width": 1, style: "display:none", "pointer-events": "none" });
+  const cross = s("line", { y1: M.t, y2: H - M.b, stroke: "var(--chart-axis)", "stroke-width": 1, style: "display:none", "pointer-events": "none" });
   svg.append(cross);
   for (const k of PERSONAS) {
     pts.forEach((p, i) => {
@@ -150,7 +153,7 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
   svg.addEventListener("pointerleave", () => { cross.style.display = "none"; tip.style.display = "none"; });
 
   const legend = h("div", { class: "legend" },
-    ...PERSONAS.map((k) => h("span", null, h("i", { style: `border-color:${COLOR[k]}` }), LABEL[k], h("em", { class: "legend-kind" }, ` (${kind(k)})`))),
+    ...PERSONAS.map((k) => h("span", null, h("i", { style: `border-color:${COLOR[k]};border-top-width:${definitional.has(k) ? 4 : 2}px` }), LABEL[k], h("em", { class: "legend-kind" }, ` (${kind(k)})`))),
     h("span", null, h("i", { class: "ref-key" }), "inferred intent (reference)"));
 
   const note = definitional.size

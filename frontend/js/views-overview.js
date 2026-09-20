@@ -1,4 +1,4 @@
-import { h, mount, f2, when, infoIcon } from "./dom.js";
+import { h, mount, f2, when, infoIcon, slideImage } from "./dom.js";
 import { watch } from "./run.js";
 import { arcChart } from "./charts.js";
 import { numBtn, openProvenance } from "./provenance.js";
@@ -37,7 +37,7 @@ export function overview(root, runId) {
     const nextPending = state.pending[0];
     const filmstrip = h("div", { class: "filmstrip" }, ...state.imageUrls.map((url, i) => {
       const n = i + 1, r = state.results.get(n);
-      const img = h("div", { class: "thumb" }, h("img", { src: url, alt: `Slide ${n}`, loading: "lazy" }));
+      const img = h("div", { class: "thumb slide-card" }, h("img", { src: url, alt: `Slide ${n}`, loading: "lazy" }));
       if (!r) return h("div", { class: `tile pending${meta.status === "running" && n === nextPending ? " next" : ""}` }, img, h("div", { class: "cap" }, h("b", null, n), h("span", null, "pending")));
       // A saved-before-tiers run has nowhere to go: its slide page was retired with the metrics it showed.
       const label = meta.legacy ? h("span", null, "read") : (r.metrics ? tierMini(state, n) : h("span", { class: "pill bad" }, "bad response"));
@@ -116,7 +116,7 @@ function hardestSection(state, showAll, toggle) {
             const n = row.slide, r = state.results.get(n);
             const take = r.readings.novice.takeaway;
             return h("div", { class: "rank-row wide" },
-              h("a", { href: runHref(state, n), "aria-label": `Open slide ${n}` }, h("img", { src: state.imageUrls[n - 1], alt: "" }), h("div", { class: "small", style: "margin-top:4px;font-weight:600" }, `Slide ${n}`)),
+              h("a", { href: runHref(state, n), "aria-label": `Open slide ${n}` }, slideImage(state.imageUrls[n - 1], ""), h("div", { class: "small", style: "margin-top:4px;font-weight:600" }, `Slide ${n}`)),
               h("div", { class: "rank-take" }, h("div", { class: "take-label" }, "Novice takeaway"), h("div", { class: "clamp" }, `“${firstLine(take)}”`)),
               h("div", { class: "rank-tier" }, tierChip(state, n)),
               h("div", { class: "fact" }, h("span", { class: "k" }, "Novice unresolved terms"),

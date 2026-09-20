@@ -38,6 +38,12 @@ function append(el, kids) {
   }
 }
 
+/** A slide image on its light neutral card. The slide is the user's artefact: it is shown exactly
+ *  as rendered, in both themes, and is never filtered, inverted or dimmed (see .slide-card). */
+export function slideImage(url, alt, extra = "") {
+  return h("div", { class: `slide-card${extra ? ` ${extra}` : ""}` }, h("img", { src: url, alt, loading: "lazy" }));
+}
+
 // ---------------------------------------------------------------- formatting
 
 export const f2 = (x) => (x < 0 ? "−" : "") + Math.abs(x).toFixed(2);
