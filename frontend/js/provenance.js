@@ -8,22 +8,16 @@ import { h, f2, ordinal, PERSONAS, LABEL, COLOR } from "./dom.js";
 import { strip } from "./charts.js";
 
 const KEY_LABEL = {
-  audience_divergence: "Audience divergence",
-  blind_spot_score: "Blind-spot score (expert alignment − novice alignment)",
   term_gap_count: "Terms only the novice missed",
-  confidence_gap: "Confidence gap (expert − novice)",
 };
 function keyLabel(key) {
   if (KEY_LABEL[key]) return KEY_LABEL[key];
   const [base, persona] = key.split(".");
-  return `${{ confidence: "Confidence (self-reported)", unresolved_count: "Unresolved terms", intent_alignment: "Alignment to intent" }[base]} — ${LABEL[persona]}`;
+  return `${{ unresolved_count: "Unresolved terms", intent_alignment: "Alignment to the intended reading" }[base]} \u2014 ${LABEL[persona]}`;
 }
-const KEY_CAVEAT = {
-  blind_spot_score: "The same slide swings by about ±0.3 from run to run. Trust how slides separate from each other in a deck, never the level on one slide.",
-  audience_divergence: "Absolute divergence means little on its own. Semantic similarity measures topic and phrasing, not whether two takeaways make the same claim; it is the weaker instrument here.",
-};
-for (const p of PERSONAS) KEY_CAVEAT[`intent_alignment.${p}`] = "Semantic similarity to the intent is the weaker instrument: it separates readings by topic and wording, not by whether the claim was understood.";
-for (const p of PERSONAS) KEY_CAVEAT[`confidence.${p}`] = "Confidence is the model's own report of how sure it is. It is not measured against anything.";
+const ALIGN_CAVEAT = "Alignment is semantic similarity to the intended reading: the weaker instrument. It reads topic and phrasing, not whether the claim was understood. Trust where a slide sits among the deck\u2019s slides, not the level on one slide.";
+const KEY_CAVEAT = {};
+for (const p of ["novice", "peer"]) KEY_CAVEAT[`intent_alignment.${p}`] = ALIGN_CAVEAT;
 
 const slideOf = (state, n) => state.results.get(n);
 
@@ -56,18 +50,19 @@ export function openProvenance(spec, state) {
 function paintDrawer(state) {
   const spec = stack[stack.length - 1];
   const { title, body } = build(spec, state);
+  const closeBtn = h("button", { class: "btn small", "aria-label": "Close", on: { click: closeDrawer } }, "Close");
   const node = h("div", null,
     h("div", { class: "scrim", on: { click: closeDrawer } }),
     h("aside", { class: "drawer", role: "dialog", "aria-modal": "true", "aria-label": title },
       h("header", null,
         stack.length > 1 && h("button", { class: "btn small", on: { click: () => { stack.pop(); paintDrawer(state); } } }, "← Back"),
         h("h2", null, title),
-        h("button", { class: "btn small", "aria-label": "Close", on: { click: closeDrawer } }, "Close")),
+        closeBtn),
       h("div", { class: "body" }, ...body)));
   drawerEl?.remove();
   drawerEl = node;
   document.body.append(node);
-  node.querySelector("header .btn:last-child").focus();
+  closeBtn.focus();
   document.removeEventListener("keydown", onKey);
   document.addEventListener("keydown", onKey);
 }
@@ -86,6 +81,7 @@ export function cmpLine(state, key, slide, fmt = fmtFor(key)) {
   const dist = state.rollup?.distributions?.[key];
   const pos = state.rollup?.per_slide?.find((p) => p.slide === slide)?.position?.[key];
   if (!dist || !pos) return h("span", { class: "cmp" }, "No comparison available");
+  if (dist.min === dist.max) return h("span", { class: "cmp" }, `Deck: ${fmt(dist.min)} on every slide read so far`);
   if (!dist.comparable) {
     return h("span", { class: "cmp" }, `No deck comparison yet: needs ${state.rollup.min_slides_for_comparison} scored slides, has ${dist.n}. `,
       numBtn("See values", { kind: "dist", key, slide }, state, "See the values so far"));
@@ -158,40 +154,85 @@ function build(spec, state) {
   return b(spec, state);
 }
 
+const REFERENCE_NOTE = "The intended reading is derived from this expert interpretation, so it defines the baseline rather than scoring against it.";
+
+function derivation(si) {
+  if (!si) return "No intended reading was produced for this slide.";
+  const lines = [
+    `written by: ${si.source === "model" ? si.model : "template (the expert\u2019s claim, framing removed)"}`,
+    si.reason ? `why the template: ${si.reason}` : null,
+    si.source === "model" ? `model calls: ${si.attempts}${si.cached ? " (served from cache)" : ""}` : null,
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+function intentSources(r) {
+  const si = r.slide_intent;
+  return h("div", { class: "stack" },
+    src("Intended reading, inferred from the expert reading (verbatim)", si.text),
+    src("Expert takeaway it was derived from (verbatim)", si.derived_from.takeaway, "expert"),
+    src("Expert claim it was derived from (verbatim)", si.derived_from.inferred_claim, "expert"));
+}
+
 const BUILDERS = {
   alignment({ slide, persona }, state) {
     const r = slideOf(state, slide);
     const m = r.metrics.intent_alignment[persona];
+    if (m.definitional) return BUILDERS.reference({ slide }, state);
     return {
-      title: `Alignment to intent — ${LABEL[persona]}, slide ${slide}`,
+      title: `Alignment to the intended reading \u2014 ${LABEL[persona]}, slide ${slide}`,
       body: [
         h("div", { class: "big" }, val(m)),
-        h("p", { class: "muted" }, "How close, in topic and wording, this persona’s takeaway is to your declared intent. It does not check that the takeaway is right."),
+        h("p", { class: "muted" }, "How close, in topic and wording, this persona\u2019s takeaway is to what the slide is trying to establish. It does not check that the takeaway is right."),
         section("The two texts compared",
-          h("div", { class: "stack" }, src("Declared intent (verbatim)", m.inputs.intent), src(`${LABEL[persona]} takeaway (verbatim)`, m.inputs[persona], persona))),
-        section("Raw computation", calc(`cosine similarity of two sentence embeddings\nmodel: ${r.scored_by}\ncos(intent, ${persona} takeaway) = ${m.value.toFixed(4)}`)),
+          h("div", { class: "stack" },
+            src("Intended reading, inferred from the expert reading (verbatim)", m.inputs.intent),
+            src(`${LABEL[persona]} takeaway (verbatim)`, m.inputs[persona], persona))),
+        section("Raw computation", calc(`cosine similarity of two sentence embeddings\nmodel: ${r.scored_by}\ncos(intended reading, ${persona} takeaway) = ${m.value.toFixed(4)}`)),
+        section("Where the intended reading came from", calc(derivation(r.slide_intent))),
         deckSection(state, `intent_alignment.${persona}`, slide, COLOR[persona]),
       ],
     };
   },
 
-  confidence({ slide, persona }, state) {
+  reference({ slide }, state) {
     const r = slideOf(state, slide);
-    const rd = r.readings[persona];
     return {
-      title: `Confidence — ${LABEL[persona]}, slide ${slide}`,
+      title: `Reference \u2014 Expert, slide ${slide}`,
       body: [
-        h("div", null, h("div", { class: "big" }, f2(rd.confidence)), h("span", { class: "pill outline" }, "self-reported by the model")),
-        h("p", { class: "muted" }, "The model’s own answer, in the same reply as its takeaway, to how sure it is that it understood what the presenter meant. It is a statement about itself; nothing measures it."),
-        section("The reply it came with",
+        h("div", null, h("div", { class: "big" }, "reference"), h("span", { class: "pill outline" }, "definitional, not measured")),
+        h("p", null, REFERENCE_NOTE),
+        h("p", { class: "muted" }, "Its alignment is 1.0 by construction: the intended reading was generated from this persona\u2019s own reading, so there is nothing to score it against. It is shown so the chart, the payload and the legend keep their shape for when the expert is measured independently."),
+        r.slide_intent ? section("What it defined", intentSources(r)) : null,
+        r.slide_intent ? section("How the intended reading was written", calc(derivation(r.slide_intent))) : null,
+      ],
+    };
+  },
+
+  tier({ slide }, state) {
+    const r = slideOf(state, slide);
+    const t = state.rollup.per_slide.find((p) => p.slide === slide).tier;
+    const m = r.metrics;
+    return {
+      title: `Tier \u2014 slide ${slide}`,
+      body: [
+        h("div", null, h("span", { class: `tier-chip large ${t.tier}` }, t.label)),
+        h("p", null, t.meaning),
+        h("p", { class: "muted" }, t.basis === "relative"
+          ? `Read against the ${t.n_slides} slides of this deck that have been scored. The same numbers can land in another tier in another deck: only a slide\u2019s place among its own deck\u2019s slides is trusted.`
+          : `This deck has ${t.n_slides} scored slide${t.n_slides === 1 ? "" : "s"}, fewer than the ${t.min_slides_for_relative} needed to compare a slide with its deck, so rough absolute thresholds were used. Levels on one slide move between runs; treat this as a guide.`),
+        section("What drove it",
+          h("div", { class: "stack" }, ...t.checks.map((c) => h("div", { class: "src" },
+            h("div", { class: "who" }, c.passed ? "\u2713 met" : "\u2717 not met"),
+            h("p", null, c.text))))),
+        section("The inputs, with their texts",
           h("div", { class: "stack" },
-            src("Takeaway (verbatim)", rd.takeaway, persona),
-            src("Claim it thinks you want believed (verbatim)", rd.inferred_claim, persona),
-            rd.questions.length ? src("Questions it would ask", rd.questions.map((q) => `• ${q}`).join("\n"), persona) : null,
-            src("Terms it could not resolve", rd.unresolved_terms.length ? rd.unresolved_terms.join(", ") : "None", persona))),
-        section("Where the reply came from", calc(
-          `model: ${rd.model}\nserved from cache: ${rd.cached ? "yes" : "no"}\nmodel calls it took: ${rd.attempts}\nlatency: ${rd.latency_s}s\nslide hash: ${rd.slide_hash}`)),
-        deckSection(state, `confidence.${persona}`, slide, COLOR[persona]),
+            src("Intended reading, inferred from the expert reading", m.intent),
+            src(`Novice takeaway \u2014 alignment ${f2(m.intent_alignment.novice.value)}`, m.takeaways.novice, "novice"),
+            src(`Peer takeaway \u2014 alignment ${f2(m.intent_alignment.peer.value)}`, m.takeaways.peer, "peer"),
+            src("Expert takeaway (the reference)", m.takeaways.expert, "expert"),
+            src(`Terms the novice could not resolve (${m.term_gap.novice_unresolved.length})`, m.term_gap.novice_unresolved.join(", ") || "None", "novice"))),
+        section("The rule", calc("Self-contained:    novice and peer both align, novice unresolved terms low\nBackground needed: peer aligns, novice does not (or the novice aligns but meets many unknown terms)\nExpert-gated:      neither novice nor peer aligns")),
       ],
     };
   },
@@ -202,12 +243,12 @@ const BUILDERS = {
     const gap = persona === "novice" && r.metrics ? r.metrics.term_gap : null;
     const absent = missing(r.text, rd.unresolved_terms);
     return {
-      title: `Unresolved terms — ${LABEL[persona]}, slide ${slide}`,
+      title: `Unresolved terms \u2014 ${LABEL[persona]}, slide ${slide}`,
       body: [
         h("div", { class: "big" }, String(rd.unresolved_terms.length)),
         h("p", { class: "muted" }, "Terms this persona said it could not resolve, exactly as it wrote them. It is told to leave out terms the slide defines and terms someone with its background knows."),
         rd.unresolved_terms.length
-          ? section("The terms", h("p", null, rd.unresolved_terms.join(" · ")))
+          ? section("The terms", h("p", null, rd.unresolved_terms.join(" \u00b7 ")))
           : section("The terms", h("p", { class: "muted" }, "It reported none.")),
         srcNodes("Slide text as the personas saw it (matches highlighted)", highlight(r.text || "(no extractable text on this slide; the persona read the image)", rd.unresolved_terms)),
         absent.length ? h("p", { class: "caveat" }, `Not found word-for-word in the slide text: ${absent.join(", ")}. The persona may have read them from the image.`) : null,
@@ -216,66 +257,6 @@ const BUILDERS = {
             src("Missed by the novice and not by the expert", gap.terms.length ? gap.terms.join(", ") : "None", "novice"),
             src("Expert also could not resolve", gap.expert_unresolved.length ? gap.expert_unresolved.join(", ") : "None", "expert"))),
         deckSection(state, `unresolved_count.${persona}`, slide, COLOR[persona]),
-      ],
-    };
-  },
-
-  termgap({ slide }, state) {
-    const r = slideOf(state, slide);
-    const gap = r.metrics.term_gap;
-    return {
-      title: `Terms only the novice missed — slide ${slide}`,
-      body: [
-        h("div", { class: "big" }, String(gap.terms.length)),
-        h("p", { class: "muted" }, "Terms the novice could not resolve that the expert did not list, after ignoring case, hyphens and surrounding punctuation."),
-        srcNodes("Slide text as the personas saw it (matches highlighted)", highlight(r.text || "(no extractable text)", gap.terms)),
-        section("Both lists it was computed from",
-          h("div", { class: "stack" },
-            src("Novice could not resolve", gap.novice_unresolved.join(", ") || "None", "novice"),
-            src("Expert could not resolve", gap.expert_unresolved.join(", ") || "None", "expert"),
-            src("Difference", gap.terms.join(", ") || "None"))),
-        deckSection(state, "term_gap_count", slide, "var(--ink)"),
-      ],
-    };
-  },
-
-  divergence({ slide }, state) {
-    const r = slideOf(state, slide);
-    const m = r.metrics;
-    const pairs = Object.entries(m.pairwise_distance);
-    return {
-      title: `Audience divergence — slide ${slide}`,
-      body: [
-        h("div", { class: "big" }, val(m.audience_divergence)),
-        h("p", { class: "muted" }, "The mean of the three pairwise distances (1 − cosine similarity) between what the novice, peer and expert took away."),
-        section("The three takeaways", h("div", { class: "stack" }, ...PERSONAS.map((p) => src(`${LABEL[p]} (verbatim)`, m.takeaways[p], p)))),
-        section("The three distances",
-          h("div", { class: "stack" }, ...pairs.map(([k, pm]) => {
-            const [a, b] = k.split("-");
-            return h("div", { class: "src" }, h("div", { class: "who" }, `${LABEL[a]} ↔ ${LABEL[b]}`), h("p", null, `distance ${pm.value.toFixed(4)}`));
-          }))),
-        section("Raw computation", calc(`(${pairs.map(([, pm]) => pm.value.toFixed(4)).join(" + ")}) / ${pairs.length} = ${m.audience_divergence.value.toFixed(4)}\nmodel: ${r.scored_by}`)),
-        deckSection(state, "audience_divergence", slide, "var(--ink)"),
-      ],
-    };
-  },
-
-  blind({ slide }, state) {
-    const r = slideOf(state, slide);
-    const m = r.metrics;
-    const e = m.intent_alignment.expert.value, n = m.intent_alignment.novice.value;
-    return {
-      title: `Blind-spot score — slide ${slide}`,
-      body: [
-        h("div", { class: "big" }, val(m.blind_spot_score)),
-        h("p", { class: "muted" }, "The expert’s alignment to your intent minus the novice’s. Positive means the expert’s reading sits closer to what you meant than the novice’s does."),
-        section("The three texts",
-          h("div", { class: "stack" },
-            src("Declared intent (verbatim)", m.blind_spot_score.inputs.intent),
-            src("Novice takeaway (verbatim)", m.blind_spot_score.inputs.novice, "novice"),
-            src("Expert takeaway (verbatim)", m.blind_spot_score.inputs.expert, "expert"))),
-        section("Raw computation", calc(`expert alignment ${e.toFixed(4)} − novice alignment ${n.toFixed(4)} = ${m.blind_spot_score.value.toFixed(4)}\nmodel: ${r.scored_by}`)),
-        deckSection(state, "blind_spot_score", slide, "var(--ink)"),
       ],
     };
   },
@@ -333,8 +314,8 @@ const BUILDERS = {
           ? h("div", { class: "stack" }, ...ev.terms.map((t) => h("div", { class: "src" },
               h("div", { class: "who" }, `“${t.term}” · novice unresolved on ${t.count} slides`),
               h("p", null, ...t.slides.flatMap((s, i) => [i ? ", " : "", slideLink(state, s)])))))
-          : h("div", { class: "vals" }, ...ev.gaps.map((g) => h("a", { class: "vrow", href: `#/run/${state.meta.run_id}/slide/${g.slide}`, on: { click: closeDrawer } },
-              h("span", null, `Slide ${g.slide}`), h("span", null, `${ordinal(g.rank)} of ${state.rollup.distributions.blind_spot_score.n}`), h("span", null, f2(g.gap))))),
+          : h("div", { class: "vals" }, ...ev.rows.map((g) => h("a", { class: "vrow", href: `#/run/${state.meta.run_id}/slide/${g.slide}`, on: { click: closeDrawer } },
+              h("span", null, `Slide ${g.slide}`), h("span", null, `novice alignment ${f2(g.novice_alignment)}`), h("span", null, `${g.novice_unresolved} terms`)))),
       ],
     };
   },
