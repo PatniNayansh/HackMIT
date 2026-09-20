@@ -201,7 +201,7 @@ def test_the_expert_card_says_reference_instead_of_a_score(tmp_path, payload):
     page = render(tmp_path, payload)["slide3"]
     expert = page[page.index("Expert") :]
     assert "Alignment to the intended reading" in expert and "reference" in expert
-    assert "The intended reading is derived from this expert interpretation, so it defines the baseline rather than scoring against it." in expert
+    assert "This reading defines the baseline; it is not scored against it." in expert
     assert not re.search(r"reference.{0,40}1\.00|1\.00", expert)  # no 1.00 dressed up as a score
 
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import json
 import os
 import tempfile
 from pathlib import Path
@@ -382,6 +383,30 @@ def create_app(
             raise HTTPException(400, str(e)) from e
         except NeuralNotCached as e:
             raise HTTPException(404, str(e)) from e
+        return FileResponse(path, media_type="image/png", headers={"Cache-Control": "max-age=3600"})
+
+    # ------------------------------------------------------------------------- lecture
+    # One real recorded lecture, run through TRIBE with no synthesis (see
+    # scripts/make_lecture_timecourse.py). Static: read once from the fixture, never computed.
+
+    LECTURE = BACKEND / "fixtures" / "lecture_timecourse.json"
+
+    LECTURE_SURFACES = BACKEND / "fixtures" / "lecture_surfaces"
+
+    @app.get("/api/lecture")
+    def lecture():
+        if not LECTURE.is_file():
+            raise HTTPException(404, "no lecture timecourse has been generated")
+        body = json.loads(LECTURE.read_text(encoding="utf-8"))
+        for v in body.get("surfaces", []):
+            v["url"] = f"/api/lecture/surfaces/{v['chunk']}.png"
+        return body
+
+    @app.get("/api/lecture/surfaces/{chunk}.png")
+    def lecture_surface(chunk: str):
+        path = (LECTURE_SURFACES / f"{chunk}.png").resolve()
+        if not path.is_file() or LECTURE_SURFACES.resolve() not in path.parents:
+            raise HTTPException(404, f"no cortical render for {chunk}")
         return FileResponse(path, media_type="image/png", headers={"Cache-Control": "max-age=3600"})
 
     # -------------------------------------------------------------------------- pages

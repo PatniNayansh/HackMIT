@@ -1,5 +1,6 @@
 import { h, mount, when, warnIcon, infoIcon, slideImage } from "./dom.js";
 import { api, getJSON, postJSON } from "./api.js";
+import { lectureChart } from "./charts.js";
 import { forget } from "./run.js";
 
 function statusPill(status) {
@@ -9,6 +10,38 @@ function statusPill(status) {
 }
 
 // ------------------------------------------------------------------------ home
+
+/** One recorded lecture, read by the model. This is the only place in the app showing a real
+ *  talk rather than a deck: it is what the neural layer looks like on 16 minutes of a person
+ *  actually speaking, and it is why the per-slide panel is worth reading at all. */
+function lecturePanel() {
+  const box = h("section", { class: "card" }, h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading…"));
+  getJSON("/api/lecture").then((d) => {
+    const mins = Math.round(d.duration_s / 60);
+    box.replaceChildren(
+      h("h2", null, "A real lecture, read by the model"),
+      h("p", { class: "dek" },
+        `${d.course} — “${d.title}”, ${d.venue}. `,
+        `${mins} minutes of the recorded audio, run straight through TRIBE v2. No slides, no synthesis. `,
+        h("strong", null, "Predicted, not measured.")),
+      lectureChart(d),
+      h("p", { class: "caveat" },
+        "Predicted drive in the language regions, smoothed over ",
+        String(d.smoothing_window_s), " seconds. It climbs through the first twelve minutes and falls back in the last four. ",
+        "Rules mark the four-minute chunks the audio was split into; the model starts each one with a cold context."),
+      d.surfaces && d.surfaces.length && h("div", { class: "lecture-surfaces" },
+        ...d.surfaces.map((v) => h("figure", null,
+          slideImage(v.url, `Predicted cortical response, minutes ${v.from_min} to ${v.to_min}`),
+          h("figcaption", { class: "label-xs" }, `${v.from_min}–${v.to_min} min`)))),
+      d.surfaces && d.surfaces.length && h("p", { class: "caveat" },
+        "Left lateral cortex, averaged over each four-minute chunk. Each panel carries its own colour scale."),
+      h("div", { class: "lecture-facts" },
+        h("div", { class: "fact" }, h("div", { class: "k" }, "Lecture audio read"), h("div", { class: "v" }, `${mins} min`)),
+        h("div", { class: "fact" }, h("div", { class: "k" }, "1-second segments"), h("div", { class: "v" }, String(d.n_segments))),
+        h("div", { class: "fact" }, h("div", { class: "k" }, "Chunks run"), h("div", { class: "v" }, `${d.chunks_run} of ${d.chunks_total}`))));
+  }).catch(() => box.remove());
+  return box;
+}
 
 export function home(root) {
   document.title = "Sightline";
@@ -57,7 +90,8 @@ export function home(root) {
     banner,
     h("div", { class: "home-grid" },
       h("section", { class: "card" }, h("h2", { style: "margin-bottom:12px" }, "New review"), drop, uploadErr),
-      h("section", { class: "card" }, h("h2", { style: "margin-bottom:8px" }, "Saved runs"), historyBody)));
+      h("section", { class: "card" }, h("h2", { style: "margin-bottom:8px" }, "Saved runs"), historyBody)),
+    h("div", { class: "section" }, lecturePanel()));
 
   getJSON("/api/health").then((hl) => {
     if (!hl.can_call_model) {

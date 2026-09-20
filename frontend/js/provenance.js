@@ -163,7 +163,7 @@ function build(spec, state) {
   return b(spec, state);
 }
 
-const REFERENCE_NOTE = "The intended reading is derived from this expert interpretation, so it defines the baseline rather than scoring against it.";
+const REFERENCE_NOTE = "This reading defines the baseline; it is not scored against it.";
 
 function derivation(si) {
   if (!si) return "No intended reading was produced for this slide.";

@@ -213,9 +213,24 @@ def test_the_slide_card_is_light_and_identical_in_both_themes():
     assert DARK["slide-card-bg"] == LIGHT["slide-card-bg"]
     r, g, b, _ = _rgba(LIGHT["slide-card-bg"])
     assert _lum((r, g, b)) > 0.75
-    # dark mode changes only its edge and glow
-    assert DARK["slide-card-border"] != LIGHT["slide-card-border"] and DARK["slide-card-shadow"] != LIGHT["slide-card-shadow"]
+    # dark mode changes only its edge: the card carries no glow to change
+    assert DARK["slide-card-border"] != LIGHT["slide-card-border"]
     assert re.search(r"rgba\(255, 255, 255, 0\.\d+\)", DARK["slide-card-border"]).group(0)  # a low-contrast light edge
+
+
+def test_depth_is_a_rule_never_an_elevation_layer():
+    """Editorial, not material: separation comes from 1px lines and surface contrast. A shadow
+    anywhere means a component reached for elevation instead of a rule."""
+    assert "box-shadow" not in CSS and "backdrop-filter" not in CSS
+    assert "filter: blur" not in CSS
+
+
+def test_nothing_is_pill_shaped_and_no_corner_is_rounder_than_4px():
+    for radius in re.findall(r"border-radius:\s*([^;}]+)", CSS):
+        radius = radius.strip()
+        assert "%" not in radius and "999" not in radius, radius
+        for px in re.findall(r"(\d+(?:\.\d+)?)px", radius):
+            assert float(px) <= 4, radius
 
 
 def test_slide_images_are_never_filtered_inverted_dimmed_or_blended():

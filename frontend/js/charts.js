@@ -319,3 +319,45 @@ function ordinalArc(rollup, { onPoint, tableNumber }, coverage = false) {
           h("td", { class: "muted small" }, p.thin ? `${p.profile} (thin)` : p.profile)))))));
   return h("div", null, legend, wrap, note, table);
 }
+
+// ------------------------------------------------------- the real lecture, over time
+// One recorded lecture (not a deck, not synthesized narration) run straight through TRIBE.
+// Language-region drive only: that run had no visual input, so visual drive there is noise
+// around zero and the processing ratio divides by it. See scripts/make_lecture_timecourse.py.
+
+const LW = 1000, LH = 260, LM = { l: 52, r: 16, t: 20, b: 34 };
+
+export function lectureChart(data) {
+  const pts = data.series;
+  if (!pts.length) return h("p", { class: "empty" }, "No lecture timecourse.");
+  const vals = pts.map((p) => p.v);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = (hi - lo) * 0.12 || 0.05;
+  const X = (t) => LM.l + (t / data.duration_s) * (LW - LM.l - LM.r);
+  const Y = (v) => LH - LM.b - ((v - lo + pad) / (hi - lo + 2 * pad)) * (LH - LM.t - LM.b);
+
+  const peak = pts.reduce((a, b) => (b.v > a.v ? b : a));
+  const svg = s("svg", {
+    viewBox: `0 0 ${LW} ${LH}`, role: "img",
+    "aria-label": `Predicted language-region drive across ${Math.round(data.duration_s / 60)} minutes of a recorded lecture. `
+      + `It rises through the first twelve minutes and peaks at minute ${Math.round(peak.t / 60)}, then falls back.`,
+  });
+
+  // zero line: the model's own baseline, so above and below it are meaningfully different
+  svg.append(s("g", { class: "grid" }, s("line", { x1: LM.l, x2: LW - LM.r, y1: Y(0), y2: Y(0) })));
+  svg.append(s("text", { x: LM.l - 8, y: Y(0) + 4, "text-anchor": "end" }, "0"));
+
+  // a minute rule every four minutes, which is also where each chunk restarts its context
+  for (let m = 0; m * 60 <= data.duration_s; m += 4) {
+    svg.append(s("line", { class: "vrule", x1: X(m * 60), x2: X(m * 60), y1: LM.t, y2: LH - LM.b }));
+    svg.append(s("text", { x: X(m * 60), y: LH - LM.b + 18, "text-anchor": "middle" }, `${m} min`));
+  }
+
+  const d = pts.map((p, i) => `${i ? "L" : "M"}${X(p.t).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(" ");
+  svg.append(s("path", { class: "lect-fill", d: `${d} L${X(pts[pts.length - 1].t).toFixed(1)} ${Y(0)} L${X(pts[0].t).toFixed(1)} ${Y(0)} Z` }));
+  svg.append(s("path", { class: "lect-line", d }));
+  svg.append(s("circle", { class: "lect-peak", cx: X(peak.t), cy: Y(peak.v), r: 4 }));
+  svg.append(s("text", { class: "lect-peak-label", x: X(peak.t), y: Y(peak.v) - 12, "text-anchor": "middle" },
+    `peak, minute ${Math.round(peak.t / 60)}`));
+  return h("div", { class: "chart" }, svg);
+}

@@ -4,7 +4,7 @@ import { watch } from "./run.js";
 import { numBtn, cmpLine, deckStrip, src, usesTakeawayIntent, isFieldwise, openProvenance } from "./provenance.js";
 import { runHref, tierChip, guard, runBanners } from "./run-common.js";
 
-const REFERENCE_NOTE = "The intended reading is derived from this expert interpretation, so it defines the baseline rather than scoring against it.";
+const REFERENCE_NOTE = "This reading defines the baseline; it is not scored against it.";
 
 // ------------------------------------------------------- recommendations, lazily fetched
 // Opening a slide is what asks the server for its recommendations; the server saves them with
@@ -82,17 +82,14 @@ function neuralAbsent() {
 
 function neuralBody(d) {
   return h("div", null,
-    h("div", { class: "banner sample" }, infoIcon(), h("div", null,
-      h("strong", null, d.overlay_label), " ",
-      "From a brain-encoding model (TRIBE v2, Meta AI) run on synthesized narration of this slide’s text — not a real presenter reading it, and not a measurement of anyone’s brain.")),
     h("div", { class: "rel-row" },
       h("div", null,
-        h("div", { class: "small muted" }, "Processing ratio (language drive ÷ visual drive)"),
+        h("div", { class: "label-xs" }, "Processing ratio"),
         h("div", { class: "val" }, f2(d.processing_ratio)),
-        h("p", { class: "caveat" }, "A proposed readout, not a validated metric. Compare its shape across the slides of this deck, never the level on this one.")),
+        h("p", { class: "caveat" }, "Language drive ÷ visual drive. Read across this deck, not on one slide.")),
       h("div", null,
-        h("div", { class: "small muted" }, "Language drive"), h("div", null, f2(d.language_drive)),
-        h("div", { class: "small muted", style: "margin-top:8px" }, "Visual drive"), h("div", null, f2(d.visual_drive)))),
+        h("div", { class: "label-xs" }, "Language drive"), h("div", null, f2(d.language_drive)),
+        h("div", { class: "label-xs", style: "margin-top:10px" }, "Visual drive"), h("div", null, f2(d.visual_drive)))),
     h("details", null,
       h("summary", { class: "small muted", style: "cursor:pointer" }, "Narration this prediction was made from"),
       h("div", { class: "textbox" }, d.narration_transcript)),
@@ -109,7 +106,11 @@ function neuralSection(runId, n) {
     : e.status === "absent" ? neuralAbsent()
     : h("p", { class: "err" }, e.message)));
   return h("section", { class: "card neural" },
-    h("div", { class: "small muted" }, "Predicted neural response ", h("span", { class: "pill sample" }, "predicted")),
+    h("h3", null, "Predicted neural response"),
+    // The one disclosure this panel makes, in the dek position rather than as a warning: TRIBE
+    // predicts an average cortical response, and the slide was read to it by a speech synthesiser.
+    h("p", { class: "dek" }, "TRIBE v2 (Meta AI), from synthesized narration of this slide. ",
+      h("strong", null, "Predicted, not measured.")),
     box);
 }
 
@@ -333,7 +334,7 @@ function figureDetails(r) {
   return h("details", { class: "figure-desc" },
     h("summary", { class: "small muted", style: "cursor:pointer" }, "Figure description (machine-generated)"),
     h("div", { class: "src" }, h("div", { class: "who" }, `Written by ${ic.model || "a model"} from the slide image; given to all three readers under FIGURE:`), h("p", null, ic.text)),
-    h("p", { class: "caveat" }, "Deliberately non-interpretive: it describes marks, labels, axes, values and arrangement, and names no principle, so the readers are not handed the expert’s job. It is not scored and never compared across readers."));
+    h("p", { class: "caveat" }, "Marks and labels only, never a principle — so the readers are not handed the expert’s job. Not scored."));
 }
 
 /** The headline: which tier the slide falls in, and the three numbers it was read from. */

@@ -120,7 +120,7 @@ def test_the_figure_slide_shows_a_collapsed_machine_generated_description_and_th
     out = render(tmp_path, sample, "3,8")
     desc = sample["run"]["results"][7]["image_content"]["text"]
     assert "Figure description (machine-generated)" in out["slide8"] and desc in out["slide8"]
-    assert "Deliberately non-interpretive" in out["slide8"] and "not scored and never compared across readers" in out["slide8"]
+    assert "Marks and labels only, never a principle" in out["slide8"] and "Not scored." in out["slide8"]
     assert "Figure description" not in out["slide3"]
     src = (FRONTEND_DIR / "js" / "views-detail.js").read_text(encoding="utf-8")
     assert 'h("details", { class: "figure-desc" }' in src and "open:" not in src.split('class: "figure-desc"')[1].split("\n")[0]  # collapsed by default
@@ -315,15 +315,13 @@ def test_a_run_saved_before_coverage_keeps_its_entailment_panel_and_its_ordinal_
 
 
 def test_the_neural_panel_discloses_what_it_is_every_time_it_shows_a_number(sample, tmp_path):
-    """Design rule 4: the prediction is labelled as predicted, on every screen that shows it. The
-    out-of-distribution caveat (TRIBE was trained on movie-watching fMRI, not narrated slides) and
-    the fact that the narration is synthetic both have to be on the page, not in a tooltip."""
+    """Design rule 4: the prediction is labelled as predicted wherever it is shown. One line, in
+    the dek, rather than a stack of warnings -- but it still has to name the model, say the
+    narration was synthesized, and say plainly that nothing here was measured."""
     out = render(tmp_path, sample, "1")
     page = out["slide1"]
-    assert "Predicted response — simulated, not measured." in page
-    assert "TRIBE v2" in page and "not a real presenter reading it" in page
-    assert "not a measurement of anyone’s brain" in page
-    assert "A proposed readout, not a validated metric" in page
+    assert "TRIBE v2" in page and "synthesized narration" in page
+    assert "Predicted, not measured." in page
 
 
 def test_the_neural_panel_shows_the_narration_the_number_was_made_from(sample, tmp_path):
