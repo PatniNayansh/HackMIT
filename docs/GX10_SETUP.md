@@ -11,6 +11,9 @@ an existing venv at any point below.
 
 ## 0. Locate or clone the repo
 
+> The project is called **ProFe**. The checkout directory and the GitHub repo are still
+> named `SightLine`/`HackMIT` from before the rename, so the paths below are literal.
+
 Check whether the PROFE repo already exists on this machine (e.g.
 `find / -maxdepth 4 -iname "SightLine" -type d 2>/dev/null` or ask the user for the path).
 If it's not present, clone it:

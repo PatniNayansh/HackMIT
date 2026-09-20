@@ -1,13 +1,13 @@
 # TRIBE v2 Neurodivergent Fine-Tune Plan
 
-As of 2026-09-20. Research record for whether SightLine's neural layer can be extended
+As of 2026-09-20. Research record for whether ProFe's neural layer can be extended
 from TRIBE v2's neurotypical average to an autistic-group / ADHD-group prediction, and
 how to do it. Companion to `GX10_SETUP.md` (inference setup) and
 `backend/scripts/precompute_neural/README.md`.
 
 ## Goal and verdict
 
-We want SightLine's neural layer to show how a neurodivergent audience (autism or ADHD)
+We want ProFe's neural layer to show how a neurodivergent audience (autism or ADHD)
 would respond to a slide, not just the neurotypical average that TRIBE v2 ships with.
 This is feasible in about one to two weeks of part-time work, not in a hackathon window,
 and the gate is data access rather than compute or code.
@@ -285,7 +285,7 @@ Timing on the GX10: feature extraction for one 3.4-minute film is a few minutes 
 shared across all subjects. A 5-epoch run over 100 subjects is on the order of 20 to 40
 minutes.
 
-## Phase 5: plug the group checkpoints into SightLine
+## Phase 5: plug the group checkpoints into ProFe
 
 The app changes are small because the precompute script already isolates the model call.
 The product surface is a difference map per slide, never a standalone "autistic brain"
@@ -321,7 +321,7 @@ render.
 | 4 | ANTsPy wheels or performance on arm64 | Low to medium | Preprocessing route fails | Fall back to fMRIPrep on any amd64 laptop or a cloud VM |
 | 5 | Group effect too small to see after averaging | Medium | The difference map looks like noise | Report it honestly in the Methods panel; the half-and-half sanity model tells you if the signal is real |
 | 6 | Head motion removes most of the autistic group | Medium | Small n, wide error bars | Use FD threshold 0.5 mm, take both movies, add Site-CBIC |
-| 7 | Age confound: HBN is children, TRIBE was trained on adults, SightLine's audience is adults | Certain | Every result is an extrapolation | Age-match the two groups so the difference is diagnosis, not age; label the extrapolation on the image |
+| 7 | Age confound: HBN is children, TRIBE was trained on adults, ProFe's audience is adults | Certain | Every result is an extrapolation | Age-match the two groups so the difference is diagnosis, not age; label the extrapolation on the image |
 | 8 | License: TRIBE weights are CC-BY-NC-4.0, HBN is research-only | Certain | Non-commercial only | Fine for the project; flag before any commercial use |
 
 ## Timeline and labeling rules
