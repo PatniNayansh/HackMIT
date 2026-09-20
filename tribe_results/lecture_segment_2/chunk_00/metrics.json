@@ -1,0 +1,8 @@
+{
+  "language_drive": 0.03865113481879234,
+  "visual_drive": -0.02231934666633606,
+  "processing_ratio": -1.7317323574300352,
+  "gfp_negative_baseline": 0.09867800027132034,
+  "source": "real recorded lecture audio, not synthesized narration",
+  "n_segments": 240
+}

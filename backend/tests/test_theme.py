@@ -389,5 +389,5 @@ def test_the_list_of_runs_is_called_history_and_carries_the_audio_run_too():
     assert '"History"' in src
     assert "Saved runs" not in src
     section = src[src.index("function historySection") : src.index("export function home")]
-    assert "/api/lecture" in section and "/api/runs" in section
-    assert "AUDIO_RUN_HREF" in section
+    assert "/api/audio" in section and "/api/runs" in section
+    assert "audioHref(" in section

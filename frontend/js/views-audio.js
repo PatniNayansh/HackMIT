@@ -6,13 +6,13 @@ import { getJSON } from "./api.js";
 import { lectureChart } from "./charts.js";
 import { slideImage } from "./dom.js";
 
-export const AUDIO_RUN_HREF = "#/audio";
+export const audioHref = (id) => `#/audio/${id}`;
 
-export function audioRun(root) {
+export function audioRun(root, id) {
   document.title = "Lecture audio — ProFe";
   mount(root, h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading the audio run…"));
 
-  getJSON("/api/lecture").then((d) => {
+  getJSON(`/api/audio/${encodeURIComponent(id)}`).then((d) => {
     const mins = Math.round(d.duration_s / 60);
     mount(root,
       h("div", { class: "crumbs" }, h("a", { href: "#/" }, "Start"), "›", "Lecture audio"),
@@ -33,7 +33,7 @@ export function audioRun(root) {
           lectureChart(d),
           h("p", { class: "caveat" },
             "Smoothed over ", String(d.smoothing_window_s),
-            " seconds. It climbs through twelve minutes, then falls back. Rules mark the chunks."))),
+            " seconds. Rules mark the chunk boundaries, where the model starts a fresh context."))),
 
       d.surfaces && d.surfaces.length && h("section", { class: "section" },
         h("header", null, h("h2", null, "Cortex, chunk by chunk")),

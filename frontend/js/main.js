@@ -10,7 +10,7 @@ let cleanup = null;
 
 const ROUTES = [
   [/^#\/?$/, () => home(root)],
-  [/^#\/audio$/, () => audioRun(root)],
+  [/^#\/audio\/([\w-]+)$/, (id) => audioRun(root, id)],
   [/^#\/runs$/, () => savedRuns(root)],
   [/^#\/run\/([\w-]+)\/setup$/, (id) => setup(root, id)],
   [/^#\/run\/([\w-]+)\/slide\/(\d+)$/, (id, n) => detail(root, id, Number(n))],

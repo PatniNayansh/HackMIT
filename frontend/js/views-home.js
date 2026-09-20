@@ -1,7 +1,7 @@
 import { h, mount, when, warnIcon, infoIcon, slideImage } from "./dom.js";
 import { api, getJSON, postJSON } from "./api.js";
 import { forget } from "./run.js";
-import { AUDIO_RUN_HREF } from "./views-audio.js";
+import { audioHref } from "./views-audio.js";
 import { AUDIO_CHUNK_S, sendAudio, pollAudio, discardAudio } from "./audio-upload.js";
 
 function statusPill(status) {
@@ -150,15 +150,16 @@ function historySection() {
         model && h("span", { class: "mono small muted" }, model),
         status));
 
-  Promise.allSettled([getJSON("/api/runs"), getJSON("/api/lecture")]).then(([runsR, lectureR]) => {
+  Promise.allSettled([getJSON("/api/runs"), getJSON("/api/audio")]).then(([runsR, audioR]) => {
     const rows = [];
-    if (lectureR.status === "fulfilled") {
-      const d = lectureR.value;
-      rows.push(row({
-        href: AUDIO_RUN_HREF, title: d.title, kind: "Lecture audio",
-        when: `${d.venue}`, slides: `${Math.round(d.duration_s / 60)} min`,
-        model: "TRIBE v2", status: h("span", { class: "pill" }, "complete"),
-      }));
+    if (audioR.status === "fulfilled") {
+      for (const d of audioR.value) {
+        rows.push(row({
+          href: audioHref(d.id), title: d.title, kind: "Lecture audio",
+          when: d.venue, slides: `${Math.round(d.duration_s / 60)} min`,
+          model: "TRIBE v2", status: h("span", { class: "pill" }, "complete"),
+        }));
+      }
     }
     if (runsR.status === "fulfilled") {
       for (const r of runsR.value) {

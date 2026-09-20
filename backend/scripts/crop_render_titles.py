@@ -23,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TARGETS = [
     REPO_ROOT / "backend" / "fixtures" / "neural",
     REPO_ROOT / "backend" / "fixtures" / "lecture_surfaces",
+    REPO_ROOT / "backend" / "fixtures" / "audio",
 ]
 WHITE = 250
 
@@ -43,16 +44,26 @@ def title_band(a: np.ndarray) -> tuple[int, int] | None:
     return bands[0][0], bands[1][0]  # title top, figure top
 
 
+MARGIN = 24
+
+
 def crop(path: Path) -> bool:
+    """Normalise a render to its ink: drop the title band if there is one, and trim the dead
+    whitespace either way. Renders made before the title was removed and renders made after it
+    should end up the same shape, or they read as two different sizes side by side in the UI.
+    Idempotent: a render already at MARGIN is left exactly as it is."""
     im = Image.open(path).convert("RGB")
-    band = title_band(np.array(im))
-    if band is None:
-        return False
-    _, figure_top = band
     a = np.array(im)
     rows = np.where((a < WHITE).any(axis=(1, 2)))[0]
-    top = max(0, figure_top - 24)          # a little air above the figure
-    bottom = min(im.height, int(rows[-1]) + 24)
+    if not len(rows):
+        return False
+
+    band = title_band(a)
+    figure_top = band[1] if band else int(rows[0])
+    top = max(0, figure_top - MARGIN)
+    bottom = min(im.height, int(rows[-1]) + MARGIN)
+    if (top, bottom) == (0, im.height):
+        return False
     im.crop((0, top, im.width, bottom)).save(path)
     return True
 
