@@ -32,6 +32,7 @@ import numpy as np
 from .audiences import PERSONAS, AudienceReading, AudienceResponseError, CacheMiss, Persona
 from .divergence import Embedder, normalize_term, score_slide
 from .intent import EXPERT_IS_DEFINITIONAL
+from .tiers import assign_tiers
 
 # Comparing one slide to "the rest of the deck" needs a rest. Below this the UI says so
 # instead of ranking three slides against each other.
@@ -271,6 +272,22 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
         distributions[k] = _distribution(series)
         ranks[k] = _ranks(series)
 
+    scored = [r for r in results if r["metrics"]]
+    comparable = len(scored) >= MIN_SLIDES_FOR_COMPARISON
+
+    # Tiers are read from the deck first (percentiles among these slides), so they can move as
+    # more slides land during a run. They are not stored per slide for that reason.
+    tiers = assign_tiers(
+        {
+            r["index"]: {
+                "novice_alignment": values[r["index"]]["intent_alignment.novice"],
+                "peer_alignment": values[r["index"]]["intent_alignment.peer"],
+                "novice_unresolved": values[r["index"]]["unresolved_count.novice"],
+            }
+            for r in scored
+        }
+    )
+
     per_slide = [
         {
             "slide": r["index"],
@@ -280,12 +297,10 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
                 for k in keys
                 if r["index"] in ranks[k]
             },
+            **({"tier": tiers[r["index"]]} if r["index"] in tiers else {}),
         }
         for r in results
     ]
-
-    scored = [r for r in results if r["metrics"]]
-    comparable = len(scored) >= MIN_SLIDES_FOR_COMPARISON
 
     # Hardest for a newcomer: lowest novice alignment to the slide's inferred intent first, ties
     # broken by more novice-unresolved terms. Alignment is not shown in the row: the order is the

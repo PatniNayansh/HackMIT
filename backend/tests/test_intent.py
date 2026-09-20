@@ -111,6 +111,21 @@ def test_unsupported_terms_ignores_function_words_plurals_and_generic_verbs():
     assert unsupported_terms("It beats vLLM and TTFT.", src) == ["vLLM", "TTFT"]  # coined or capitalised terms
 
 
-def test_template_is_the_claim_verbatim_as_a_sentence():
+def test_template_is_the_claim_as_a_sentence():
     e = AudienceResponse(takeaway="t", confidence=0.5, unresolved_terms=[], questions=[], inferred_claim='"a claim without a stop"')
     assert template_intent(e) == "A claim without a stop."
+
+
+@pytest.mark.parametrize("claim,expected", [
+    ("The presenter wants us to believe these three techniques explain the gain.", "These three techniques explain the gain."),
+    ("The presenter wants the audience to accept that speculative decoding is lossless.", "Speculative decoding is lossless."),
+    ("The presenter wants you to remember it.", "The presenter wants you to remember it."),  # too little left to be a statement: kept whole
+    ("The system doubles throughput.", "The system doubles throughput."),
+])
+def test_template_drops_only_the_framing(claim, expected):
+    e = AudienceResponse(takeaway="t", confidence=0.5, unresolved_terms=[], questions=[], inferred_claim=claim)
+    assert template_intent(e) == expected
+
+
+def test_inflections_of_ordinary_words_are_not_new_terms():
+    assert unsupported_terms("It achieves gains and demonstrates results.", ["gains"]) == []

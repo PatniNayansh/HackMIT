@@ -99,12 +99,20 @@ def _wordpiece():
         return None
 
 
+_SUFFIXES = ("ing", "ed", "es", "s", "ly", "er", "ers")
+
+
 def is_common_word(word: str) -> bool:
     """Ordinary English (raises, pairing, hardware) versus a technical coinage (goodput,
     annealing). A word the local wordpiece vocabulary keeps whole is ordinary; one it has to
-    break into pieces is treated as a term. Rephrasing needs synonyms; it must not need jargon."""
+    break into pieces is treated as a term. Inflections count with their root (achieves,
+    achieve). Rephrasing needs synonyms; it must not need jargon."""
     tok = _wordpiece()
-    return tok is not None and len(tok.tokenize(word.casefold())) == 1
+    if tok is None:
+        return False
+    w = word.casefold()
+    roots = [w] + [w[: -len(x)] for x in _SUFFIXES if w.endswith(x) and len(w) - len(x) >= 3]
+    return any(len(tok.tokenize(r)) == 1 for r in roots)
 
 
 def unsupported_terms(intent: str, sources: list[str], common=is_common_word) -> list[str]:
@@ -135,9 +143,20 @@ def _sentence(text: str) -> str:
     return text if text[-1] in ".!?" else text + "."
 
 
+_FRAMING = re.compile(
+    r"^(?:the\s+)?presenter\s+wants\s+(?:the\s+audience|the\s+viewer|viewers|us|you)\s+to\s+"
+    r"(?:believe|accept|expect|remember|conclude|understand|see|recognize|recognise)(?:\s+that)?\s+",
+    re.I,
+)
+
+
 def template_intent(expert: PersonaReport) -> str:
-    """The expert's own claim, verbatim. Cannot introduce a term the expert did not use."""
-    return _sentence(expert.inferred_claim)
+    """The expert's own claim. Cannot introduce a term the expert did not use: the only edit is
+    dropping the "The presenter wants us to believe" framing the persona prompt asks for, so the
+    sentence reads as a statement of the point rather than a report about it."""
+    claim = expert.inferred_claim.strip()
+    stripped = _FRAMING.sub("", claim)
+    return _sentence(stripped if len(stripped.split()) >= 3 else claim)
 
 
 # -------------------------------------------------------------------------- the call
