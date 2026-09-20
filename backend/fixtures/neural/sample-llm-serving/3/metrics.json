@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.19210968911647797,
+  "visual_drive": 0.0380701906979084,
+  "processing_ratio": 5.046197184587063,
+  "gfp_negative_baseline": 0.15861578285694122,
+  "narration_transcript": "PagedAttention + speculative decoding: 2.4x goodput at p99 KV-cache fragmentation: <4% waste via block tables Draft model acceptance alpha = 0.78 at gamma = 5 Continuous batching; chunked prefill off to hold the TTFT SLO"
+}

@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.20351292192935944,
+  "visual_drive": 0.042656444013118744,
+  "processing_ratio": 4.770977202571555,
+  "gfp_negative_baseline": 0.17874456942081451,
+  "narration_transcript": "Speculative decoding A small draft model proposes gamma tokens The target model verifies them in one forward pass Rejection sampling keeps the output distribution exact"
+}

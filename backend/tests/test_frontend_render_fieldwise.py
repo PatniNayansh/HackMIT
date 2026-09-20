@@ -28,7 +28,14 @@ def read_payload(store, run_id, tmp, n_slides, recs=None):
     with TestClient(app) as c:
         run = c.get(f"/api/runs/{run_id}").json()
         rec = {n: c.get(f"/api/runs/{run_id}/slides/{n}/recommendations").json() for n in range(1, n_slides + 1)}
-    return {"run": run, "recs": rec}
+        # Only the slides that were actually precomputed: a slide missing here renders the empty
+        # state, which is the case the UI has to get right most of the time.
+        neural = {}
+        for n in range(1, n_slides + 1):
+            r = c.get(f"/api/runs/{run_id}/slides/{n}/neural")
+            if r.status_code == 200:
+                neural[n] = r.json()
+    return {"run": run, "recs": rec, "neural": neural}
 
 
 @pytest.fixture(scope="module")
@@ -302,3 +309,53 @@ def test_a_run_saved_before_coverage_keeps_its_entailment_panel_and_its_ordinal_
         assert "Missed:" not in out[f"slide{n}"]  # nothing to name without coverage
         claim_panels = [d["body"] for d in out[f"slide{n}:drawers"] if d["body"].startswith("Claim —")]
         assert claim_panels and all("Rationale" in b and "proposition" not in b.lower() for b in claim_panels)
+
+
+# --------------------------------------------------------------------------- the neural panel
+
+
+def test_the_neural_panel_discloses_what_it_is_every_time_it_shows_a_number(sample, tmp_path):
+    """Design rule 4: the prediction is labelled as predicted, on every screen that shows it. The
+    out-of-distribution caveat (TRIBE was trained on movie-watching fMRI, not narrated slides) and
+    the fact that the narration is synthetic both have to be on the page, not in a tooltip."""
+    out = render(tmp_path, sample, "1")
+    page = out["slide1"]
+    assert "Predicted response — simulated, not measured." in page
+    assert "TRIBE v2" in page and "not a real presenter reading it" in page
+    assert "not a measurement of anyone’s brain" in page
+    assert "A proposed readout, not a validated metric" in page
+
+
+def test_the_neural_panel_shows_the_narration_the_number_was_made_from(sample, tmp_path):
+    """Design rule 2: the number decomposes into its source text, on the page, without a round
+    trip to the server."""
+    out = render(tmp_path, sample, "1")
+    assert "Serving LLMs faster" in out["slide1"]  # the synthesized narration of slide 1
+
+
+def test_no_screen_ever_shows_the_gfp_engagement_scalar(sample, tmp_path):
+    """Design rule 3: TRIBE's scalar engagement readout is a published null result. If the word
+    reaches a screen, that is a bug, not a feature."""
+    out = render(tmp_path, sample, "1,2,3,4,5,6,7,8")
+    for name, text in all_text(out).items():
+        assert "gfp" not in text.lower(), name
+        assert "engagement" not in text.lower(), name
+
+
+def test_a_slide_that_was_never_precomputed_says_so_instead_of_showing_a_brain(sample, tmp_path):
+    """Slide 8 was added to the deck after the GPU run. It must read as absent, and must not
+    borrow slide 7's numbers to fill the space."""
+    out = render(tmp_path, sample, "8")
+    page = out["slide8"]
+    assert "No precomputed neural response for this slide" in page
+    assert "Processing ratio" not in page and "Language drive" not in page
+
+
+def test_the_cortical_renders_are_framed_like_slide_images_so_dark_mode_cannot_dim_them(sample, tmp_path):
+    """A cortical surface is a white-background render, exactly like a slide image, so it goes on
+    the same light card in both themes rather than being inverted or dimmed to "fit" dark mode."""
+    src = (FRONTEND_DIR / "js" / "views-detail.js").read_text(encoding="utf-8")
+    panel = src[src.index("function neuralBody"):src.index("function neuralSection")]
+    assert 'h("img"' not in panel and "slideImage(" in panel
+    empty = src[src.index("function neuralAbsent"):src.index("function neuralBody")]
+    assert 'h("img"' not in empty and "slideImage(" in empty

@@ -3,6 +3,7 @@ real bundled directory, with no client, no key and no network."""
 
 from __future__ import annotations
 
+import json
 import re
 
 import pytest
@@ -103,6 +104,52 @@ def test_only_the_figure_slide_was_described_and_the_description_is_neutral(clie
     assert 'labeled "p99 latency (ms)"' in ic["text"] or "p99 latency (ms)" in ic["text"]
     assert results[7]["text"].endswith("FIGURE: [description of the image, not printed words] " + ic["text"])
     assert all("FIGURE:" not in r["text"] for r in results[:7])
+
+
+# ----------------------------------------------------------------------------- neural
+# The checked-in neural fixtures are real TRIBE v2 output from a GX10 run, not a stand-in.
+# They cover slides 1-7; slide 8 was added to the deck afterwards and was never run, which
+# is what the UI's empty state exists for.
+
+
+def test_the_bundled_neural_fixtures_are_the_narration_of_the_slides_they_belong_to(client, tmp_path):
+    """Design rule 2: every number decomposes into the text that produced it. If the deck is ever
+    regenerated without re-running TRIBE, the transcripts drift off the slides and this catches
+    it before the UI quietly shows one slide's brain next to another slide's words."""
+    store = RunStore(tmp_path / "history", bundled=[BUNDLED_RUNS_DIR])
+    text = {s.index: s.text for s in store.load_slides(RUN)}
+    for n in range(1, 8):
+        spoken = client.get(f"/api/runs/{RUN}/slides/{n}/neural").json()["narration_transcript"]
+        for line in text[n].splitlines():
+            line = line.strip()
+            if line.startswith("[") and "]" in line:
+                line = line.split("]", 1)[1].strip()  # drop the [title]/[body] layout prefix
+            assert line in spoken, f"slide {n}: narration is missing {line!r}"
+
+
+def test_the_sample_serves_real_neural_output_for_the_slides_that_were_run(client):
+    roll = client.get(f"/api/runs/{RUN}/neural").json()
+    assert roll["n_slides"] == 8 and roll["scored"] == [1, 2, 3, 4, 5, 6, 7]
+    # Z-scores are relative to this deck (design rule 5: ranks within a deck, never absolutes),
+    # so they must centre on zero however the underlying ratios are scaled.
+    zs = [row["processing_ratio_z"] for row in roll["per_slide"]]
+    assert abs(sum(zs)) < 1e-9 and max(zs) > 0 > min(zs)
+
+
+def test_the_slide_that_was_never_run_404s_instead_of_borrowing_another_slides_brain(client):
+    assert client.get(f"/api/runs/{RUN}/slides/8/neural").status_code == 404
+    assert client.get(f"/api/runs/{RUN}/slides/8/neural/lateral_left.png").status_code == 404
+
+
+def test_the_gfp_null_result_is_stored_but_never_served(client):
+    """Design rule 3: the scalar engagement readout is a published null result. It stays in the
+    fixture so the Methods panel can reproduce it next to the citation, and never reaches a
+    response on its own."""
+    on_disk = json.loads((BUNDLED_RUNS_DIR.parent / "neural" / RUN / "1" / "metrics.json").read_text(encoding="utf-8"))
+    assert "gfp_negative_baseline" in on_disk
+    body = client.get(f"/api/runs/{RUN}/slides/1/neural").json()
+    assert "gfp_negative_baseline" not in body
+    assert body["overlay_label"] == "Predicted response — simulated, not measured."
 
 
 def test_the_sample_cannot_be_run_again_or_modified(client):

@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.17632997035980225,
+  "visual_drive": 0.10046148300170898,
+  "processing_ratio": 1.75519975508228,
+  "gfp_negative_baseline": 0.17621572315692902,
+  "narration_transcript": "Block tables KV-cache split into fixed-size blocks, mapped per sequence Copy-on-write shares blocks across parallel samples Prefix caching hit rate: 61% on the chat workload"
+}

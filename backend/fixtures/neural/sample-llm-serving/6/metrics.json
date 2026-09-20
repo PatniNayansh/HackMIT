@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.2731875479221344,
+  "visual_drive": 0.08695163577795029,
+  "processing_ratio": 3.1418333361752686,
+  "gfp_negative_baseline": 0.19995132088661194,
+  "narration_transcript": "Result: 2.4x more requests per second Same hardware: 8 GPUs, same latency target Median response time unchanged Measured on a real chat workload"
+}
