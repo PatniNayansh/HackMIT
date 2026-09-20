@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import asyncio
+import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import pymupdf
 import pytest
 from fastapi.testclient import TestClient
 
-from sightline import diagnose
 from sightline.audiences import FileCache
 from sightline.server import create_app
 from sightline.store import RunStore
@@ -33,10 +35,25 @@ class Fake:
     def __init__(self, responder=None):
         self.llm = FakeLLM(responder)
         self.available = True
+        self.recs_calls = 0
+        self.recs_delay = 0.0
+        self.recs_fail = False
 
     async def _complete(self, *, system, user_text, image_png, schema, max_tokens=4096):
         if "Name the field it belongs to" in system:
             return {"domain": "LLM inference serving", "adjacent_field": "distributed systems"}
+        if "You help a presenter fix one slide" in system:
+            self.recs_calls += 1
+            if self.recs_fail:
+                raise ConnectionError("down")
+            if self.recs_delay:
+                await asyncio.sleep(self.recs_delay)
+            term = re.search(r"<novice_report>.*?Terms it could not resolve: (.*?)\n", user_text, re.S).group(1)
+            return {
+                "novice": [{"bullet": f"Define {term} on first use", "evidence": term}],
+                "peer": [{"bullet": "Invented change with no evidence", "evidence": "nobody said this"}],
+                "expert_flagged": [],
+            }
         return await FakeLLM.complete_json(
             self.llm, system=system, user_text=user_text, image_png=image_png, schema=schema
         )
@@ -185,12 +202,10 @@ def test_a_saved_run_reopens_with_no_client_no_key_and_no_model_calls(env):
             (run_id, "My talk", 3, "fake-model", "complete")
         ]
         after = c2.get(f"/api/runs/{run_id}").json()
-        findings = c2.get(f"/api/runs/{run_id}/slides/1/findings").json()
         assert c2.get(f"/api/runs/{run_id}/slides/1.png").status_code == 200
 
     assert after == before  # the full review payload, byte for byte
     assert len(factory.llm.calls) == calls_after_run
-    assert findings["fixture"] is diagnose.FIXTURE_BACKED is True and findings["findings"]
 
 
 def test_an_invalid_persona_reply_reaches_the_ui_as_an_error_not_a_number(env):
@@ -260,3 +275,78 @@ def test_health_reports_whether_new_runs_are_possible(env):
         assert c.get("/api/health").json()["can_call_model"] is True
         factory.available = False
         assert c.get("/api/health").json()["can_call_model"] is False
+
+
+# ----------------------------------------------------------------------- recommendations
+
+
+def test_recommendations_are_lazy_generated_on_first_open_and_then_served_from_disk(env):
+    _, factory, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp, pages=2)["run_id"]
+        c.post(f"/api/runs/{run_id}/start", json=START)
+        wait_done(c, run_id)
+        assert factory.recs_calls == 0  # the batch run never asked for recommendations
+
+        first = c.get(f"/api/runs/{run_id}/slides/1/recommendations").json()
+        again = c.get(f"/api/runs/{run_id}/slides/1/recommendations").json()
+
+    assert factory.recs_calls == 1  # one call for the slide that was opened, none for slide 2
+    assert first["available"] and first["cached"] is False and again["cached"] is True
+    recs = first["recommendations"]
+    assert recs["novice"] == [{"audience": "novice", "bullet": "Define SENTINEL-NOVICE-1 term on first use", "evidence": "SENTINEL-NOVICE-1 term"}]
+    assert recs["peer"] == [] and recs["meta"]["dropped_without_evidence"] == 1  # the invented bullet never reaches the UI
+    assert again["recommendations"] == recs
+
+
+def test_saved_recommendations_replay_offline_with_no_key(env):
+    _, factory, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp, pages=2)["run_id"]
+        c.post(f"/api/runs/{run_id}/start", json=START)
+        wait_done(c, run_id)
+        saved = c.get(f"/api/runs/{run_id}/slides/1/recommendations").json()["recommendations"]
+    calls = factory.recs_calls
+
+    factory.available = False
+    with TestClient(make_app(client_factory=factory)) as c2:
+        replay = c2.get(f"/api/runs/{run_id}/slides/1/recommendations").json()
+        other = c2.get(f"/api/runs/{run_id}/slides/2/recommendations").json()  # never opened before saving
+
+    assert replay == {"available": True, "cached": True, "recommendations": saved}
+    assert factory.recs_calls == calls
+    assert other["available"] is False and "No API key" in other["reason"]
+
+
+def test_opening_the_same_slide_twice_at_once_makes_one_call(env):
+    _, factory, make_app, tmp = env
+    factory.recs_delay = 0.4
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp, pages=1)["run_id"]
+        c.post(f"/api/runs/{run_id}/start", json=START)
+        wait_done(c, run_id)
+        with ThreadPoolExecutor(2) as pool:
+            a, b = pool.map(lambda _: c.get(f"/api/runs/{run_id}/slides/1/recommendations").json(), range(2))
+    assert factory.recs_calls == 1 and a["available"] and b["available"]
+
+
+def test_a_slide_with_an_invalid_persona_reply_has_no_recommendations(env):
+    _, factory, make_app, tmp = env
+    factory.llm.responder = lambda p, n, u: {**sentinel_payload(p, u), **({"confidence": 9} if p == "peer" else {})}
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp, pages=1)["run_id"]
+        c.post(f"/api/runs/{run_id}/start", json=START)
+        wait_done(c, run_id)
+        out = c.get(f"/api/runs/{run_id}/slides/1/recommendations").json()
+    assert out["available"] is False and factory.recs_calls == 0
+
+
+def test_a_failed_recommendation_call_is_a_502_and_is_not_saved(env):
+    store, factory, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp, pages=1)["run_id"]
+        c.post(f"/api/runs/{run_id}/start", json=START)
+        wait_done(c, run_id)
+        factory.recs_fail = True
+        r = c.get(f"/api/runs/{run_id}/slides/1/recommendations")
+    assert r.status_code == 502 and store.load_recs(run_id, 1) is None

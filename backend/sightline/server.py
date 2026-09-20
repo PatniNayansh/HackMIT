@@ -24,8 +24,9 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import diagnose, ingest
+from . import ingest
 from .audiences import DeckProfile, FileCache
+from .diagnose import RecommendationsUnavailable, recommend
 from .intent import FileIntentCache, intent_model
 from .deck import rollup
 from .divergence import Embedder, default_embedder
@@ -82,6 +83,7 @@ def create_app(
     cache = cache or FileCache(data_dir() / "cache" / "audiences", read_only_dirs=[BACKEND / "bundled_cache"])
     intent_cache = FileIntentCache(data_dir() / "cache" / "intents") if cache is None else FileIntentCache(cache.write_dir.parent / "intents")
     active: dict[str, asyncio.Task] = {}
+    in_flight: dict[tuple[str, int], asyncio.Future] = {}
     embedder_ref: dict[str, Embedder] = {}
 
     def get_embedder() -> Embedder:
@@ -228,16 +230,43 @@ def create_app(
             store.image_path(run_id, index), media_type="image/png", headers={"Cache-Control": "max-age=3600"}
         )
 
-    @app.get("/api/runs/{run_id}/slides/{index}/findings")
-    def findings(run_id: str, index: int):
-        results = store.load_results(run_id)
-        result = next((r for r in results if r["index"] == index), None)
+    @app.get("/api/runs/{run_id}/slides/{index}/recommendations")
+    async def recommendations(run_id: str, index: int):
+        """Recommendations for one slide, made the first time the slide is opened and saved with
+        the run. A saved run replays them from disk with no key. Concurrent opens share one call."""
+        cached = store.load_recs(run_id, index)
+        if cached is not None:
+            return {"available": True, "cached": True, "recommendations": cached}
+        result = next((r for r in store.load_results(run_id) if r["index"] == index), None)
         if result is None:
             raise HTTPException(404, f"slide {index} has no result yet")
-        return {
-            "fixture": diagnose.FIXTURE_BACKED,  # the UI badges these as sample data
-            "findings": diagnose.diagnose(result, rollup(results)),
-        }
+        if not result.get("slide_intent"):
+            return {"available": False, "reason": "This slide has no inferred intent to work from."}
+        client = client_factory()
+        if client is None:
+            return {"available": False, "reason": "No API key is configured, and no recommendations were saved for this slide."}
+
+        key = (run_id, index)
+        if key not in in_flight:
+            async def generate():
+                try:
+                    recs = await recommend(result, result["slide_intent"], client=client)
+                    try:
+                        store.save_recs(run_id, index, recs)
+                    except ReadOnlyRun:
+                        pass  # a bundled sample: show it, do not write into the repo
+                    return recs
+                finally:
+                    in_flight.pop(key, None)
+
+            in_flight[key] = asyncio.ensure_future(generate())
+        try:
+            recs = await asyncio.shield(in_flight[key])
+        except RecommendationsUnavailable as e:
+            return {"available": False, "reason": str(e).capitalize() + "."}
+        except Exception as e:  # noqa: BLE001 - shown next to a retry button
+            raise HTTPException(502, f"Could not generate recommendations ({type(e).__name__}).") from e
+        return {"available": True, "cached": False, "recommendations": recs}
 
     # -------------------------------------------------------------------------- pages
 

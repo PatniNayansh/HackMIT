@@ -6,6 +6,8 @@
         slides/001.png    the rendered slide images they were shown
         results/001.json  one SlideResult per completed slide: all three persona readings
                           (or the reason one failed) and every metric with its provenance
+        recs/001.json     that slide's recommendations, written the first time someone opens
+                          the slide (see `diagnose`), so a saved run replays them offline
 
 Everything the review UI shows is in these files, so opening a saved run needs no network and
 no API key: the server reads the directory and nothing else. Runs are written slide by slide as
@@ -163,9 +165,23 @@ class RunStore:
         return meta
 
     def clear_results(self, run_id: str) -> None:
-        """Forget earlier results before a failed run is started again."""
-        for p in (self._writable(run_id) / "results").glob("*.json"):
-            p.unlink()
+        """Forget earlier results (and the recommendations made from them) before a failed run
+        is started again."""
+        d = self._writable(run_id)
+        for sub in ("results", "recs"):
+            for p in (d / sub).glob("*.json"):
+                p.unlink()
+
+    def save_recs(self, run_id: str, index: int, recs: dict[str, Any]) -> None:
+        _write_json(self._writable(run_id) / "recs" / f"{index:03d}.json", recs)
+
+    def load_recs(self, run_id: str, index: int) -> dict[str, Any] | None:
+        d, _ = self._dir(run_id)
+        p = d / "recs" / f"{index:03d}.json"
+        try:
+            return json.loads(p.read_text()) if p.is_file() else None
+        except json.JSONDecodeError:
+            return None  # half-written: regenerate
 
     def save_result(self, run_id: str, result: SlideResult) -> None:
         _write_json(self._writable(run_id) / "results" / f"{result['index']:03d}.json", result)
