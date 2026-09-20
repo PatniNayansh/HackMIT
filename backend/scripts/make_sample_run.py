@@ -5,7 +5,7 @@ model output. The result is written to backend/fixtures/runs/ and marked `sample
 shows as "sample data" and the server never lets anyone re-run or modify. It exists so the demo
 works with no API key and no network: open it from the history list.
 
-    .venv/bin/python backend/scripts/make_sample_run.py        # needs ANTHROPIC_API_KEY; ~22 model calls
+    .venv/bin/python backend/scripts/make_sample_run.py        # needs ANTHROPIC_API_KEY; ~30 model calls
 """
 
 from __future__ import annotations
@@ -24,6 +24,7 @@ sys.path.insert(0, str(BACKEND))
 from sightline import ingest  # noqa: E402
 from sightline.audiences import FileCache  # noqa: E402
 from sightline.divergence import default_embedder  # noqa: E402
+from sightline.intent import FileIntentCache, intent_model  # noqa: E402
 from sightline.llm import AnthropicClient  # noqa: E402
 from sightline.runner import TolerantEngine, run_deck  # noqa: E402
 from sightline.store import BUNDLED_RUNS_DIR, RunStore, data_dir  # noqa: E402
@@ -106,7 +107,8 @@ async def main() -> None:
                  "edited": (inferred.domain, inferred.adjacent_field) != (DOMAIN, ADJACENT)},
     )
     engine = TolerantEngine(client, FileCache(data_dir() / "cache" / "audiences"))
-    await run_deck(store, RUN_ID, engine, default_embedder())
+    intent_client = AnthropicClient(model=intent_model())
+    await run_deck(store, RUN_ID, engine, default_embedder(), intent_client, FileIntentCache(data_dir() / "cache" / "intents"))
     final = store.load_meta(RUN_ID)
     print("status:", final["status"], "| model:", final["model"], "| error:", final["error"])
     print("results:", len(store.load_results(RUN_ID)), "of", meta["slide_count"])

@@ -12,19 +12,49 @@ from builders import slide_result
 
 
 def make_deck(n=6, overrides=None):
-    """Slide i has expert alignment 0.9 and novice alignment 0.9 - 0.05*i, so the novice-expert
-    gap grows with the slide number. `overrides[i]` are extra keyword args for slide i."""
+    """Slide i has peer alignment 0.8 and novice alignment 0.9 - 0.05*i, so the novice falls
+    further from the intended reading as the slide number grows. `overrides[i]` are extra
+    keyword args for slide i."""
     overrides = overrides or {}
-    return [
-        slide_result(i, align=(0.9 - 0.05 * i, 0.8, 0.9), **overrides.get(i, {})) for i in range(1, n + 1)
-    ]
+    return [slide_result(i, align=(0.9 - 0.05 * i, 0.8), **overrides.get(i, {})) for i in range(1, n + 1)]
 
 
-def test_gap_ranking_puts_the_widest_novice_expert_gap_first():
+def test_hardest_slides_are_ranked_by_lowest_novice_alignment_first():
     r = rollup(make_deck())
-    assert [g["slide"] for g in r["gap_ranking"]] == [6, 5, 4, 3, 2, 1]
-    assert r["gap_ranking"][0]["gap"] == pytest.approx(0.30)
-    assert r["gap_ranking"][0]["rank"] == 1
+    assert [h["slide"] for h in r["hardest"]] == [6, 5, 4, 3, 2, 1]
+    assert [h["rank"] for h in r["hardest"]] == [1, 2, 3, 4, 5, 6]
+    assert r["hardest"][0]["novice_alignment"] == pytest.approx(0.60)
+
+
+def test_novice_unresolved_terms_break_alignment_ties_more_terms_first():
+    d = [
+        slide_result(1, align=(0.5, 0.8), terms=(["a"], [], [])),
+        slide_result(2, align=(0.5, 0.8), terms=(["a", "b", "c"], [], [])),
+        slide_result(3, align=(0.4, 0.8), terms=([], [], [])),
+        slide_result(4, align=(0.5, 0.8), terms=(["a", "b"], [], [])),
+    ]
+    assert [h["slide"] for h in rollup(d)["hardest"]] == [3, 2, 4, 1]
+
+
+def test_the_expert_is_the_reference_so_it_has_no_measured_alignment_anywhere():
+    r = rollup(make_deck())
+    assert "intent_alignment.expert" not in r["distributions"]
+    assert all("intent_alignment.expert" not in p["values"] for p in r["per_slide"])
+    assert r["definitional"] == ["expert"]
+
+
+def test_removed_metrics_are_gone_from_the_rollup():
+    r = rollup(make_deck())
+    dumped = json.dumps(r)
+    for gone in ("confidence", "blind_spot", "audience_divergence", "gap_ranking", "divergence_top"):
+        assert gone not in dumped
+
+
+def test_arc_carries_all_three_series_with_the_expert_at_the_reference():
+    arc = rollup(make_deck(3))["arc"]
+    assert [a["slide"] for a in arc] == [1, 2, 3]
+    assert arc[0]["novice"] == pytest.approx(0.85) and arc[0]["peer"] == pytest.approx(0.8)
+    assert all(a["expert"] == 1.0 for a in arc)
 
 
 def test_every_value_is_a_plain_json_number():
@@ -32,34 +62,30 @@ def test_every_value_is_a_plain_json_number():
 
 
 def test_position_is_rank_within_this_deck_with_ties_sharing_a_rank():
-    d = [slide_result(i, conf=(0.5, 0.5, c)) for i, c in enumerate((0.9, 0.9, 0.7, 0.5, 0.5), 1)]
+    d = [slide_result(i, align=(a, 0.5)) for i, a in enumerate((0.9, 0.9, 0.7, 0.5, 0.5), 1)]
     r = rollup(d)
-    ranks = {p["slide"]: p["position"]["confidence.expert"] for p in r["per_slide"]}
+    ranks = {p["slide"]: p["position"]["intent_alignment.novice"] for p in r["per_slide"]}
     assert [ranks[i]["rank"] for i in range(1, 6)] == [1, 1, 3, 4, 4]
     assert all(v["of"] == 5 for v in ranks.values())
 
 
 def test_distribution_keeps_the_per_slide_values_it_was_computed_from():
-    dist = rollup(make_deck())["distributions"]["intent_alignment.expert"]
-    assert dist["n"] == 6 and dist["median"] == pytest.approx(0.9)
+    dist = rollup(make_deck())["distributions"]["intent_alignment.peer"]
+    assert dist["n"] == 6 and dist["median"] == pytest.approx(0.8)
     assert [v["slide"] for v in dist["values"]] == [1, 2, 3, 4, 5, 6]
 
 
 def test_small_decks_are_not_ranked_against_themselves():
     r = rollup(make_deck(n=deck.MIN_SLIDES_FOR_COMPARISON - 1))
     assert r["comparable"] is False
-    assert r["divergence_top"] == []
-    assert not any(n["id"] == "widest_gaps" for n in r["notes"])
+    assert not any(n["id"] == "hardest_slides" for n in r["notes"])
 
 
-def test_divergence_top_names_the_highest_slides_of_a_big_enough_deck():
-    # spread of takeaway angles => spread of divergence; slide 3 is the most divergent
-    d = [slide_result(i, align=a) for i, a in enumerate(
-        [(0.5, 0.5, 0.5), (0.5, 0.6, 0.5), (0.1, 0.5, 0.95), (0.5, 0.5, 0.6), (0.4, 0.5, 0.5), (0.5, 0.5, 0.5)], 1)]
-    r = rollup(d)
-    assert r["comparable"] is True
-    assert r["divergence_top"][0]["slide"] == 3
-    assert len(r["divergence_top"]) == deck.TOP_DIVERGENCE_SLIDES
+def test_a_big_enough_deck_gets_a_hardest_slides_note_with_its_evidence():
+    r = rollup(make_deck())
+    note = next(n for n in r["notes"] if n["id"] == "hardest_slides")
+    assert "Slides 6, 5 and 4 are the hardest for a newcomer" in note["text"]
+    assert [row["slide"] for row in note["evidence"]["rows"]] == [6, 5, 4]
 
 
 def test_terms_are_ranked_by_how_many_slides_the_novice_fails_on():
@@ -99,12 +125,6 @@ def test_no_recurring_terms_means_no_advice():
     assert rollup(make_deck(3, {1: {"terms": (["A"], [], [])}, 2: {"terms": (["B"], [], [])}}))["notes"] == []
 
 
-def test_arc_follows_slide_order_with_alignment_per_persona():
-    arc = rollup(make_deck(3))["arc"]
-    assert [a["slide"] for a in arc] == [1, 2, 3]
-    assert arc[0]["novice"] == pytest.approx(0.85) and arc[0]["expert"] == pytest.approx(0.9)
-
-
 def test_a_failed_persona_leaves_the_slide_unscored_but_keeps_its_other_readings():
     good = slide_result(1)
     bad = slide_result(2)
@@ -117,15 +137,15 @@ def test_a_failed_persona_leaves_the_slide_unscored_but_keeps_its_other_readings
 
     assert r["unscored"] == [2] and r["n_scored"] == 1
     row = next(p for p in r["per_slide"] if p["slide"] == 2)
-    assert "confidence.expert" in row["values"]  # peer/expert readings still count
-    assert "confidence.novice" not in row["values"] and "audience_divergence" not in row["values"]
-    assert [g["slide"] for g in r["gap_ranking"]] == [1]
+    assert "unresolved_count.expert" in row["values"]  # peer/expert readings still count
+    assert "unresolved_count.novice" not in row["values"] and "intent_alignment.novice" not in row["values"]
+    assert [h["slide"] for h in r["hardest"]] == [1]
     assert r["arc"][1] == {"slide": 2, "novice": None, "peer": None, "expert": None}
 
 
 def test_rollup_of_nothing_is_empty_not_an_error():
     r = rollup([])
-    assert r["n_slides"] == 0 and r["gap_ranking"] == [] and r["terms"] == [] and r["notes"] == []
+    assert r["n_slides"] == 0 and r["hardest"] == [] and r["terms"] == [] and r["notes"] == [] and r["definitional"] == []
 
 
 def test_input_order_does_not_matter():
@@ -148,3 +168,23 @@ def test_other_failures_are_classified():
     assert error_record(CacheMiss("nothing cached"))["error"]["kind"] == "offline_cache_miss"
     e = error_record(RuntimeError("boom"))["error"]
     assert e["kind"] == "call_failed" and e["message"] == "RuntimeError: boom"
+
+
+# ------------------------------------------------------------------- metrics from the intent
+
+
+def test_build_metrics_measures_novice_and_peer_and_declares_the_expert_definitional():
+    m = slide_result(1, align=(0.42, 0.66))["metrics"]
+    assert m["intent"] == "INTENT"
+    assert m["intent_alignment"]["novice"]["value"] == pytest.approx(0.42)
+    assert m["intent_alignment"]["peer"]["value"] == pytest.approx(0.66)
+    expert = m["intent_alignment"]["expert"]
+    assert expert["value"] == 1.0 and expert["definitional"] is True
+    assert "definitional" not in m["intent_alignment"]["novice"]
+    # the retired step 1 outputs are not carried
+    assert set(m) == {"intent", "takeaways", "intent_alignment", "term_gap"}
+
+
+def test_measured_alignment_keeps_the_texts_it_was_computed_from():
+    m = slide_result(1)["metrics"]
+    assert m["intent_alignment"]["novice"]["inputs"] == {"intent": "INTENT", "novice": m["takeaways"]["novice"]}

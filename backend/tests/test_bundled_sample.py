@@ -39,30 +39,30 @@ def test_the_sample_reproduces_the_full_review_payload_offline(client):
     body = client.get(f"/api/runs/{RUN}").json()
     assert body["meta"]["status"] == "complete" and body["pending"] == []
     assert len(body["results"]) == 7 and body["rollup"]["n_scored"] == 7 and body["rollup"]["comparable"]
-    assert body["rollup"]["terms"] and body["rollup"]["arc"] and body["rollup"]["gap_ranking"]
+    assert body["rollup"]["terms"] and body["rollup"]["arc"] and body["rollup"]["hardest"]
+    assert body["rollup"]["definitional"] == ["expert"] and body["meta"]["legacy"] is False
     for i in range(1, 8):
         assert client.get(f"/api/runs/{RUN}/slides/{i}.png").status_code == 200
-    assert client.get(f"/api/runs/{RUN}/slides/3/findings").json()["fixture"] is True
 
 
 def test_every_metric_in_the_sample_traces_back_to_the_text_that_produced_it(client):
-    """Display rule 5. The strings a metric was computed from are the very takeaways stored in
-    the persona readings, and the declared intent."""
+    """Every alignment was computed from the slide's inferred intent and the persona's own
+    stored takeaway, and the intent was derived from the expert's stored reading."""
     body = client.get(f"/api/runs/{RUN}").json()
-    intent = body["meta"]["intent"]
     for r in body["results"]:
-        m = r["metrics"]
+        m, si = r["metrics"], r["slide_intent"]
         takeaways = {p: r["readings"][p]["takeaway"] for p in PERSONAS}
-        assert m["takeaways"] == takeaways
-        for p in PERSONAS:
-            assert m["intent_alignment"][p]["inputs"] == {"intent": intent, p: takeaways[p]}
-        assert m["audience_divergence"]["inputs"] == takeaways
-        assert set(m["blind_spot_score"]["inputs"]) == {"intent", "novice", "expert"}
-        for pair, metric in m["pairwise_distance"].items():
-            a, b = pair.split("-")
-            assert metric["inputs"] == {a: takeaways[a], b: takeaways[b]}
+        assert m["takeaways"] == takeaways and m["intent"] == si["text"]
+        assert si["derived_from"] == {
+            "takeaway": r["readings"]["expert"]["takeaway"], "inferred_claim": r["readings"]["expert"]["inferred_claim"],
+        }
+        for p in ("novice", "peer"):
+            assert m["intent_alignment"][p]["inputs"] == {"intent": si["text"], p: takeaways[p]}
+        expert = m["intent_alignment"]["expert"]  # the reference: 1.0 by definition, and labelled so
+        assert expert["value"] == 1.0 and expert["definitional"] is True
         assert m["term_gap"]["novice_unresolved"] == r["readings"]["novice"]["unresolved_terms"]
-        # confidence is stored exactly as the model reported it, inside [0, 1], never adjusted
+        assert not ({"audience_divergence", "blind_spot_score", "pairwise_distance"} & set(m))
+        # confidence is still stored exactly as the model reported it (debugging, history)
         assert all(0.0 <= r["readings"][p]["confidence"] <= 1.0 for p in PERSONAS)
 
 

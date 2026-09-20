@@ -8,31 +8,36 @@ so there is no second representation to drift out of sync.
 claim that is not a count, a rank, a quantile or a restatement of one. Notes (`DeckRollup
 ["notes"]`) are templated from those numbers and carry the evidence they were built from.
 
-Two things this module deliberately does not do, both from the step 1 gate report:
+Three things this module deliberately does not do:
   * It never turns a single slide's number into a verdict. Every metric is reported as a
     position inside this deck's own distribution (`distributions` / `per_slide[*].position`),
-    because run-to-run swing on one slide (about +/-0.3 on the blind-spot score) is as large
-    as the differences between slides. Trust separation between slides, never the level.
+    because the level on one slide swings between runs by about as much as slides differ from
+    each other. Trust separation between slides, never the level.
   * It never clamps or repairs a bad model response. A persona whose output failed validation
     is recorded as an error (`error_record`) and that slide gets no metrics.
+  * It never scores the expert against the reference. Alignment is measured against an intent
+    inferred from the expert's own reading, so the expert's alignment is 1.0 by construction:
+    it is carried in the payload flagged `definitional`, and excluded from the distributions.
 """
 
 from __future__ import annotations
 
 import json
 from collections import Counter
+from dataclasses import asdict
 from typing import Any, Mapping, Sequence, TypedDict
 
 import numpy as np
 
 from .audiences import PERSONAS, AudienceReading, AudienceResponseError, CacheMiss, Persona
-from .divergence import normalize_term
+from .divergence import Embedder, normalize_term, score_slide
+from .intent import EXPERT_IS_DEFINITIONAL
 
 # Comparing one slide to "the rest of the deck" needs a rest. Below this the UI says so
 # instead of ranking three slides against each other.
 MIN_SLIDES_FOR_COMPARISON = 5
-# How many slides the "highest divergence relative to the deck" list names.
-TOP_DIVERGENCE_SLIDES = 3
+# How many slides the "hardest for a newcomer" note names.
+TOP_HARDEST_SLIDES = 3
 # A term is a deck-wide vocabulary problem once the novice fails on it on this many slides.
 RECURRING_TERM_MIN_SLIDES = 2
 
@@ -45,10 +50,14 @@ class SlideResult(TypedDict):
     text: str  # what the personas were shown, verbatim
     # persona -> reading_record(...) or error_record(...); an "ok" flag tells them apart
     readings: dict[str, dict[str, Any]]
-    # SlideDivergence.to_dict(), or None if any persona failed
+    # the intent inferred from the expert's reading (intent.SlideIntent.to_dict()); None if the
+    # expert's reading is unavailable
+    slide_intent: dict[str, Any] | None
+    # build_metrics(...), or None if any persona failed
     metrics: dict[str, Any] | None
     metrics_error: str | None
     scored_by: str | None  # name of the embedding model behind the metrics
+    timing: dict[str, float]  # seconds: personas, intent
 
 
 def plain(obj: Any) -> Any:
@@ -85,6 +94,34 @@ def error_record(exc: BaseException) -> dict[str, Any]:
     }
 
 
+def build_metrics(
+    intent: str, responses: Mapping[Persona, Any], embedder: Embedder, slide_index: int
+) -> dict[str, Any]:
+    """Alignment of each persona's takeaway to the inferred intent, via step 1's `score_slide`
+    (the reference string is the only thing that changed). Its divergence, pairwise and
+    blind-spot outputs are dropped: blind-spot, expert minus novice, reduces to 1 - novice
+    alignment once the expert is the reference, so it carries nothing the novice alignment
+    does not, and raw divergence is not legible to a presenter.
+
+    The expert's alignment is not the cosine `score_slide` computed. It is 1.0 by definition."""
+    sd = score_slide(intent, responses, embedder, slide_index)
+    alignment = {p: asdict(sd.intent_alignment[p]) for p in PERSONAS}
+    if EXPERT_IS_DEFINITIONAL:
+        alignment["expert"] = {
+            "value": 1.0,
+            "definitional": True,
+            "inputs": {"intent": intent, "expert": sd.takeaways["expert"]},
+        }
+    return plain(
+        {
+            "intent": intent,
+            "takeaways": dict(sd.takeaways),
+            "intent_alignment": alignment,
+            "term_gap": asdict(sd.term_gap),
+        }
+    )
+
+
 # ---------------------------------------------------------------------------- the rollup
 
 
@@ -98,10 +135,10 @@ class DeckRollup(TypedDict):
     distributions: dict[str, dict[str, Any]]
     # one row per slide: raw values and rank inside each distribution
     per_slide: list[dict[str, Any]]
-    gap_ranking: list[dict[str, Any]]  # slides, widest novice-expert alignment gap first
-    divergence_top: list[dict[str, Any]]  # highest divergence relative to this deck ([] if not comparable)
+    hardest: list[dict[str, Any]]  # slides, hardest for the novice first
     terms: list[dict[str, Any]]  # novice-unresolved terms, most slides first
-    arc: list[dict[str, Any]]  # alignment to intent per persona, in slide order
+    arc: list[dict[str, Any]]  # alignment to the inferred intent per persona, in slide order
+    definitional: list[str]  # personas in `arc` that are the reference, not measured
     notes: list[dict[str, Any]]  # restatements of the above; each carries its evidence
 
 
@@ -125,23 +162,24 @@ def _ranks(values: Mapping[int, float]) -> dict[int, int]:
     return {i: 1 + sum(1 for w in values.values() if w > v) for i, v in values.items()}
 
 
+def _definitional(m: Mapping[str, Any], persona: str) -> bool:
+    return bool(m["intent_alignment"][persona].get("definitional"))
+
+
 def _slide_values(r: SlideResult) -> dict[str, float]:
-    """Every per-slide number the deck view compares, keyed by metric name."""
+    """Every per-slide number the deck view compares, keyed by metric name. A persona whose
+    alignment is definitional (the reference) has no measured value and is left out."""
     out: dict[str, float] = {}
     for p in PERSONAS:
         reading = r["readings"].get(p, {})
         if reading.get("ok"):
-            out[f"confidence.{p}"] = float(reading["confidence"])
             out[f"unresolved_count.{p}"] = float(len(reading["unresolved_terms"]))
-    if "confidence.novice" in out and "confidence.expert" in out:
-        out["confidence_gap"] = out["confidence.expert"] - out["confidence.novice"]
     m = r["metrics"]
     if m:
-        out["audience_divergence"] = float(m["audience_divergence"]["value"])
-        out["blind_spot_score"] = float(m["blind_spot_score"]["value"])  # expert - novice alignment
         out["term_gap_count"] = float(len(m["term_gap"]["terms"]))
         for p in PERSONAS:
-            out[f"intent_alignment.{p}"] = float(m["intent_alignment"][p]["value"])
+            if not _definitional(m, p):
+                out[f"intent_alignment.{p}"] = float(m["intent_alignment"][p]["value"])
     return out
 
 
@@ -182,14 +220,14 @@ def _join(items: Sequence[Any]) -> str:
 
 
 def _notes(
-    terms: list[dict[str, Any]], gap_ranking: list[dict[str, Any]], comparable: bool
+    terms: list[dict[str, Any]], hardest: list[dict[str, Any]], comparable: bool
 ) -> list[dict[str, Any]]:
     notes: list[dict[str, Any]] = []
     recurring = [t for t in terms if t["count"] >= RECURRING_TERM_MIN_SLIDES]
     if recurring:
         slides = sorted({s for t in recurring for s in t["slides"]})
         first = min(t["first_slide"] for t in recurring)
-        shown = [f"“{t['term']}”" for t in recurring[:5]]
+        shown = [f"\u201c{t['term']}\u201d" for t in recurring[:5]]
         more = f" and {len(recurring) - 5} more" if len(recurring) > 5 else ""
         notes.append(
             {
@@ -205,17 +243,17 @@ def _notes(
                 },
             }
         )
-    if comparable and gap_ranking:
-        top = gap_ranking[:3]
+    if comparable and hardest:
+        top = hardest[:TOP_HARDEST_SLIDES]
         notes.append(
             {
-                "id": "widest_gaps",
+                "id": "hardest_slides",
                 "text": (
-                    f"Slide{'s' if len(top) > 1 else ''} {_join([g['slide'] for g in top])} show"
-                    f"{'' if len(top) > 1 else 's'} the widest novice–expert alignment gap in this deck. "
+                    f"Slide{'s' if len(top) > 1 else ''} {_join([h['slide'] for h in top])} "
+                    f"{'are' if len(top) > 1 else 'is'} the hardest for a newcomer in this deck. "
                     "That is a ranking within this deck, not a verdict on any one slide."
                 ),
-                "evidence": {"kind": "gap", "slides": [g["slide"] for g in top], "gaps": top},
+                "evidence": {"kind": "hardest", "slides": [h["slide"] for h in top], "rows": top},
             }
         )
     return notes
@@ -249,36 +287,31 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
     scored = [r for r in results if r["metrics"]]
     comparable = len(scored) >= MIN_SLIDES_FOR_COMPARISON
 
-    # blind_spot_score is expert alignment minus novice alignment, so this ranks the slides on
-    # which the novice reads furthest from the intent relative to the expert.
-    gap_ranking = sorted(
+    # Hardest for a newcomer: lowest novice alignment to the slide's inferred intent first, ties
+    # broken by more novice-unresolved terms. Alignment is not shown in the row: the order is the
+    # finding, and the level on one slide is not trustworthy.
+    hardest = sorted(
         (
-            {"slide": i, "gap": v["blind_spot_score"], "rank": ranks["blind_spot_score"][i]}
+            {
+                "slide": i,
+                "novice_alignment": v["intent_alignment.novice"],
+                "novice_unresolved": int(v["unresolved_count.novice"]),
+            }
             for i, v in values.items()
-            if "blind_spot_score" in v
+            if "intent_alignment.novice" in v
         ),
-        key=lambda g: (-g["gap"], g["slide"]),
+        key=lambda h: (h["novice_alignment"], -h["novice_unresolved"], h["slide"]),
     )
-
-    div_ranking = sorted(
-        (
-            {"slide": i, "value": v["audience_divergence"], "rank": ranks["audience_divergence"][i]}
-            for i, v in values.items()
-            if "audience_divergence" in v
-        ),
-        key=lambda d: (-d["value"], d["slide"]),
-    )
-    divergence_top = div_ranking[:TOP_DIVERGENCE_SLIDES] if comparable else []
+    for n, h in enumerate(hardest, start=1):
+        h["rank"] = n
 
     terms = _term_table(results)
 
-    arc = [
-        {
-            "slide": r["index"],
-            **{p: (values[r["index"]].get(f"intent_alignment.{p}")) for p in PERSONAS},
-        }
-        for r in results
-    ]
+    arc = []
+    for r in results:
+        m = r["metrics"]
+        arc.append({"slide": r["index"], **{p: (float(m["intent_alignment"][p]["value"]) if m else None) for p in PERSONAS}})
+    definitional = [p for p in PERSONAS if scored and all(_definitional(r["metrics"], p) for r in scored)]
 
     return {
         "n_slides": len(results),
@@ -288,9 +321,9 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
         "min_slides_for_comparison": MIN_SLIDES_FOR_COMPARISON,
         "distributions": distributions,
         "per_slide": per_slide,
-        "gap_ranking": gap_ranking,
-        "divergence_top": divergence_top,
+        "hardest": hardest,
         "terms": terms,
         "arc": arc,
-        "notes": _notes(terms, gap_ranking, comparable),
+        "definitional": definitional,
+        "notes": _notes(terms, hardest, comparable),
     }

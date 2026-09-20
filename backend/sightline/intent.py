@@ -176,34 +176,40 @@ def _user(expert: PersonaReport, note: str = "") -> str:
 
 
 class IntentCache(Protocol):
-    def get(self, key: str) -> str | None: ...
-    def put(self, key: str, text: str) -> None: ...
+    def get(self, key: str) -> tuple[str, str] | None:
+        """(intent text, model that wrote it) or None."""
+        ...
+
+    def put(self, key: str, text: str, model: str) -> None: ...
 
 
 class FileIntentCache:
-    """One JSON file per (model, prompt, expert takeaway, expert claim). Makes re-running a
-    deck free and lets a cached deck run with no key."""
+    """One JSON file per (prompt version, expert takeaway, expert claim). Makes re-running a
+    deck free and lets a cached deck run with no key. The model is recorded as provenance and is
+    deliberately not part of the key, like the persona cache: offline there is no client to ask
+    which model it would have used."""
 
     def __init__(self, directory: str | Path):
         self.dir = Path(directory)
 
-    def get(self, key: str) -> str | None:
+    def get(self, key: str) -> tuple[str, str] | None:
         p = self.dir / f"{key}.json"
         try:
-            return json.loads(p.read_text())["text"] if p.is_file() else None
+            blob = json.loads(p.read_text()) if p.is_file() else None
+            return (blob["text"], blob.get("model", "unknown")) if blob else None
         except (json.JSONDecodeError, KeyError, OSError):
             return None
 
-    def put(self, key: str, text: str) -> None:
+    def put(self, key: str, text: str, model: str) -> None:
         self.dir.mkdir(parents=True, exist_ok=True)
         fd, tmp = tempfile.mkstemp(dir=self.dir, suffix=".tmp")
         with os.fdopen(fd, "w") as f:
-            json.dump({"text": text}, f)
+            json.dump({"text": text, "model": model}, f)
         os.replace(tmp, self.dir / f"{key}.json")
 
 
-def cache_key(model: str, expert: PersonaReport) -> str:
-    raw = json.dumps([INTENT_PROMPT_VERSION, model, expert.takeaway, expert.inferred_claim])
+def cache_key(expert: PersonaReport) -> str:
+    raw = json.dumps([INTENT_PROMPT_VERSION, expert.takeaway, expert.inferred_claim])
     return hashlib.sha256(raw.encode()).hexdigest()[:24]
 
 
@@ -234,9 +240,9 @@ async def infer_slide_intent(
     if (mode or intent_mode()) == "template":
         return fallback("template mode (SIGHTLINE_INTENT_MODE=template)", 0, started)
     model = getattr(client, "model", None) or intent_model()
-    key = cache_key(model, expert_report)
+    key = cache_key(expert_report)
     if cache is not None and (hit := cache.get(key)) is not None:
-        return SlideIntent(hit, "model", model, None, 0, 0.0, True, derived)
+        return SlideIntent(hit[0], "model", hit[1], None, 0, 0.0, True, derived)
     if client is None:
         return fallback("no model client available", 0, started)
 
@@ -255,7 +261,7 @@ async def infer_slide_intent(
         bad = unsupported_terms(text, sources) if text else ["(empty)"]
         if not bad:
             if cache is not None:
-                cache.put(key, text)
+                cache.put(key, text, model)
             return SlideIntent(text, "model", model, None, attempt, round(time.perf_counter() - started, 3), False, derived)
         problems = ", ".join(bad)
         note = (f"\n\nYour previous sentence used terms that are not in the two texts: {problems}. "

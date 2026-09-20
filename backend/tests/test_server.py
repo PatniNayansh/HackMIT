@@ -13,6 +13,7 @@ from sightline.store import RunStore
 
 from builders import HashEmbedder
 from conftest import FakeLLM, sentinel_payload
+from test_runner import IntentEcho
 
 
 def pdf_bytes(tmp_path, pages=3) -> bytes:
@@ -57,6 +58,7 @@ def env(tmp_path):
             store=store,
             cache=FileCache(tmp_path / "cache"),
             client_factory=client_factory,
+            intent_client_factory=lambda: IntentEcho(),
             embedder=HashEmbedder(),
             frontend_dir=tmp_path / "no-frontend",
         )
@@ -111,16 +113,26 @@ def test_bad_uploads_are_rejected_with_a_reason(env, name, payload, code):
         assert r.status_code == code and r.json()["detail"]
 
 
-@pytest.mark.parametrize(
-    "body", [{**START, "intent": "   "}, {**START, "domain": ""}, {**START, "adjacent_field": " "}]
-)
-def test_start_requires_intent_and_both_fields(env, body):
+@pytest.mark.parametrize("body", [{**START, "domain": ""}, {**START, "adjacent_field": " "}])
+def test_start_requires_both_subfields(env, body):
     _, _, make_app, tmp = env
     with TestClient(make_app()) as c:
         run_id = upload(c, tmp)["run_id"]
         r = c.post(f"/api/runs/{run_id}/start", json=body)
         assert r.status_code == 422
         assert c.get(f"/api/runs/{run_id}").json()["meta"]["status"] == "draft"
+
+
+@pytest.mark.parametrize("intent", [None, "   ", "Land the 2.4x."])
+def test_the_declared_intent_is_optional(env, intent):
+    _, _, make_app, tmp = env
+    with TestClient(make_app()) as c:
+        run_id = upload(c, tmp, pages=1)["run_id"]
+        body = {k: v for k, v in {**START, "intent": intent}.items() if not (k == "intent" and intent is None)}
+        assert c.post(f"/api/runs/{run_id}/start", json=body).status_code == 202
+        done = wait_done(c, run_id)
+    assert done["meta"]["status"] == "complete"
+    assert done["meta"]["intent"] == (intent.strip() or None if intent else None)
 
 
 def test_a_run_streams_slide_by_slide_and_ends_complete(env):
@@ -135,7 +147,9 @@ def test_a_run_streams_slide_by_slide_and_ends_complete(env):
         assert body["meta"]["profile"] == {
             "domain": "LLM serving", "adjacent_field": "databases", "confirmed": True, "edited": True,
         }
-        assert body["rollup"]["n_scored"] == 4
+        assert body["rollup"]["n_scored"] == 4 and body["meta"]["legacy"] is False
+        assert body["meta"]["intent_model"] == "fake-haiku"
+        assert all(r["slide_intent"]["source"] == "model" for r in body["results"])
         # `since` returns only what has landed after slide 2
         later = c.get(f"/api/runs/{run_id}?since=2").json()
         assert [r["index"] for r in later["results"]] == [3, 4]
@@ -189,6 +203,7 @@ def test_an_invalid_persona_reply_reaches_the_ui_as_an_error_not_a_number(env):
     bad = body["results"][0]["readings"]["expert"]
     assert bad["ok"] is False and "1.7" in bad["error"]["message"] and "confidence" not in bad
     assert body["results"][0]["metrics"] is None and body["rollup"]["unscored"] == [1, 2]
+    assert body["results"][0]["slide_intent"] is None  # no expert reading, no intended reading
 
 
 def test_a_failed_run_can_be_started_again_from_scratch(env):

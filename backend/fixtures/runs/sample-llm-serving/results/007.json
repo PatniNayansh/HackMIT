@@ -4,121 +4,95 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-      "confidence": 0.85,
+      "takeaway": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter.",
+      "confidence": 0.8,
       "unresolved_terms": [],
       "questions": [
-        "What does 'open-sourced' specifically include?",
-        "Which model or system is being open-sourced?"
+        "When exactly this quarter will it be released?",
+        "Which GPUs or systems does this apply to?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember the efficiency gains are free upgrades with no quality tradeoff, coming soon publicly.",
+      "inferred_claim": "The presenter wants the audience to remember this efficiency gain is safe, real, and soon freely available.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.972,
+      "latency_s": 2.743,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-      "confidence": 0.75,
+      "takeaway": "The presenter summarizes that their optimization lets more users be served on the same hardware without altering model outputs, and will be open-sourced this quarter.",
+      "confidence": 0.8,
       "unresolved_terms": [],
       "questions": [
-        "What specific project or code is being open-sourced?",
-        "What license will the open-source release use?"
+        "Which open-source project or repo will host this?",
+        "What license will the release use?"
       ],
-      "inferred_claim": "The presenter wants viewers to remember the efficiency gain, output fidelity, and upcoming open-source release.",
+      "inferred_claim": "The presenter wants the audience to remember the efficiency gain, output fidelity, and upcoming open-source release.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.226,
+      "latency_s": 2.78,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "expert": {
       "ok": true,
-      "takeaway": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter.",
-      "confidence": 0.9,
+      "takeaway": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter.",
+      "confidence": 0.75,
       "unresolved_terms": [],
       "questions": [
-        "Which components exactly will be open-sourced?",
-        "Any licensing or integration details for the release?"
+        "Will the code be released under a specific license?",
+        "Does 'this quarter' refer to a specific date?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember and anticipate the open-source release as a lossless throughput win.",
+      "inferred_claim": "The presenter wants the audience to remember the efficiency gain, output fidelity, and upcoming open-source release.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.367,
+      "latency_s": 3.234,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     }
   },
+  "slide_intent": {
+    "text": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
+    "source": "model",
+    "model": "claude-haiku-4-5",
+    "reason": null,
+    "attempts": 1,
+    "latency_s": 1.0,
+    "cached": false,
+    "derived_from": {
+      "takeaway": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter.",
+      "inferred_claim": "The presenter wants the audience to remember the efficiency gain, output fidelity, and upcoming open-source release."
+    }
+  },
   "metrics": {
-    "slide_index": 7,
-    "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+    "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
     "takeaways": {
-      "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-      "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-      "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
+      "novice": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter.",
+      "peer": "The presenter summarizes that their optimization lets more users be served on the same hardware without altering model outputs, and will be open-sourced this quarter.",
+      "expert": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter."
     },
     "intent_alignment": {
       "novice": {
-        "value": 0.36289273677769945,
+        "value": 0.5996173541487573,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter."
+          "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
+          "novice": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter."
         }
       },
       "peer": {
-        "value": 0.38760209469788787,
+        "value": 0.6397011341543664,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter."
+          "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
+          "peer": "The presenter summarizes that their optimization lets more users be served on the same hardware without altering model outputs, and will be open-sourced this quarter."
         }
       },
       "expert": {
-        "value": 0.3475989969535913,
+        "value": 1.0,
+        "definitional": true,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
+          "intent": "The serving system improves throughput while maintaining model output fidelity and will be released as open source this quarter.",
+          "expert": "The presenter is summarizing that the described serving system boosts throughput without altering model outputs and will be released as open source this quarter."
         }
-      }
-    },
-    "audience_divergence": {
-      "value": 0.3769976813498319,
-      "inputs": {
-        "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-        "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-        "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-      }
-    },
-    "pairwise_distance": {
-      "novice-peer": {
-        "value": 0.287629636885259,
-        "inputs": {
-          "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-          "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter."
-        }
-      },
-      "novice-expert": {
-        "value": 0.4464022438303672,
-        "inputs": {
-          "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-          "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-        }
-      },
-      "peer-expert": {
-        "value": 0.39696116333386966,
-        "inputs": {
-          "peer": "The presenter is summarizing that the described technique boosts throughput per GPU without altering model outputs, and will be released as open source this quarter.",
-          "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
-        }
-      }
-    },
-    "blind_spot_score": {
-      "value": -0.015293739824108143,
-      "inputs": {
-        "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-        "novice": "The presenter is summarizing that their improvements let more users be served on the same hardware without changing model outputs, and the tool will be released publicly this quarter.",
-        "expert": "This closing summary recaps that the presented system increases serving efficiency without altering model outputs, and will be open-sourced this quarter."
       }
     },
     "term_gap": {
@@ -128,5 +102,9 @@
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2"
+  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "timing": {
+    "personas_s": 3.238,
+    "intent_s": 1.0
+  }
 }

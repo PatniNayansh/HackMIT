@@ -26,6 +26,7 @@ from pydantic import BaseModel
 
 from . import diagnose, ingest
 from .audiences import DeckProfile, FileCache
+from .intent import FileIntentCache, intent_model
 from .deck import rollup
 from .divergence import Embedder, default_embedder
 from .llm import AnthropicClient, LLMClient
@@ -36,6 +37,7 @@ from .store import (
     REPO_ROOT,
     ReadOnlyRun,
     RunNotFound,
+    SCHEMA_VERSION,
     RunStore,
     data_dir,
 )
@@ -53,8 +55,16 @@ def default_client_factory() -> LLMClient | None:
         return None
 
 
+def default_intent_client_factory() -> LLMClient | None:
+    """The small model that rephrases the expert's reading (Haiku by default)."""
+    try:
+        return AnthropicClient(model=intent_model())
+    except (TypeError, ImportError):
+        return None
+
+
 class StartRequest(BaseModel):
-    intent: str
+    intent: str | None = None  # the presenter's declared intent: optional, stored, not used for alignment
     domain: str
     adjacent_field: str
 
@@ -64,11 +74,13 @@ def create_app(
     store: RunStore | None = None,
     cache: FileCache | None = None,
     client_factory: Callable[[], LLMClient | None] = default_client_factory,
+    intent_client_factory: Callable[[], LLMClient | None] = default_intent_client_factory,
     embedder: Embedder | None = None,
     frontend_dir: Path = FRONTEND_DIR,
 ) -> FastAPI:
     store = store or RunStore(data_dir() / "history", bundled=[BUNDLED_RUNS_DIR])
     cache = cache or FileCache(data_dir() / "cache" / "audiences", read_only_dirs=[BACKEND / "bundled_cache"])
+    intent_cache = FileIntentCache(data_dir() / "cache" / "intents") if cache is None else FileIntentCache(cache.write_dir.parent / "intents")
     active: dict[str, asyncio.Task] = {}
     embedder_ref: dict[str, Embedder] = {}
 
@@ -99,6 +111,7 @@ def create_app(
 
     def public_meta(meta: dict[str, Any]) -> dict[str, Any]:
         # A run that says "running" with no live task behind it was cut off by a restart.
+        meta = {**meta, "legacy": meta.get("schema_version", 1) < SCHEMA_VERSION}
         if meta["status"] == "running" and meta["run_id"] not in active:
             return {**meta, "status": "interrupted"}
         return meta
@@ -161,9 +174,7 @@ def create_app(
         meta = store.load_meta(run_id)  # 404 if unknown
         if store.is_read_only(run_id):
             raise ReadOnlyRun(f"{run_id} is a bundled sample and cannot be run again")
-        intent, domain, adjacent = body.intent.strip(), body.domain.strip(), body.adjacent_field.strip()
-        if not intent:
-            raise HTTPException(422, "Declared intent is required: alignment cannot be measured without it.")
+        intent, domain, adjacent = (body.intent or "").strip() or None, body.domain.strip(), body.adjacent_field.strip()
         if not domain or not adjacent:
             raise HTTPException(422, "Both the deck's subfield and the adjacent field are required.")
         if run_id in active:
@@ -185,7 +196,7 @@ def create_app(
             finished_at=None,
         )
         engine = TolerantEngine(client_factory(), cache)
-        task = asyncio.create_task(run_deck(store, run_id, engine, get_embedder()))
+        task = asyncio.create_task(run_deck(store, run_id, engine, get_embedder(), intent_client_factory(), intent_cache))
         active[run_id] = task
         task.add_done_callback(lambda _: active.pop(run_id, None))
         return {"run_id": run_id, "status": "running"}

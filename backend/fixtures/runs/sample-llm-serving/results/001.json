@@ -4,27 +4,28 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "This is a title slide introducing a talk about making large language model serving 2.4 times more efficient by some measure called goodput at p99.",
-      "confidence": 0.4,
+      "takeaway": "This is a title slide introducing a presentation about making large language models serve responses faster, claiming a 2.4x improvement.",
+      "confidence": 0.5,
       "unresolved_terms": [
         "LLMs",
-        "goodput at p99"
+        "goodput",
+        "p99"
       ],
       "questions": [
         "What does 'goodput' mean here?",
         "What is 'p99' measuring?",
-        "How was the 2.4x improvement achieved?"
+        "Faster compared to what baseline?"
       ],
-      "inferred_claim": "The presenter wants us to believe their method significantly speeds up serving of LLMs.",
+      "inferred_claim": "The presenter wants me to believe their system significantly speeds up LLM serving performance.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.748,
+      "latency_s": 3.403,
       "attempts": 1,
       "slide_hash": "3490a7018b214a4d323a343d"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The presentation will describe work that achieved a 2.4x improvement in serving throughput for large language models at the 99th percentile latency.",
+      "takeaway": "This is a title slide introducing a talk claiming a 2.4x improvement in serving throughput under a tail-latency constraint for large language models.",
       "confidence": 0.5,
       "unresolved_terms": [
         "goodput",
@@ -32,116 +33,96 @@
       ],
       "questions": [
         "What does 'goodput' specifically measure here?",
-        "What baseline is the 2.4x improvement compared against?",
+        "What is the baseline being compared for the 2.4x claim?",
         "What system or technique achieves this improvement?"
       ],
-      "inferred_claim": "The presenter wants the audience to believe their system significantly improves LLM serving performance.",
+      "inferred_claim": "The presenter wants me to believe their system substantially improves LLM serving efficiency under latency constraints.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.29,
+      "latency_s": 3.503,
       "attempts": 1,
       "slide_hash": "3490a7018b214a4d323a343d"
     },
     "expert": {
       "ok": true,
-      "takeaway": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with no supporting details yet.",
-      "confidence": 0.6,
+      "takeaway": "This is a title slide claiming a system achieves 2.4x higher goodput at the p99 latency tail for LLM serving.",
+      "confidence": 0.55,
       "unresolved_terms": [],
       "questions": [
         "What baseline is the 2.4x goodput improvement measured against?",
-        "What system or technique achieves this improvement?",
-        "What workload/model sizes were tested?"
+        "What SLO or latency constraint defines 'goodput' here?",
+        "What workload/model sizes were used in evaluation?"
       ],
-      "inferred_claim": "The presenter wants the audience to expect a talk demonstrating a 2.4x p99 goodput improvement in LLM serving.",
+      "inferred_claim": "The presenter wants the audience to expect a talk demonstrating a 2.4x goodput improvement in LLM serving.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.666,
+      "latency_s": 3.402,
       "attempts": 1,
       "slide_hash": "3490a7018b214a4d323a343d"
     }
   },
+  "slide_intent": {
+    "text": "A system achieves 2.4x higher goodput at the p99 latency tail for LLM serving.",
+    "source": "model",
+    "model": "claude-haiku-4-5",
+    "reason": null,
+    "attempts": 1,
+    "latency_s": 3.665,
+    "cached": false,
+    "derived_from": {
+      "takeaway": "This is a title slide claiming a system achieves 2.4x higher goodput at the p99 latency tail for LLM serving.",
+      "inferred_claim": "The presenter wants the audience to expect a talk demonstrating a 2.4x goodput improvement in LLM serving."
+    }
+  },
   "metrics": {
-    "slide_index": 1,
-    "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+    "intent": "A system achieves 2.4x higher goodput at the p99 latency tail for LLM serving.",
     "takeaways": {
-      "novice": "This is a title slide introducing a talk about making large language model serving 2.4 times more efficient by some measure called goodput at p99.",
-      "peer": "The presentation will describe work that achieved a 2.4x improvement in serving throughput for large language models at the 99th percentile latency.",
-      "expert": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with no supporting details yet."
+      "novice": "This is a title slide introducing a presentation about making large language models serve responses faster, claiming a 2.4x improvement.",
+      "peer": "This is a title slide introducing a talk claiming a 2.4x improvement in serving throughput under a tail-latency constraint for large language models.",
+      "expert": "This is a title slide claiming a system achieves 2.4x higher goodput at the p99 latency tail for LLM serving."
     },
     "intent_alignment": {
       "novice": {
-        "value": 0.5222707447788997,
+        "value": 0.3376506672677545,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "novice": "This is a title slide introducing a talk about making large language model serving 2.4 times more efficient by some measure called goodput at p99."
+          "intent": "A system achieves 2.4x higher goodput at the p99 latency tail for LLM serving.",
+          "novice": "This is a title slide introducing a presentation about making large language models serve responses faster, claiming a 2.4x improvement."
         }
       },
       "peer": {
-        "value": 0.5588306081003488,
+        "value": 0.5931642714157277,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "peer": "The presentation will describe work that achieved a 2.4x improvement in serving throughput for large language models at the 99th percentile latency."
+          "intent": "A system achieves 2.4x higher goodput at the p99 latency tail for LLM serving.",
+          "peer": "This is a title slide introducing a talk claiming a 2.4x improvement in serving throughput under a tail-latency constraint for large language models."
         }
       },
       "expert": {
-        "value": 0.5244086748251232,
+        "value": 1.0,
+        "definitional": true,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "expert": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with no supporting details yet."
+          "intent": "A system achieves 2.4x higher goodput at the p99 latency tail for LLM serving.",
+          "expert": "This is a title slide claiming a system achieves 2.4x higher goodput at the p99 latency tail for LLM serving."
         }
-      }
-    },
-    "audience_divergence": {
-      "value": 0.45086965371273147,
-      "inputs": {
-        "novice": "This is a title slide introducing a talk about making large language model serving 2.4 times more efficient by some measure called goodput at p99.",
-        "peer": "The presentation will describe work that achieved a 2.4x improvement in serving throughput for large language models at the 99th percentile latency.",
-        "expert": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with no supporting details yet."
-      }
-    },
-    "pairwise_distance": {
-      "novice-peer": {
-        "value": 0.25650391940814665,
-        "inputs": {
-          "novice": "This is a title slide introducing a talk about making large language model serving 2.4 times more efficient by some measure called goodput at p99.",
-          "peer": "The presentation will describe work that achieved a 2.4x improvement in serving throughput for large language models at the 99th percentile latency."
-        }
-      },
-      "novice-expert": {
-        "value": 0.45225172608680697,
-        "inputs": {
-          "novice": "This is a title slide introducing a talk about making large language model serving 2.4 times more efficient by some measure called goodput at p99.",
-          "expert": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with no supporting details yet."
-        }
-      },
-      "peer-expert": {
-        "value": 0.6438533156432407,
-        "inputs": {
-          "peer": "The presentation will describe work that achieved a 2.4x improvement in serving throughput for large language models at the 99th percentile latency.",
-          "expert": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with no supporting details yet."
-        }
-      }
-    },
-    "blind_spot_score": {
-      "value": 0.002137930046223535,
-      "inputs": {
-        "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-        "novice": "This is a title slide introducing a talk about making large language model serving 2.4 times more efficient by some measure called goodput at p99.",
-        "expert": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with no supporting details yet."
       }
     },
     "term_gap": {
       "terms": [
         "LLMs",
-        "goodput at p99"
+        "goodput",
+        "p99"
       ],
       "novice_unresolved": [
         "LLMs",
-        "goodput at p99"
+        "goodput",
+        "p99"
       ],
       "expert_unresolved": []
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2"
+  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "timing": {
+    "personas_s": 3.506,
+    "intent_s": 3.665
+  }
 }

@@ -94,12 +94,13 @@ async def test_cached_intents_are_reused_with_no_client(tmp_path):
     first = await infer_slide_intent(EXPERT, SLIDE, c, cache=cache)
     again = await infer_slide_intent(EXPERT, SLIDE, None, cache=cache)  # no key, no client
     assert again.text == first.text and again.cached is True and again.source == "model"
+    assert again.model == "claude-haiku-4-5"  # provenance survives even though there is no client to ask
 
 
 async def test_template_results_are_never_cached(tmp_path):
     cache = FileIntentCache(tmp_path)
     await infer_slide_intent(EXPERT, SLIDE, None, cache=cache)
-    assert cache.get(cache_key("claude-haiku-4-5", EXPERT)) is None
+    assert cache.get(cache_key(EXPERT)) is None
 
 
 def test_unsupported_terms_ignores_function_words_plurals_and_generic_verbs():

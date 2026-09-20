@@ -4,8 +4,36 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The presenter combined several technical methods (memory management, speculative decoding, batching) to achieve a 2.4x improvement in system throughput/performance at the 99th percentile.",
-      "confidence": 0.4,
+      "takeaway": "The slide claims that combining two technical methods reduces memory waste and speeds up response times, achieving 2.4x better performance at high-load conditions.",
+      "confidence": 0.3,
+      "unresolved_terms": [
+        "PagedAttention",
+        "speculative decoding",
+        "p99",
+        "KV-cache",
+        "block tables",
+        "Draft model acceptance alpha",
+        "gamma",
+        "Continuous batching",
+        "chunked prefill",
+        "TTFT SLO"
+      ],
+      "questions": [
+        "What do 'alpha' and 'gamma' values actually measure?",
+        "What is a TTFT SLO in practical terms?",
+        "How do these techniques combine to improve performance?"
+      ],
+      "inferred_claim": "The presenter wants me to believe their specific technical optimizations produce major, measurable performance gains.",
+      "model": "claude-sonnet-5",
+      "cached": false,
+      "latency_s": 3.586,
+      "attempts": 1,
+      "slide_hash": "574047617a1db671d0ee5828"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "Combining two memory/decoding optimization techniques for LLM serving yields a 2.4x improvement in throughput at the 99th percentile latency, backed by specific efficiency metrics.",
+      "confidence": 0.5,
       "unresolved_terms": [
         "PagedAttention",
         "speculative decoding",
@@ -18,129 +46,77 @@
         "TTFT SLO"
       ],
       "questions": [
-        "What does 'goodput' actually measure?",
-        "What is the TTFT SLO threshold?",
-        "Why does turning chunked prefill off help?"
+        "What do alpha and gamma parameters represent exactly?",
+        "How does chunked prefill relate to TTFT?",
+        "What baseline is the 2.4x goodput compared against?"
       ],
-      "inferred_claim": "The presenter wants me to believe these specific technical optimizations caused the claimed 2.4x performance gain.",
+      "inferred_claim": "The presenter wants me to believe their combined techniques substantially improve LLM serving efficiency under latency constraints.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.56,
-      "attempts": 1,
-      "slide_hash": "574047617a1db671d0ee5828"
-    },
-    "peer": {
-      "ok": true,
-      "takeaway": "Combining memory-efficient attention with speculative decoding techniques achieves a 2.4x throughput gain at p99 latency by reducing memory waste and tuning batching settings.",
-      "confidence": 0.55,
-      "unresolved_terms": [
-        "PagedAttention",
-        "speculative decoding",
-        "block tables",
-        "Draft model acceptance alpha",
-        "gamma",
-        "Continuous batching",
-        "chunked prefill",
-        "TTFT SLO"
-      ],
-      "questions": [
-        "What is PagedAttention's block table mechanism exactly?",
-        "What do alpha and gamma parameters represent?",
-        "Why disable chunked prefill to meet TTFT SLO?"
-      ],
-      "inferred_claim": "The presenter wants me to believe their system design choices jointly deliver the 2.4x goodput improvement.",
-      "model": "claude-sonnet-5",
-      "cached": false,
-      "latency_s": 3.953,
+      "latency_s": 3.568,
       "attempts": 1,
       "slide_hash": "574047617a1db671d0ee5828"
     },
     "expert": {
       "ok": true,
-      "takeaway": "Combining PagedAttention with speculative decoding achieves 2.4x p99 goodput by cutting KV-cache fragmentation and using tuned draft acceptance with continuous batching.",
+      "takeaway": "Combining PagedAttention's memory efficiency with speculative decoding and tuned batching/prefill settings yields the claimed 2.4x p99 goodput improvement.",
       "confidence": 0.75,
       "unresolved_terms": [],
       "questions": [
-        "Why is chunked prefill turned off, not just tuned?",
-        "What baseline is the 2.4x goodput measured against?",
-        "What model sizes/hardware were used for gamma=5 test?"
+        "Why is chunked prefill disabled here specifically?",
+        "What baseline is goodput measured against?",
+        "Is alpha=0.78 acceptance rate specific to one draft/target model pair?"
       ],
-      "inferred_claim": "These specific system choices (block tables, speculative decoding params, batching config) jointly produce the claimed 2.4x gain.",
+      "inferred_claim": "The presenter wants us to believe these three techniques together explain the 2.4x p99 goodput gain.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.359,
+      "latency_s": 9.418,
       "attempts": 1,
       "slide_hash": "574047617a1db671d0ee5828"
     }
   },
+  "slide_intent": {
+    "text": "The presenter wants us to believe these three techniques together explain the 2.4x p99 goodput gain.",
+    "source": "template",
+    "model": null,
+    "reason": "model added terms not in the expert reading or slide: achieves",
+    "attempts": 2,
+    "latency_s": 2.551,
+    "cached": false,
+    "derived_from": {
+      "takeaway": "Combining PagedAttention's memory efficiency with speculative decoding and tuned batching/prefill settings yields the claimed 2.4x p99 goodput improvement.",
+      "inferred_claim": "The presenter wants us to believe these three techniques together explain the 2.4x p99 goodput gain."
+    }
+  },
   "metrics": {
-    "slide_index": 3,
-    "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
+    "intent": "The presenter wants us to believe these three techniques together explain the 2.4x p99 goodput gain.",
     "takeaways": {
-      "novice": "The presenter combined several technical methods (memory management, speculative decoding, batching) to achieve a 2.4x improvement in system throughput/performance at the 99th percentile.",
-      "peer": "Combining memory-efficient attention with speculative decoding techniques achieves a 2.4x throughput gain at p99 latency by reducing memory waste and tuning batching settings.",
-      "expert": "Combining PagedAttention with speculative decoding achieves 2.4x p99 goodput by cutting KV-cache fragmentation and using tuned draft acceptance with continuous batching."
+      "novice": "The slide claims that combining two technical methods reduces memory waste and speeds up response times, achieving 2.4x better performance at high-load conditions.",
+      "peer": "Combining two memory/decoding optimization techniques for LLM serving yields a 2.4x improvement in throughput at the 99th percentile latency, backed by specific efficiency metrics.",
+      "expert": "Combining PagedAttention's memory efficiency with speculative decoding and tuned batching/prefill settings yields the claimed 2.4x p99 goodput improvement."
     },
     "intent_alignment": {
       "novice": {
-        "value": 0.6248976090164348,
+        "value": 0.46800498583021416,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "novice": "The presenter combined several technical methods (memory management, speculative decoding, batching) to achieve a 2.4x improvement in system throughput/performance at the 99th percentile."
+          "intent": "The presenter wants us to believe these three techniques together explain the 2.4x p99 goodput gain.",
+          "novice": "The slide claims that combining two technical methods reduces memory waste and speeds up response times, achieving 2.4x better performance at high-load conditions."
         }
       },
       "peer": {
-        "value": 0.7303033857278827,
+        "value": 0.2943054034671437,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "peer": "Combining memory-efficient attention with speculative decoding techniques achieves a 2.4x throughput gain at p99 latency by reducing memory waste and tuning batching settings."
+          "intent": "The presenter wants us to believe these three techniques together explain the 2.4x p99 goodput gain.",
+          "peer": "Combining two memory/decoding optimization techniques for LLM serving yields a 2.4x improvement in throughput at the 99th percentile latency, backed by specific efficiency metrics."
         }
       },
       "expert": {
-        "value": 0.78511134315849,
+        "value": 1.0,
+        "definitional": true,
         "inputs": {
-          "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-          "expert": "Combining PagedAttention with speculative decoding achieves 2.4x p99 goodput by cutting KV-cache fragmentation and using tuned draft acceptance with continuous batching."
+          "intent": "The presenter wants us to believe these three techniques together explain the 2.4x p99 goodput gain.",
+          "expert": "Combining PagedAttention's memory efficiency with speculative decoding and tuned batching/prefill settings yields the claimed 2.4x p99 goodput improvement."
         }
-      }
-    },
-    "audience_divergence": {
-      "value": 0.3051093733417399,
-      "inputs": {
-        "novice": "The presenter combined several technical methods (memory management, speculative decoding, batching) to achieve a 2.4x improvement in system throughput/performance at the 99th percentile.",
-        "peer": "Combining memory-efficient attention with speculative decoding techniques achieves a 2.4x throughput gain at p99 latency by reducing memory waste and tuning batching settings.",
-        "expert": "Combining PagedAttention with speculative decoding achieves 2.4x p99 goodput by cutting KV-cache fragmentation and using tuned draft acceptance with continuous batching."
-      }
-    },
-    "pairwise_distance": {
-      "novice-peer": {
-        "value": 0.3288241009692632,
-        "inputs": {
-          "novice": "The presenter combined several technical methods (memory management, speculative decoding, batching) to achieve a 2.4x improvement in system throughput/performance at the 99th percentile.",
-          "peer": "Combining memory-efficient attention with speculative decoding techniques achieves a 2.4x throughput gain at p99 latency by reducing memory waste and tuning batching settings."
-        }
-      },
-      "novice-expert": {
-        "value": 0.36613667488324264,
-        "inputs": {
-          "novice": "The presenter combined several technical methods (memory management, speculative decoding, batching) to achieve a 2.4x improvement in system throughput/performance at the 99th percentile.",
-          "expert": "Combining PagedAttention with speculative decoding achieves 2.4x p99 goodput by cutting KV-cache fragmentation and using tuned draft acceptance with continuous batching."
-        }
-      },
-      "peer-expert": {
-        "value": 0.22036734417271386,
-        "inputs": {
-          "peer": "Combining memory-efficient attention with speculative decoding techniques achieves a 2.4x throughput gain at p99 latency by reducing memory waste and tuning batching settings.",
-          "expert": "Combining PagedAttention with speculative decoding achieves 2.4x p99 goodput by cutting KV-cache fragmentation and using tuned draft acceptance with continuous batching."
-        }
-      }
-    },
-    "blind_spot_score": {
-      "value": 0.1602137341420552,
-      "inputs": {
-        "intent": "Our serving system delivers 2.4x higher goodput at p99 latency by pairing PagedAttention-style KV-cache management with speculative decoding.",
-        "novice": "The presenter combined several technical methods (memory management, speculative decoding, batching) to achieve a 2.4x improvement in system throughput/performance at the 99th percentile.",
-        "expert": "Combining PagedAttention with speculative decoding achieves 2.4x p99 goodput by cutting KV-cache fragmentation and using tuned draft acceptance with continuous batching."
       }
     },
     "term_gap": {
@@ -148,6 +124,7 @@
         "PagedAttention",
         "speculative decoding",
         "p99",
+        "KV-cache",
         "block tables",
         "Draft model acceptance alpha",
         "gamma",
@@ -159,6 +136,7 @@
         "PagedAttention",
         "speculative decoding",
         "p99",
+        "KV-cache",
         "block tables",
         "Draft model acceptance alpha",
         "gamma",
@@ -170,5 +148,9 @@
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2"
+  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "timing": {
+    "personas_s": 9.421,
+    "intent_s": 2.551
+  }
 }

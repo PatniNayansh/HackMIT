@@ -40,6 +40,11 @@ def data_dir() -> Path:
     return Path(os.environ.get("SIGHTLINE_DATA_DIR") or REPO_ROOT / "data")
 
 
+# 2: per-slide inferred intent; alignment measured against it; confidence, blind-spot and
+# divergence no longer part of the results. Runs saved before that have no version and open in a
+# reduced view (see server.public_meta).
+SCHEMA_VERSION = 2
+
 RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 # draft -> running -> complete | failed. "interrupted" is reported (never stored) for a run
@@ -126,6 +131,7 @@ class RunStore:
             "created_at": now_iso(),
             "started_at": None,
             "finished_at": None,
+            "schema_version": SCHEMA_VERSION,
             "status": "draft",
             "slide_count": len(slides),
             "intent": None,
@@ -137,6 +143,7 @@ class RunStore:
             ),
             "profile_inference_error": inference_error,
             "model": None,
+            "intent_model": None,
             "embedding_model": None,
             "prompt_version": PROMPT_VERSION,
             "error": None,
