@@ -130,7 +130,7 @@ a { color: inherit; }
 .brand { text-decoration: none; display: flex; align-items: center; }
 /* Height-constrained, width auto: the wordmark is 3.65:1 and is never stretched. */
 .brand-logo { height: 26px; width: auto; display: block; }
-.topbar nav { display: flex; gap: 56px; margin: 0 auto; }
+.topbar nav { display: flex; gap: 56px; margin: 0; }  /* one plain link, beside the wordmark; the theme toggle keeps the right edge */
 .topbar nav a {
   text-decoration: none; color: var(--ink-2); font-size: 14px; transition: color .15s ease-out;
   display: inline-flex; align-items: center; gap: 9px;
@@ -246,6 +246,9 @@ main:has(.detail) { max-width: 1240px; }
 .home-lede {
   font-family: var(--serif); font-size: clamp(12px, 1.92vw, 30px); line-height: 1.3;
   text-align: center; white-space: nowrap; margin: 28px auto 44px; color: var(--ink);
+  /* The line is wider than the 960px column at most window sizes. text-align cannot centre a line
+     that overflows (it starts at the left edge and runs off to the right); flex centring does. */
+  display: flex; justify-content: center;
 }
 
 /* The way into the saved runs during a presentation. Invisible at rest, but a real link: it
@@ -463,7 +466,7 @@ details.table-view .scroll { max-height: 320px; overflow: auto; margin-top: 8px;
 .aud.peer { border-left-color: var(--c-peer); }
 .aud.expert { border-left-color: var(--c-expert); }
 .aud.bad { border-color: var(--critical); border-left-color: var(--critical); background: var(--critical-wash); }
-.aud + .aud { margin-top: 12px; }
+.aud + .aud, .aud + .neural { margin-top: 12px; }
 .aud-head { display: flex; align-items: baseline; gap: 10px; padding: 12px 16px 0; flex-wrap: wrap; }
 .aud-head .who { font-weight: 650; font-size: 15px; display: flex; align-items: center; gap: 8px; }
 .dot { width: 10px; height: 10px; border-radius: 1px; display: inline-block; }
@@ -550,7 +553,7 @@ mark.hl { background: var(--hl-bg); color: var(--hl-fg); border-radius: 3px; pad
 .lecture-surfaces figcaption { text-align: center; margin-top: 6px; }
 @media (max-width: 760px) { .lecture-surfaces { grid-template-columns: repeat(2, 1fr); } }
 
-.lecture-facts { display: flex; gap: 40px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--grid); }
+.lecture-facts { display: flex; gap: 40px; flex-wrap: wrap; }
 .lecture-facts .fact .v { font-size: 19px; font-family: var(--serif); }
 
 .dek { color: var(--muted); font-size: 13px; margin: 4px 0 16px; max-width: 68ch; }
