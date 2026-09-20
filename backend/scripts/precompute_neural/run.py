@@ -34,34 +34,20 @@ from narrate import synthesize  # noqa: E402
 from regions import fetch_region_masks, global_field_power, region_drive  # noqa: E402
 
 
-def _build_video(slide_png: Path, duration_s: float, out_path: Path) -> Path:
-    """A trivial "video": the slide's own image held static for the narration's duration.
-    Expect the V-JEPA2 video encoder to contribute little here (spec 5) -- this input is a
-    still image, not a movie. That is the disclosed, expected shape of this pipeline, not
-    a bug to fix."""
-    from moviepy.editor import ImageClip
-
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    ImageClip(str(slide_png)).set_duration(max(duration_s, 1.0)).write_videofile(
-        str(out_path), fps=1, audio=False, logger=None
-    )
-    return out_path
-
-
-def _call_tribe(model, video_path: Path, audio_path: Path, transcript: str) -> np.ndarray:
-    """The one function that actually talks to TRIBE. Written from the research pass
-    described in README.md ("What's verified vs. what needs confirming"), not from a
-    completed live run -- no CUDA GPU was available to test against while writing this.
-    Confirm the call shape against github.com/facebookresearch/tribev2's README and
-    tribe_demo.ipynb before a real run; this is the only place that needs to change if it
-    differs."""
-    response = model.predict(video_path=video_path, audio_path=audio_path, transcript=transcript)
+def _call_tribe(model, audio_path: Path) -> np.ndarray:
+    """The one function that actually talks to TRIBE. Confirmed against the real
+    facebookresearch/tribev2 source (tribev2/demo_utils.py): TribeModel.get_events_dataframe
+    takes exactly one of text_path/audio_path/video_path (not several at once), and
+    .predict() takes that events dataframe directly, not raw path/transcript kwargs. We pass
+    only the synthesized narration audio -- a static-slide "video" has no motion for V-JEPA2
+    to encode anyway (spec 5), and the real API can't accept video+audio together."""
+    events = model.get_events_dataframe(audio_path=str(audio_path))
+    response, _segments = model.predict(events)
     response = np.asarray(response)
     if response.ndim != 2 or response.shape[1] != 20484:
         raise RuntimeError(
             f"unexpected TRIBE output shape {response.shape}; expected (T, 20484). "
-            "The model's real output shape or call signature may differ from what "
-            "_call_tribe() assumes -- check the actual tribev2 repo."
+            "The model's real output shape may have changed -- check the tribev2 repo."
         )
     return response
 
@@ -96,12 +82,11 @@ def _render_surface(response: np.ndarray, masks: dict, out_dir: Path) -> None:
         plt.close(fig)
 
 
-def run_slide(run_id: str, index: int, text: str, image_png_path: Path, out_dir: Path, model, masks: dict) -> dict:
+def run_slide(run_id: str, index: int, text: str, out_dir: Path, model, masks: dict) -> dict:
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
         narration = synthesize(text, tmp / "narration.mp3")
-        video_path = _build_video(image_png_path, narration.duration_s, tmp / "slide.mp4")
-        response = _call_tribe(model, video_path, narration.audio_path, narration.transcript)
+        response = _call_tribe(model, narration.audio_path)
 
     language_drive = region_drive(response, masks["language"])
     visual_drive = region_drive(response, masks["visual"])
@@ -125,17 +110,26 @@ def run_slide(run_id: str, index: int, text: str, image_png_path: Path, out_dir:
 
 def _login_to_huggingface() -> None:
     """The text encoder (meta-llama/Llama-3.2-3B) is gated: this needs a HF token from an
-    account that has accepted its license (README.md step 4). Reads HF_TOKEN from this
-    directory's own .env -- deliberately not the repo-root .env, and never committed
-    (git-ignored, same pattern as ANTHROPIC_API_KEY there)."""
+    account that has accepted its license (README.md step 4). Prefers an already-cached
+    login (`huggingface-cli login`, or a prior `huggingface_hub.login()` call) over asking
+    for the token again; falls back to HF_TOKEN in the environment or this directory's own
+    .env -- deliberately not the repo-root .env, and never committed (git-ignored, same
+    pattern as ANTHROPIC_API_KEY there)."""
     from dotenv import dotenv_values
-    from huggingface_hub import login
+    from huggingface_hub import HfApi, login
+
+    try:
+        HfApi().whoami()
+        return  # already logged in via a cached token
+    except Exception:
+        pass
 
     token = os.environ.get("HF_TOKEN") or dotenv_values(HERE / ".env").get("HF_TOKEN")
     if not token:
         sys.exit(
-            "No HF_TOKEN found (checked the environment and .env in this directory). "
-            "TRIBE v2's text encoder is a gated model; see README.md step 4."
+            "Not logged into HuggingFace and no HF_TOKEN found (checked the cached login, "
+            "the environment, and .env in this directory). TRIBE v2's text encoder is a "
+            "gated model; see README.md step 4."
         )
     login(token=token, add_to_git_credential=False)
 
@@ -171,8 +165,7 @@ def main() -> None:
             print(f"slide {slide.index}: already cached, skipping (--force to redo)")
             continue
         print(f"slide {slide.index}: narrating, encoding, and running TRIBE (6-13 min)...")
-        image_path = store.image_path(args.run_id, slide.index)
-        metrics = run_slide(args.run_id, slide.index, slide.text, image_path, args.out, model, masks)
+        metrics = run_slide(args.run_id, slide.index, slide.text, args.out, model, masks)
         print(f"slide {slide.index}: processing_ratio={metrics['processing_ratio']}")
 
     print("done.")
