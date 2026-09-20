@@ -27,9 +27,9 @@ PORT ?= 8000
 setup: $(PY)/activate
 	$(PY)/pip install -q -e "backend[dev]"
 	# macOS marks the editable-install .pth file "hidden" and Python then ignores it,
-	# which makes `import sightline` fail outside backend/. Clear the flag.
+	# which makes `import profe` fail outside backend/. Clear the flag.
 	@chflags -R nohidden $(VENV) 2>/dev/null || true
-	@$(PY)/python -c "import sightline; print('sightline importable from', sightline.__file__)"
+	@$(PY)/python -c "import profe; print('profe importable from', profe.__file__)"
 
 $(PY)/activate:
 	$(BOOTSTRAP) -m venv $(VENV)
@@ -53,8 +53,8 @@ demo: setup
 # The review UI: FastAPI serves the API and the plain HTML/JS frontend from one port. Saved runs
 # open with no API key; starting a new review needs OPENAI_API_KEY in .env.
 dev: setup
-	@echo "Sightline: http://localhost:$(PORT)"
-	$(PY)/python -m uvicorn sightline.server:app --app-dir backend --port $(PORT) --reload --reload-dir backend/sightline
+	@echo "ProFe: http://localhost:$(PORT)"
+	$(PY)/python -m uvicorn profe.server:app --app-dir backend --port $(PORT) --reload --reload-dir backend/profe
 
 # Rebuild the bundled sample run (backend/fixtures/runs/) with the real model. ~22 API calls.
 sample: setup

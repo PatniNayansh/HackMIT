@@ -9,10 +9,10 @@ import pymupdf
 import pytest
 from fastapi.testclient import TestClient
 
-from sightline.audiences import FileCache
-from sightline.neural import CachedNeural
-from sightline.server import create_app
-from sightline.store import RunStore
+from profe.audiences import FileCache
+from profe.neural import CachedNeural
+from profe.server import create_app
+from profe.store import RunStore
 
 from builders import HashEmbedder
 from conftest import FakeLLM, sentinel_payload

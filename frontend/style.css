@@ -1,4 +1,4 @@
-/* Sightline review UI.
+/* ProFe review UI.
 
    EVERY COLOUR IS A TOKEN. The two blocks below (light on :root, dark on :root[data-theme="dark"])
    are the only places a colour value may be written; components use var(--token) only, so a
@@ -127,12 +127,9 @@ a { color: inherit; }
   background: var(--page); border-bottom: 1px solid var(--border);
   position: sticky; top: 0; z-index: 20;
 }
-.brand { font-family: var(--serif); font-size: 19px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 10px; }
-.brand-mark { display: inline-flex; gap: 2px; align-items: flex-end; }
-.brand-mark i { width: 4px; height: 13px; display: block; }
-.brand-mark i:nth-child(1) { background: var(--c-novice); }
-.brand-mark i:nth-child(2) { background: var(--c-peer); height: 17px; }
-.brand-mark i:nth-child(3) { background: var(--c-expert); }
+.brand { text-decoration: none; display: flex; align-items: center; }
+/* Height-constrained, width auto: the wordmark is 3.65:1 and is never stretched. */
+.brand-logo { height: 26px; width: auto; display: block; }
 .topbar nav { display: flex; gap: 24px; margin: 0 auto; }
 .topbar nav a { text-decoration: none; color: var(--ink-2); font-size: 14px; transition: color .15s ease-out; }
 .topbar nav a:hover, .topbar nav a[aria-current="page"] { color: var(--ink); }

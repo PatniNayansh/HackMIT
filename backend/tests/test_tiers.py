@@ -4,8 +4,8 @@ import copy
 
 import pytest
 
-from sightline import deck, tiers
-from sightline.tiers import CONFIG, assign_tiers, percentile
+from profe import deck, tiers
+from profe.tiers import CONFIG, assign_tiers, percentile
 
 from builders import slide_result
 

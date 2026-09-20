@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from sightline import deck
-from sightline.audiences import AudienceResponseError, CacheMiss
-from sightline.deck import error_record, rollup
+from profe import deck
+from profe.audiences import AudienceResponseError, CacheMiss
+from profe.deck import error_record, rollup
 
 from builders import slide_result
 

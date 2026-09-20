@@ -9,13 +9,13 @@ import pymupdf
 import pytest
 from fastapi.testclient import TestClient
 
-from sightline import server as server_mod
-from sightline.audiences import DeckProfile, FileCache
-from sightline.compare import FileStructureCache
-from sightline.ingest import Slide
-from sightline.runner import TolerantEngine, run_deck
-from sightline.server import COMPARATORS, create_app, default_comparator
-from sightline.store import RunStore
+from profe import server as server_mod
+from profe.audiences import DeckProfile, FileCache
+from profe.compare import FileStructureCache
+from profe.ingest import Slide
+from profe.runner import TolerantEngine, run_deck
+from profe.server import COMPARATORS, create_app, default_comparator
+from profe.store import RunStore
 
 from builders import HashEmbedder
 from conftest import FakeLLM, sentinel_payload
@@ -158,14 +158,14 @@ async def test_the_figure_description_reaches_every_persona_under_a_figure_marke
 
 def test_the_flag_defaults_to_fieldwise_and_reads_the_environment(monkeypatch):
     assert COMPARATORS == ("cosine", "fieldwise") and server_mod.COMPARATOR in COMPARATORS
-    monkeypatch.delenv("SIGHTLINE_COMPARATOR", raising=False)
+    monkeypatch.delenv("PROFE_COMPARATOR", raising=False)
     assert default_comparator() == "fieldwise"
-    monkeypatch.setenv("SIGHTLINE_COMPARATOR", "cosine")
+    monkeypatch.setenv("PROFE_COMPARATOR", "cosine")
     assert default_comparator() == "cosine"  # the one-line rollback, no code change
-    monkeypatch.setenv("SIGHTLINE_COMPARATOR", "Fieldwise ")
+    monkeypatch.setenv("PROFE_COMPARATOR", "Fieldwise ")
     assert default_comparator() == "fieldwise"
-    monkeypatch.setenv("SIGHTLINE_COMPARATOR", "nonsense")
-    with pytest.raises(ValueError, match="SIGHTLINE_COMPARATOR"):
+    monkeypatch.setenv("PROFE_COMPARATOR", "nonsense")
+    with pytest.raises(ValueError, match="PROFE_COMPARATOR"):
         default_comparator()
     with pytest.raises(ValueError):
         create_app(comparator="nonsense")

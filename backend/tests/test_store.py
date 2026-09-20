@@ -4,10 +4,10 @@ import json
 
 import pytest
 
-from sightline import store as store_mod
-from sightline.audiences import DeckProfile
-from sightline.ingest import Slide
-from sightline.store import ReadOnlyRun, RunNotFound, RunStore
+from profe import store as store_mod
+from profe.audiences import DeckProfile
+from profe.ingest import Slide
+from profe.store import ReadOnlyRun, RunNotFound, RunStore
 
 from builders import slide_result
 
@@ -116,5 +116,5 @@ def test_bundled_runs_are_listed_and_readable_but_never_writable(tmp_path):
 
 
 def test_data_dir_can_be_redirected(monkeypatch, tmp_path):
-    monkeypatch.setenv("SIGHTLINE_DATA_DIR", str(tmp_path / "elsewhere"))
+    monkeypatch.setenv("PROFE_DATA_DIR", str(tmp_path / "elsewhere"))
     assert store_mod.data_dir() == tmp_path / "elsewhere"

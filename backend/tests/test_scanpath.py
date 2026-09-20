@@ -11,7 +11,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from sightline.scanpath import Fixation, compute_scanpath
+from profe.scanpath import Fixation, compute_scanpath
 
 
 def _bump(shape: tuple[int, int], cx: int, cy: int, sigma: float, amplitude: float = 1.0) -> np.ndarray:

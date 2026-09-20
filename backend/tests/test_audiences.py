@@ -16,7 +16,7 @@ from conftest import FakeLLM, sentinel_payload
 from pydantic import ValidationError
 from slides import CLEAR_PROFILE, JARGON_PROFILE, clear_slide, jargon_slide
 
-from sightline.audiences import (
+from profe.audiences import (
     PERSONAS,
     RESPONSE_SCHEMA,
     AudienceEngine,
@@ -58,7 +58,7 @@ def test_no_ratings_anywhere_in_the_backend():
     banned_fields = {"score", "rating", "clarity", "grade", "rank"}
     assert not banned_fields & set(AudienceResponse.model_fields)
     pattern = re.compile(r"\b\d+(\.\d+)?\s*/\s*10\b|\bclarity\b\s*[:=]\s*\d", re.I)
-    for path in Path(__file__).parent.parent.joinpath("sightline").glob("*.py"):
+    for path in Path(__file__).parent.parent.joinpath("profe").glob("*.py"):
         assert not pattern.search(path.read_text(encoding="utf-8")), f"rating-style output in {path.name}"
 
 

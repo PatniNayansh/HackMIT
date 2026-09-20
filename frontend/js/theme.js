@@ -4,7 +4,7 @@
 //
 // localStorage throws in private windows and when site data is blocked, so every access is wrapped:
 // a failed read means "no saved choice" and a failed write means the choice lasts for this page only.
-const KEY = "sightline-theme";
+const KEY = "profe-theme";
 const root = document.documentElement;
 const query = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 

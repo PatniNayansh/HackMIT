@@ -17,7 +17,7 @@ The call is a rephrasing task, so it runs on the cost-tier model, after the thre
 slide. Its output is checked: it may not contain a content word that appears in neither the
 expert's report nor the slide. If the model breaks that twice, or fails, or there is no client,
 the intent falls back to a template that is the expert's `inferred_claim` verbatim, and the
-result says so (`source == "template"`, plus why). Set SIGHTLINE_INTENT_MODE=template to use
+result says so (`source == "template"`, plus why). Set PROFE_INTENT_MODE=template to use
 the template everywhere (the latency escape hatch described in the README).
 """
 
@@ -51,11 +51,11 @@ PersonaReport = AudienceResponse  # the expert's five-field reply for one slide
 
 
 def intent_model() -> str:
-    return os.environ.get("SIGHTLINE_INTENT_MODEL", DEFAULT_INTENT_MODEL)
+    return os.environ.get("PROFE_INTENT_MODEL", DEFAULT_INTENT_MODEL)
 
 
 def intent_mode() -> str:
-    return "template" if os.environ.get("SIGHTLINE_INTENT_MODE") == "template" else "model"
+    return "template" if os.environ.get("PROFE_INTENT_MODE") == "template" else "model"
 
 
 @dataclass(frozen=True)
@@ -264,7 +264,7 @@ async def infer_slide_intent(
 
     started = time.perf_counter()
     if (mode or intent_mode()) == "template":
-        return fallback("template mode (SIGHTLINE_INTENT_MODE=template)", 0, started)
+        return fallback("template mode (PROFE_INTENT_MODE=template)", 0, started)
     model = getattr(client, "model", None) or intent_model()
     key = cache_key(expert_report)
     if cache is not None and (hit := cache.get(key)) is not None:

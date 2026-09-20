@@ -8,8 +8,8 @@ from typing import Sequence
 
 import numpy as np
 
-from sightline.audiences import PERSONAS, AudienceReading, AudienceResponse
-from sightline.deck import SlideResult, build_metrics, expert_takeaway_intent, reading_record
+from profe.audiences import PERSONAS, AudienceReading, AudienceResponse
+from profe.deck import SlideResult, build_metrics, expert_takeaway_intent, reading_record
 
 INTENT = "INTENT"
 
@@ -105,7 +105,7 @@ def fw_slide_result(
     so the payload shape cannot drift. Fields default to a slide where everyone reached everything.
     `states` maps an audience to the claim state it should land in (default equivalent); the expert's
     claim has two propositions, and evidence is always the audience's own claim, word for word."""
-    from sightline.compare import all_omitted, build_fieldwise_metrics, clean_propositions, judge_coverage
+    from profe.compare import all_omitted, build_fieldwise_metrics, clean_propositions, judge_coverage
 
     full = {"concept": "isotope", "claim": "Isotopes are atoms of one element with different neutron counts.", "result": "6", "vehicle": "carbon-12 and carbon-14"}
     fields = {"novice": novice if novice is not None else dict(full), "peer": peer if peer is not None else dict(full), "expert": expert if expert is not None else dict(full)}

@@ -3,11 +3,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from sightline.audiences import PERSONAS, AudienceEngine, DeckProfile, FileCache
-from sightline.deck import rollup
-from sightline.ingest import Slide
-from sightline.runner import TolerantEngine, run_deck as _run_deck
-from sightline.store import RunStore
+from profe.audiences import PERSONAS, AudienceEngine, DeckProfile, FileCache
+from profe.deck import rollup
+from profe.ingest import Slide
+from profe.runner import TolerantEngine, run_deck as _run_deck
+from profe.store import RunStore
 
 from builders import HashEmbedder
 from conftest import FakeLLM, sentinel_payload

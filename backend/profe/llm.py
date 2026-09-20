@@ -45,10 +45,10 @@ CONFIG: dict[str, dict[str, str]] = {
 EFFORTS = ("none", "low", "medium", "high", "xhigh", "max")
 # Environment overrides, per role: (model variable, effort variable).
 ENV_OVERRIDES: dict[str, tuple[str, str]] = {
-    "persona": ("SIGHTLINE_MODEL", "SIGHTLINE_EFFORT"),
-    "structuring": ("SIGHTLINE_STRUCTURING_MODEL", "SIGHTLINE_STRUCTURING_EFFORT"),
-    "helper": ("SIGHTLINE_HELPER_MODEL", "SIGHTLINE_HELPER_EFFORT"),
-    "intent": ("SIGHTLINE_INTENT_MODEL", "SIGHTLINE_INTENT_EFFORT"),
+    "persona": ("PROFE_MODEL", "PROFE_EFFORT"),
+    "structuring": ("PROFE_STRUCTURING_MODEL", "PROFE_STRUCTURING_EFFORT"),
+    "helper": ("PROFE_HELPER_MODEL", "PROFE_HELPER_EFFORT"),
+    "intent": ("PROFE_INTENT_MODEL", "PROFE_INTENT_EFFORT"),
 }
 KEY_VARIABLE = "OPENAI_API_KEY"
 

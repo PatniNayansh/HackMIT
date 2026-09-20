@@ -17,11 +17,11 @@ from pathlib import Path
 BACKEND = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND))
 
-from sightline.compare import build_fieldwise_metrics, structure_slide  # noqa: E402
-from sightline.diagnose import recommend  # noqa: E402
-from sightline.divergence import default_embedder  # noqa: E402
-from sightline.llm import OpenAIClient  # noqa: E402
-from sightline.store import BUNDLED_RUNS_DIR, RunStore  # noqa: E402
+from profe.compare import build_fieldwise_metrics, structure_slide  # noqa: E402
+from profe.diagnose import recommend  # noqa: E402
+from profe.divergence import default_embedder  # noqa: E402
+from profe.llm import OpenAIClient  # noqa: E402
+from profe.store import BUNDLED_RUNS_DIR, RunStore  # noqa: E402
 
 RUN_ID = "sample-llm-serving"
 

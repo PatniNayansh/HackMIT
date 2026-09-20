@@ -228,7 +228,7 @@ def depression_dmn_lens(dmn_drive_z: float, slide_index: int) -> ResearchLens:
 
 def dyslexia_language_lens(language_drive_z: float, slide_index: int) -> ResearchLens:
     """`language_drive_z`: this slide's language-network drive (the SAME signal
-    `processing_ratio` already uses -- see sightline.neural) as a Z-score against its own
+    `processing_ratio` already uses -- see profe.neural) as a Z-score against its own
     deck. Runs the opposite direction from the DMN lenses above: dyslexia research finds
     consistent UNDER-activation, not over-activation, of left temporoparietal,
     occipitotemporal and inferior frontal language regions during reading (Paulesu et al.

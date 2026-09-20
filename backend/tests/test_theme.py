@@ -11,7 +11,7 @@ import subprocess
 
 import pytest
 
-from sightline.server import FRONTEND_DIR
+from profe.server import FRONTEND_DIR
 
 CSS = (FRONTEND_DIR / "style.css").read_text(encoding="utf-8")
 INDEX = (FRONTEND_DIR / "index.html").read_text(encoding="utf-8")

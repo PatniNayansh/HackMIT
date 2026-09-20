@@ -13,7 +13,7 @@ export function overview(root, runId) {
     if (guard(root, state)) return;
     const { meta, rollup } = state;
     const total = meta.slide_count, done = state.results.size;
-    document.title = `${meta.title} — Sightline`;
+    document.title = `${meta.title} — ProFe`;
 
     const head = h("div", { class: "page-head" },
       h("div", null,

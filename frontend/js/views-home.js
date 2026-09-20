@@ -230,7 +230,7 @@ export function home(root) {
 // ----------------------------------------------------------------------- setup
 
 export async function setup(root, runId) {
-  document.title = "Set up review — Sightline";
+  document.title = "Set up review — ProFe";
   root.replaceChildren(h("p", { class: "empty" }, h("span", { class: "spinner" }), " Loading…"));
   let run;
   try {

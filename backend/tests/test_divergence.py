@@ -15,8 +15,8 @@ import numpy as np
 import pytest
 from slides import CLEAR_INTENT, JARGON_INTENT
 
-from sightline.audiences import AudienceResponse
-from sightline.divergence import compute_term_gap, normalize_term, score_slide
+from profe.audiences import AudienceResponse
+from profe.divergence import compute_term_gap, normalize_term, score_slide
 
 
 class VectorEmbedder:

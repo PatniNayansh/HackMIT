@@ -8,8 +8,8 @@ What is REAL in this script:
   * Both vertex masks (regions.fetch_region_masks: language via Destrieux, DMN via Yeo 2011
     projected onto the actual fsaverage5 surface) -- the same masks a real precompute run
     uses for processing_ratio and dmn_drive.
-  * The Z-score-against-the-deck math (sightline.neural.deck_z_scores).
-  * All three citation-backed sentence generators (sightline.research_lens).
+  * The Z-score-against-the-deck math (profe.neural.deck_z_scores).
+  * All three citation-backed sentence generators (profe.research_lens).
   * The slide revisions -- an ACTUAL call to Claude when credentials are available; this
     demo checks rather than assumes a key is configured (a real gap this script found in an
     earlier version: the app's own /api/health endpoint says "can_call_model: true" even
@@ -48,10 +48,10 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
-from sightline.audiences import SlideInput  # noqa: E402
-from sightline.llm import AnthropicClient  # noqa: E402
-from sightline.neural import deck_z_scores  # noqa: E402
-from sightline.research_lens import (  # noqa: E402
+from profe.audiences import SlideInput  # noqa: E402
+from profe.llm import AnthropicClient  # noqa: E402
+from profe.neural import deck_z_scores  # noqa: E402
+from profe.research_lens import (  # noqa: E402
     adhd_dmn_lens,
     depression_dmn_lens,
     dyslexia_language_lens,

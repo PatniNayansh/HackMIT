@@ -18,9 +18,9 @@ import openai
 import pytest
 from slides import CLEAR_PROFILE, clear_slide
 
-from sightline import compare, diagnose, ingest, intent, llm
-from sightline.audiences import RESPONSE_SCHEMA, AudienceEngine, AudienceResponseError
-from sightline.llm import CONFIG, LLMError, OpenAIClient
+from profe import compare, diagnose, ingest, intent, llm
+from profe.audiences import RESPONSE_SCHEMA, AudienceEngine, AudienceResponseError
+from profe.llm import CONFIG, LLMError, OpenAIClient
 
 PAYLOAD = {
     "takeaway": "t", "confidence": 0.4, "unresolved_terms": ["x"], "questions": [], "inferred_claim": "c",
@@ -213,20 +213,20 @@ def test_redaction_masks_the_exact_key_value_too(monkeypatch):
 
 def test_env_file_supplies_missing_values_but_never_overrides_the_shell(tmp_path, monkeypatch):
     env = tmp_path / ".env"
-    env.write_text("OPENAI_API_KEY=from-file\nSIGHTLINE_MODEL=from-file\nSIGHTLINE_EFFORT=\n", encoding="utf-8")
+    env.write_text("OPENAI_API_KEY=from-file\nPROFE_MODEL=from-file\nPROFE_EFFORT=\n", encoding="utf-8")
     # setenv-then-delenv registers the variable with monkeypatch so teardown restores it
-    for name in ("OPENAI_API_KEY", "SIGHTLINE_EFFORT"):
+    for name in ("OPENAI_API_KEY", "PROFE_EFFORT"):
         monkeypatch.setenv(name, "placeholder")
         monkeypatch.delenv(name)
-    monkeypatch.setenv("SIGHTLINE_MODEL", "from-shell")
+    monkeypatch.setenv("PROFE_MODEL", "from-shell")
 
     llm.load_env(env)
 
     import os
 
     assert os.environ["OPENAI_API_KEY"] == "from-file"
-    assert os.environ["SIGHTLINE_MODEL"] == "from-shell"  # shell wins
-    assert "SIGHTLINE_EFFORT" not in os.environ  # blank value ignored
+    assert os.environ["PROFE_MODEL"] == "from-shell"  # shell wins
+    assert "PROFE_EFFORT" not in os.environ  # blank value ignored
 
 
 def test_missing_env_file_is_fine(tmp_path):
@@ -259,7 +259,7 @@ async def _wire(client: OpenAIClient, seen: list) -> dict:
 
 
 async def test_each_role_takes_its_model_and_effort_from_the_config_dict(monkeypatch):
-    for var in ("SIGHTLINE_MODEL", "SIGHTLINE_EFFORT", "SIGHTLINE_STRUCTURING_MODEL", "SIGHTLINE_HELPER_MODEL", "SIGHTLINE_INTENT_MODEL"):
+    for var in ("PROFE_MODEL", "PROFE_EFFORT", "PROFE_STRUCTURING_MODEL", "PROFE_HELPER_MODEL", "PROFE_INTENT_MODEL"):
         monkeypatch.delenv(var, raising=False)
     monkeypatch.setattr(llm, "load_env", lambda *a, **k: None)
     assert CONFIG["models"] == {"persona": "gpt-5.6-terra", "structuring": "gpt-5.6-luna", "helper": "gpt-5.6-luna", "intent": "gpt-5.6-luna"}
@@ -274,8 +274,8 @@ async def test_each_role_takes_its_model_and_effort_from_the_config_dict(monkeyp
 
 async def test_editing_the_config_dict_is_all_it_takes_to_swap_a_model_or_an_effort(monkeypatch):
     monkeypatch.setattr(llm, "load_env", lambda *a, **k: None)
-    monkeypatch.delenv("SIGHTLINE_MODEL", raising=False)
-    monkeypatch.delenv("SIGHTLINE_EFFORT", raising=False)
+    monkeypatch.delenv("PROFE_MODEL", raising=False)
+    monkeypatch.delenv("PROFE_EFFORT", raising=False)
     monkeypatch.setitem(CONFIG["models"], "persona", "some-other-model")
     monkeypatch.setitem(CONFIG["effort"], "persona", "medium")
     seen: list = []
@@ -300,15 +300,15 @@ def test_an_unknown_effort_or_role_is_a_visible_error():
 
 async def test_the_environment_can_override_a_role_without_touching_code(monkeypatch):
     monkeypatch.setattr(llm, "load_env", lambda *a, **k: None)
-    monkeypatch.setenv("SIGHTLINE_STRUCTURING_MODEL", "gpt-5.6-terra")
-    monkeypatch.setenv("SIGHTLINE_STRUCTURING_EFFORT", "medium")
+    monkeypatch.setenv("PROFE_STRUCTURING_MODEL", "gpt-5.6-terra")
+    monkeypatch.setenv("PROFE_STRUCTURING_EFFORT", "medium")
     c = OpenAIClient(role="structuring", client=object())
     assert (c.model, c.effort) == ("gpt-5.6-terra", "medium")
 
 
 def test_no_model_id_is_written_anywhere_but_the_config_dict():
-    sightline = Path(llm.__file__).parent
-    for path in sightline.glob("*.py"):
+    profe = Path(llm.__file__).parent
+    for path in profe.glob("*.py"):
         lines = [(n, line) for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1) if re.search(r"gpt-\d|claude-", line)]
         if path.name == "llm.py":
             block = re.search(r"CONFIG: dict.*?\n}\n", path.read_text(encoding="utf-8"), re.S).group(0)

@@ -9,10 +9,10 @@ import re
 import pytest
 from fastapi.testclient import TestClient
 
-from sightline import compare as C
-from sightline.audiences import PERSONAS, FileCache
-from sightline.server import FRONTEND_DIR, create_app
-from sightline.store import BUNDLED_RUNS_DIR, RunStore
+from profe import compare as C
+from profe.audiences import PERSONAS, FileCache
+from profe.server import FRONTEND_DIR, create_app
+from profe.store import BUNDLED_RUNS_DIR, RunStore
 
 from builders import HashEmbedder
 

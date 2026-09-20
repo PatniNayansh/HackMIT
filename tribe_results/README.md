@@ -42,7 +42,7 @@ Every number here is **predicted by a model, not measured from a real brain** --
 disclosed on the images themselves ("Predicted response — simulated, not measured").
 Compare `processing_ratio` as ranks *within* one source (e.g. across umass_lecture_slides'
 16 slides), never as an absolute score, and never call it "engagement" -- the project spec
-(`docs/SIGHTLINE_spec.md`) explicitly forbids that framing, because TRIBE v2's own scalar
+(`docs/PROFE_spec.md`) explicitly forbids that framing, because TRIBE v2's own scalar
 engagement readout was a null result in the published paper (arXiv 2607.01400,
 r ≈ 0.058, n.s.). `gfp_negative_baseline` in each metrics.json is stored only so that
 result can be reproduced next to its citation, never shown as a finding. For the audio

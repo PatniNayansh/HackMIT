@@ -21,14 +21,14 @@ from pathlib import Path
 BACKEND = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND))
 
-from sightline import ingest  # noqa: E402
-from sightline.audiences import FileCache  # noqa: E402
-from sightline.compare import FileStructureCache  # noqa: E402
-from sightline.diagnose import recommend  # noqa: E402
-from sightline.divergence import default_embedder  # noqa: E402
-from sightline.llm import OpenAIClient, load_env  # noqa: E402
-from sightline.runner import TolerantEngine, run_deck  # noqa: E402
-from sightline.store import RunStore, data_dir  # noqa: E402
+from profe import ingest  # noqa: E402
+from profe.audiences import FileCache  # noqa: E402
+from profe.compare import FileStructureCache  # noqa: E402
+from profe.diagnose import recommend  # noqa: E402
+from profe.divergence import default_embedder  # noqa: E402
+from profe.llm import OpenAIClient, load_env  # noqa: E402
+from profe.runner import TolerantEngine, run_deck  # noqa: E402
+from profe.store import RunStore, data_dir  # noqa: E402
 
 
 async def main() -> None:

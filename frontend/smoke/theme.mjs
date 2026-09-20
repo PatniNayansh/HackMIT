@@ -6,7 +6,7 @@ function setup({ stored, storageThrows, systemDark, preset }) {
   if (preset) root.setAttribute("data-theme", preset);
   const button = Object.assign(new Attr(), { listeners: {}, title: "", addEventListener(ev, fn) { this.listeners[ev] = fn; }, click() { this.listeners.click(); } });
   const mq = { matches: systemDark, listeners: [], addEventListener(_, fn) { this.listeners.push(fn); } };
-  const store = { ...(stored ? { "sightline-theme": stored } : {}) };
+  const store = { ...(stored ? { "profe-theme": stored } : {}) };
   globalThis.document = { documentElement: root, getElementById: () => button };
   globalThis.window = { matchMedia: () => mq };
   globalThis.localStorage = storageThrows
@@ -24,7 +24,7 @@ async function scenario(name, opts, act) {
   const before = env.root.getAttribute("data-theme");
   const pressedBefore = env.button.getAttribute("aria-pressed");
   if (act) act(env);
-  results[name] = { before, pressedBefore, after: env.root.getAttribute("data-theme"), stored: env.store["sightline-theme"] ?? null, pressed: env.button.getAttribute("aria-pressed") };
+  results[name] = { before, pressedBefore, after: env.root.getAttribute("data-theme"), stored: env.store["profe-theme"] ?? null, pressed: env.button.getAttribute("aria-pressed") };
 }
 
 await scenario("system dark, nothing saved", { systemDark: true });

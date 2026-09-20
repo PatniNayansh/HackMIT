@@ -2,7 +2,7 @@
 
 Instructions for whoever (or whichever agent) is SSHed into the GX10 to set up and run
 Meta's TRIBE v2 brain-encoding model ([github.com/facebookresearch/tribev2](https://github.com/facebookresearch/tribev2))
-for SIGHTLINE's neural precompute step (`backend/scripts/precompute_neural/`).
+for PROFE's neural precompute step (`backend/scripts/precompute_neural/`).
 
 This must run in **complete isolation** from any other Python environment on this machine.
 TRIBE v2 pins `numpy==2.2.6` exactly and `torch<2.7`, which will break anything else
@@ -11,7 +11,7 @@ an existing venv at any point below.
 
 ## 0. Locate or clone the repo
 
-Check whether the SIGHTLINE repo already exists on this machine (e.g.
+Check whether the PROFE repo already exists on this machine (e.g.
 `find / -maxdepth 4 -iname "SightLine" -type d 2>/dev/null` or ask the user for the path).
 If it's not present, clone it:
 

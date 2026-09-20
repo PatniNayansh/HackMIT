@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from sightline import intent as intent_mod
-from sightline.audiences import AudienceResponse
-from sightline.intent import (
+from profe import intent as intent_mod
+from profe.audiences import AudienceResponse
+from profe.intent import (
     FileIntentCache, cache_key, infer_slide_intent, template_intent, unsupported_terms,
 )
 
@@ -76,7 +76,7 @@ async def test_no_client_means_template():
 
 
 async def test_template_mode_never_calls_the_model(monkeypatch):
-    monkeypatch.setenv("SIGHTLINE_INTENT_MODE", "template")
+    monkeypatch.setenv("PROFE_INTENT_MODE", "template")
     c = Client("unused")
     out = await infer_slide_intent(EXPERT, SLIDE, c)
     assert out.source == "template" and c.calls == []

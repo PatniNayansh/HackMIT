@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import pytest
 
-from sightline.audiences import SlideInput
-from sightline.llm import LLMError
-from sightline.research_lens import propose_adhd_friendly_revision, propose_dyslexia_friendly_revision
+from profe.audiences import SlideInput
+from profe.llm import LLMError
+from profe.research_lens import propose_adhd_friendly_revision, propose_dyslexia_friendly_revision
 
 ORIGINAL_TEXT = "[title] Serving faster\n[body] Dense wall of acronyms, all at once, no structure"
 REVISED_TEXT = "[title] Serving faster\n[body] 1. What changed\n[body] 2. Why it's faster"

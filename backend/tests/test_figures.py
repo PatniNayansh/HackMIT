@@ -8,8 +8,8 @@ import pymupdf
 import pytest
 from PIL import Image
 
-from sightline import ingest
-from sightline.ingest import FileFigureCache, Slide, describe_figure, describe_figures, figure_signals
+from profe import ingest
+from profe.ingest import FileFigureCache, Slide, describe_figure, describe_figures, figure_signals
 
 from conftest import FakeLLM
 
@@ -220,7 +220,7 @@ def test_the_persona_input_carries_the_description_under_a_figure_marker():
 
 
 def test_a_figure_changes_what_the_personas_are_shown_so_it_cannot_be_served_from_a_stale_cache():
-    from sightline.audiences import slide_hash
+    from profe.audiences import slide_hash
 
     a, b = Slide(1, "[title] x", png()), Slide(1, "[title] x", png(), {"text": "A drawing."})
     prof = ingest.DeckProfile("d", "a")
@@ -228,7 +228,7 @@ def test_a_figure_changes_what_the_personas_are_shown_so_it_cannot_be_served_fro
 
 
 def test_the_description_is_stored_with_the_slide_and_restored(tmp_path):
-    from sightline.store import RunStore
+    from profe.store import RunStore
 
     store = RunStore(tmp_path)
     s = Slide(1, "[title] x", png(), {"text": "Two lines.", "model": "fake-haiku", "source": "vision", "machine_generated": True}, {"carries_figure": True, "drawing_paths": 12})
@@ -240,10 +240,10 @@ def test_the_description_is_stored_with_the_slide_and_restored(tmp_path):
 def test_the_image_is_withheld_from_the_personas_only_when_asked_and_only_on_described_slides(monkeypatch):
     described = Slide(1, "[title] x", b"IMG", {"text": "One line rises."})
     plain = Slide(2, "[title] y", b"IMG2")
-    monkeypatch.delenv("SIGHTLINE_FIGURE_INPUT", raising=False)
+    monkeypatch.delenv("PROFE_FIGURE_INPUT", raising=False)
     assert described.to_input().image_png == b"IMG" and plain.to_input().image_png == b"IMG2"  # default: as it has always been
-    monkeypatch.setenv("SIGHTLINE_FIGURE_INPUT", "description_only")
+    monkeypatch.setenv("PROFE_FIGURE_INPUT", "description_only")
     assert described.to_input().image_png is None and "FIGURE:" in described.to_input().text
     assert plain.to_input().image_png == b"IMG2"  # no description, so nothing replaces the image
-    monkeypatch.setenv("SIGHTLINE_FIGURE_INPUT", "nonsense")
+    monkeypatch.setenv("PROFE_FIGURE_INPUT", "nonsense")
     assert described.to_input().image_png == b"IMG"

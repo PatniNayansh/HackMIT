@@ -13,8 +13,8 @@ import io
 import numpy as np
 import pytest
 
-from sightline.saliency import DeepGazeSaliency, StubSaliency, compute_saliency, decode_png, default_saliency_model
-from sightline.scanpath import compute_scanpath
+from profe.saliency import DeepGazeSaliency, StubSaliency, compute_saliency, decode_png, default_saliency_model
+from profe.scanpath import compute_scanpath
 
 
 def _square_on_black(size: int = 201, square: int = 21, fill=(255, 255, 255)) -> np.ndarray:
@@ -102,13 +102,13 @@ def test_default_saliency_model_is_spectral_residual():
 
 
 def test_deepgaze_without_weights_raises_a_clear_startup_error(monkeypatch):
-    monkeypatch.delenv("SIGHTLINE_DEEPGAZE_WEIGHTS", raising=False)
+    monkeypatch.delenv("PROFE_DEEPGAZE_WEIGHTS", raising=False)
     with pytest.raises(RuntimeError, match="DeepGaze IIE is not available"):
         DeepGazeSaliency()
 
 
 def test_deepgaze_error_names_the_working_alternatives(monkeypatch):
-    monkeypatch.delenv("SIGHTLINE_DEEPGAZE_WEIGHTS", raising=False)
+    monkeypatch.delenv("PROFE_DEEPGAZE_WEIGHTS", raising=False)
     with pytest.raises(RuntimeError, match="SpectralResidualSaliency"):
         DeepGazeSaliency()
 
@@ -120,7 +120,7 @@ def test_spectral_residual_highlights_the_square_over_the_uniform_background():
     cv2 = pytest.importorskip("cv2", reason="OpenCV (with the saliency module) is not installed")
     if not hasattr(cv2, "saliency"):
         pytest.skip("this OpenCV build has no saliency module (needs opencv-contrib)")
-    from sightline.saliency import SpectralResidualSaliency
+    from profe.saliency import SpectralResidualSaliency
 
     img = _square_on_black(size=201, square=41)
     sal = SpectralResidualSaliency().compute(img)

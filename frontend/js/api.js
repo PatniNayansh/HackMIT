@@ -10,7 +10,7 @@ export async function api(path, options) {
   try {
     res = await fetch(path, options);
   } catch (e) {
-    throw new ApiError("Could not reach the Sightline server. Is it still running?", 0);
+    throw new ApiError("Could not reach the ProFe server. Is it still running?", 0);
   }
   if (!res.ok) {
     let detail = res.statusText;

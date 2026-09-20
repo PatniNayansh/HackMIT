@@ -1,5 +1,5 @@
 [project]
-name = "sightline"
+name = "profe"
 version = "0.1.0"
 description = "Attention and interpretability evaluation for presentations"
 requires-python = ">=3.10"
@@ -21,7 +21,7 @@ dependencies = [
 dev = ["pytest>=7.3", "pytest-asyncio>=0.23"]
 
 [tool.setuptools]
-packages = ["sightline"]
+packages = ["profe"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

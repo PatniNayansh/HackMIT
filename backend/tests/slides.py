@@ -15,7 +15,7 @@ import io
 
 from PIL import Image, ImageDraw, ImageFont
 
-from sightline.audiences import DeckProfile, SlideInput
+from profe.audiences import DeckProfile, SlideInput
 
 CLEAR_PROFILE = DeckProfile(domain="quarterly business reporting", adjacent_field="general management")
 CLEAR_TEXT = (

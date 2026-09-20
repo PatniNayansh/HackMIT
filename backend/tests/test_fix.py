@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import pytest
 
-from sightline.audiences import PERSONAS, AudienceEngine, DeckProfile, SlideInput
-from sightline.divergence import score_slide
-from sightline.fix import propose_revision, run_fix
-from sightline.llm import LLMError
+from profe.audiences import PERSONAS, AudienceEngine, DeckProfile, SlideInput
+from profe.divergence import score_slide
+from profe.fix import propose_revision, run_fix
+from profe.llm import LLMError
 
 from builders import INTENT, AngleEmbedder
 from conftest import FakeLLM

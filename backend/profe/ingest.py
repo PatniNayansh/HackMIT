@@ -47,7 +47,7 @@ FIGURE_INPUT_MODES = ("image+description", "description_only")
 def figure_input_mode() -> str:
     """What the personas see of a figure slide: the image and the description (default), or only the
     description. Read on each call so it can be flipped without a restart."""
-    mode = os.environ.get("SIGHTLINE_FIGURE_INPUT", "image+description").strip().lower()
+    mode = os.environ.get("PROFE_FIGURE_INPUT", "image+description").strip().lower()
     return mode if mode in FIGURE_INPUT_MODES else "image+description"
 
 
@@ -79,7 +79,7 @@ class Slide:
         By default they ALSO get the rendered slide image, as they always have. That means a persona
         can recognise a familiar diagram from the picture itself, whatever the neutral description
         says (a "novice" persona named supply and demand from the image alone). With
-        SIGHTLINE_FIGURE_INPUT=description_only the image is withheld on slides that have a
+        PROFE_FIGURE_INPUT=description_only the image is withheld on slides that have a
         description, so the description is the ONLY way the figure reaches them."""
         text = self.text
         described = bool(self.image_content and self.image_content.get("text"))

@@ -1,6 +1,6 @@
 """Synthesize spoken narration for a silent slide.
 
-Decks in this app are silent PDFs (backend/sightline/ingest.py has no audio path), but
+Decks in this app are silent PDFs (backend/profe/ingest.py has no audio path), but
 TRIBE needs narrated input -- a silent slide gives it almost nothing (spec 5). This
 reads a slide's own extracted text aloud via gTTS (already a TRIBE v2 dependency, so no
 extra service to stand up) and produces the (audio, transcript) pair the precompute

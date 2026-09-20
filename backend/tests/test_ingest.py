@@ -6,9 +6,9 @@ import pymupdf
 import pytest
 from PIL import Image
 
-from sightline import ingest
-from sightline.audiences import DeckProfile
-from sightline.ingest import IngestError, UnsupportedFormat, infer_profile, parse
+from profe import ingest
+from profe.audiences import DeckProfile
+from profe.ingest import IngestError, UnsupportedFormat, infer_profile, parse
 
 from conftest import FakeLLM
 

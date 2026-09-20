@@ -77,12 +77,12 @@ class DeepGazeSaliency:
     name = "deepgaze"
 
     def __init__(self, weights_path: str | Path | None = None):
-        configured = weights_path or os.environ.get("SIGHTLINE_DEEPGAZE_WEIGHTS")
+        configured = weights_path or os.environ.get("PROFE_DEEPGAZE_WEIGHTS")
         self.weights_path = Path(configured) if configured else None
         if self.weights_path is None or not self.weights_path.is_file():
             raise RuntimeError(
                 "DeepGaze IIE is not available: no weights file at "
-                f"{self.weights_path or '(SIGHTLINE_DEEPGAZE_WEIGHTS is unset)'}. "
+                f"{self.weights_path or '(PROFE_DEEPGAZE_WEIGHTS is unset)'}. "
                 "DeepGaze integration is not implemented in this build; use "
                 "SpectralResidualSaliency (the default) or StubSaliency instead."
             )

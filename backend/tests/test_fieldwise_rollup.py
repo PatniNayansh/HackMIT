@@ -6,9 +6,9 @@ import json
 
 import pytest
 
-from sightline import compare as C
-from sightline.deck import rollup
-from sightline.tiers import CONFIG, assign_tiers_fieldwise
+from profe import compare as C
+from profe.deck import rollup
+from profe.tiers import CONFIG, assign_tiers_fieldwise
 
 from builders import fw_slide_result
 

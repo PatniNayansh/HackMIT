@@ -7,8 +7,8 @@ from typing import Any, Callable
 
 import pytest
 
-from sightline.audiences import PERSONAS, Persona
-from sightline.divergence import SentenceTransformerEmbedder
+from profe.audiences import PERSONAS, Persona
+from profe.divergence import SentenceTransformerEmbedder
 
 
 def persona_of(system: str) -> Persona:

@@ -1,6 +1,6 @@
 
 --- Page 1 ---
-SIGHTLINE  —  Project  Spec  
+PROFE  —  Project  Spec  
 HackMIT  2026  ·  9.19–9.20  
 A  presentation  evaluation  tool  that  measures  two  things  no  existing  product  measures:  where  a  
 viewer's
@@ -79,7 +79,7 @@ is
 watching
 .
  
-SIGHTLINE  simulates  three  audiences  separated  by  prior  knowledge ,  has  each  one  attempt  
+PROFE  simulates  three  audiences  separated  by  prior  knowledge ,  has  each  one  attempt  
 comprehension
  
 of
@@ -1410,7 +1410,7 @@ who
  
 didn't.
  
-SIGHTLINE  simulates  three  audiences  separated  by  prior  knowledge,  has  each  
+PROFE  simulates  three  audiences  separated  by  prior  knowledge,  has  each  
 one
  
 tell

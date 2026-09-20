@@ -20,9 +20,9 @@ import tempfile
 from pathlib import Path
 from typing import Any, Callable
 
-# Marks this process as the FastAPI server, so sightline.neural.TribeNeural (6-13 GPU-min
+# Marks this process as the FastAPI server, so profe.neural.TribeNeural (6-13 GPU-min
 # per slide) refuses to run here even if something imports and calls it by mistake.
-os.environ["SIGHTLINE_PROCESS"] = "server"
+os.environ["PROFE_PROCESS"] = "server"
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
@@ -53,15 +53,15 @@ FRONTEND_DIR = REPO_ROOT / "frontend"
 
 # THE FLAG. Which comparator produces a run's numbers: "fieldwise" (compare.py) or "cosine" (the
 # original whole-takeaway cosine, divergence.py, left intact). Flip it with no code change:
-#     SIGHTLINE_COMPARATOR=cosine make dev
+#     PROFE_COMPARATOR=cosine make dev
 # It applies to runs STARTED after it changes; a saved run keeps and shows the comparator that made it.
 COMPARATORS = ("cosine", "fieldwise")
 
 
 def default_comparator() -> str:
-    value = os.environ.get("SIGHTLINE_COMPARATOR", "fieldwise").strip().lower()
+    value = os.environ.get("PROFE_COMPARATOR", "fieldwise").strip().lower()
     if value not in COMPARATORS:
-        raise ValueError(f"SIGHTLINE_COMPARATOR must be one of {COMPARATORS}, got {value!r}")
+        raise ValueError(f"PROFE_COMPARATOR must be one of {COMPARATORS}, got {value!r}")
     return value
 
 
@@ -92,7 +92,7 @@ def default_structuring_client_factory() -> LLMClient | None:
     Claude the cost tier misjudged the direction of a paraphrase on hand-written fixtures and the
     balanced tier did not, and a false gap is exactly what this comparator exists to avoid; the
     role is measured again on the current models (see the README). Override the model with
-    SIGHTLINE_STRUCTURING_MODEL."""
+    PROFE_STRUCTURING_MODEL."""
     try:
         return OpenAIClient(role="structuring")
     except (TypeError, ImportError):
@@ -146,7 +146,7 @@ def create_app(
             task.cancel()
         await asyncio.gather(*active.values(), return_exceptions=True)
 
-    app = FastAPI(title="Sightline", lifespan=lifespan)
+    app = FastAPI(title="ProFe", lifespan=lifespan)
 
     @app.exception_handler(RunNotFound)
     async def _not_found(_, exc: RunNotFound):
@@ -175,7 +175,7 @@ def create_app(
             "can_call_model": client is not None,
             "comparator": comparator,
             "model": client.model if client else None,
-            "offline": os.environ.get("SIGHTLINE_OFFLINE") == "1",
+            "offline": os.environ.get("PROFE_OFFLINE") == "1",
         }
 
     @app.post("/api/upload")

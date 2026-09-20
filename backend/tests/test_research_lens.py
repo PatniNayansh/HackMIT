@@ -5,7 +5,7 @@ has actually been run yet.
 
 from __future__ import annotations
 
-from sightline.research_lens import (
+from profe.research_lens import (
     ADHD_DMN_CITATIONS,
     ADHD_DMN_Z_THRESHOLD,
     AUTISM_ISC_CITATIONS,
@@ -65,7 +65,7 @@ def test_no_computed_autism_lens_exists_only_a_citation_for_the_methods_panel():
     finding can't be derived from TRIBE v2's single deterministic mean. This test exists so
     that if someone adds `autism_isc_lens(...)` later without reading the docstring, at
     least one test fails and asks them to justify it."""
-    import sightline.research_lens as module
+    import profe.research_lens as module
 
     assert not hasattr(module, "autism_isc_lens")
     assert AUTISM_ISC_CITATIONS  # the citation itself is still kept, just not computed from

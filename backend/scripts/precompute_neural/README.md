@@ -2,8 +2,8 @@
 
 Runs TRIBE v2 (Meta AI, [facebookresearch/tribev2](https://github.com/facebookresearch/tribev2))
 on a narrated slide and writes the result to `backend/fixtures/neural/<run_id>/<slide>/`,
-where the FastAPI app's `sightline.neural.CachedNeural` reads it. This is the **only** place
-in the repo that calls TRIBE — see `sightline/neural.py`'s module docstring for why it must
+where the FastAPI app's `profe.neural.CachedNeural` reads it. This is the **only** place
+in the repo that calls TRIBE — see `profe/neural.py`'s module docstring for why it must
 never run inside the web app (6–13 minutes of GPU time per slide, CUDA-only).
 
 ## Before you run anything

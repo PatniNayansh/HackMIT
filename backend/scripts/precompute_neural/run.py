@@ -27,8 +27,8 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
-from sightline.neural import SURFACE_VIEWS, assert_may_run_tribe, processing_ratio  # noqa: E402
-from sightline.store import RunStore, BUNDLED_RUNS_DIR, data_dir  # noqa: E402
+from profe.neural import SURFACE_VIEWS, assert_may_run_tribe, processing_ratio  # noqa: E402
+from profe.store import RunStore, BUNDLED_RUNS_DIR, data_dir  # noqa: E402
 
 from narrate import synthesize  # noqa: E402
 from regions import fetch_region_masks, global_field_power, region_drive  # noqa: E402
@@ -99,7 +99,7 @@ def run_slide(run_id: str, index: int, text: str, out_dir: Path, model, masks: d
         "processing_ratio": ratio,
         # DMN drive: the raw ingredient for the ADHD research lens (research_lens.py). Not
         # a Z-score yet -- that's relative to the rest of THIS deck, computed once every
-        # slide is in (see CachedNeural.deck_rollup in sightline/neural.py), the same
+        # slide is in (see CachedNeural.deck_rollup in profe/neural.py), the same
         # pattern processing_ratio already uses.
         "dmn_drive": region_drive(response, masks["dmn"]),
         "gfp_negative_baseline": global_field_power(response),
@@ -146,7 +146,7 @@ def main() -> None:
     parser.add_argument("--force", action="store_true", help="recompute even if metrics.json already exists")
     args = parser.parse_args()
 
-    assert_may_run_tribe()  # refuses to proceed if SIGHTLINE_PROCESS=server is set
+    assert_may_run_tribe()  # refuses to proceed if PROFE_PROCESS=server is set
     _login_to_huggingface()
 
     store = RunStore(data_dir() / "history", bundled=[BUNDLED_RUNS_DIR])

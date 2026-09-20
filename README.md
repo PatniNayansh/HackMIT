@@ -1,6 +1,6 @@
-# Sightline
+# ProFe
 
-Sightline reads a presentation the way three different audiences would. Three model personas
+ProFe reads a presentation the way three different audiences would. Three model personas
 (a **novice**, a **peer** and an **expert**), separated only by what they already know, each read
 every slide and report what they took away. The expert's takeaway, verbatim, is the slide's
 intent, and the novice and the peer are measured against exactly that. From that, each slide gets
@@ -10,7 +10,7 @@ peer.
 > **Live comparator: `fieldwise`** (`compare.py`). Each takeaway is structured into fields and each
 > field is compared with the comparator that suits it; the claim is checked by proposition coverage and
 > reported as a *state*, not a score. The original whole-takeaway cosine (`divergence.py`) is intact and one
-> setting away: `SIGHTLINE_COMPARATOR=cosine make dev`. See [Comparators](#comparators).
+> setting away: `PROFE_COMPARATOR=cosine make dev`. See [Comparators](#comparators).
 >
 > The expert's `takeaway`, verbatim, is the slide's intent under both, and it is the very string
 > shown under the slide, so what the page shows is what was measured. `intent.py`, which rephrases
@@ -73,21 +73,21 @@ inverted or dimmed, so they look as they will when projected.
 
 | Path | What it is |
 |---|---|
-| `backend/sightline/audiences.py`, `divergence.py`, `llm.py` | Step 1: the personas, the cosine metrics, step 1's code. `llm.py` was rewritten for OpenAI (see [Models](#models)); the other two are untouched |
-| `backend/sightline/compare.py` | **The field-wise comparator**: structuring call, null table, comparators, proposition coverage and its states, findings |
-| `backend/sightline/ingest.py` | PDF to per-slide records behind `parse(path)`; subfield inference; which slides carry a figure and its neutral description |
-| `backend/sightline/intent.py` | **Kept, unused.** Rephrases the expert's takeaway into a sentence (the `intent` model in `llm.CONFIG`). Not in the pipeline: the takeaway itself is the intent |
-| `backend/sightline/tiers.py` | The three tiers, for either comparator. **Every threshold is in `CONFIG` at the top** |
-| `backend/sightline/deck.py` | Deck rollup: pure arithmetic over per-slide results, no model call |
-| `backend/sightline/diagnose.py` | Recommendations: one call per slide on the persona-tier model, generated lazily, evidence enforced in code |
-| `backend/sightline/runner.py`, `store.py` | Runs a deck and saves each slide as it lands |
-| `backend/sightline/server.py` | FastAPI: upload, start, poll, replay. Streaming is polling |
+| `backend/profe/audiences.py`, `divergence.py`, `llm.py` | Step 1: the personas, the cosine metrics, step 1's code. `llm.py` was rewritten for OpenAI (see [Models](#models)); the other two are untouched |
+| `backend/profe/compare.py` | **The field-wise comparator**: structuring call, null table, comparators, proposition coverage and its states, findings |
+| `backend/profe/ingest.py` | PDF to per-slide records behind `parse(path)`; subfield inference; which slides carry a figure and its neutral description |
+| `backend/profe/intent.py` | **Kept, unused.** Rephrases the expert's takeaway into a sentence (the `intent` model in `llm.CONFIG`). Not in the pipeline: the takeaway itself is the intent |
+| `backend/profe/tiers.py` | The three tiers, for either comparator. **Every threshold is in `CONFIG` at the top** |
+| `backend/profe/deck.py` | Deck rollup: pure arithmetic over per-slide results, no model call |
+| `backend/profe/diagnose.py` | Recommendations: one call per slide on the persona-tier model, generated lazily, evidence enforced in code |
+| `backend/profe/runner.py`, `store.py` | Runs a deck and saves each slide as it lands |
+| `backend/profe/server.py` | FastAPI: upload, start, poll, replay. Streaming is polling |
 | `frontend/` | Plain HTML, CSS and ES modules. No build step. `frontend/smoke/render.mjs` renders the real views in Node for the tests |
-| `backend/sightline/neural.py` | The neural layer's read-only half: the output contract, the arithmetic, and `CachedNeural`. Imports no ML library and makes no GPU call |
+| `backend/profe/neural.py` | The neural layer's read-only half: the output contract, the arithmetic, and `CachedNeural`. Imports no ML library and makes no GPU call |
 | `backend/scripts/precompute_neural/` | The other half: the CLI that actually runs TRIBE, in its own virtualenv on a CUDA machine. See [The neural layer](#the-neural-layer) |
-| `backend/sightline/saliency.py`, `scanpath.py` | **Library only, not wired into the app.** Bottom-up visual saliency (OpenCV spectral residual) and a greedy fixation order over it |
-| `backend/sightline/fix.py` | **Library only, not wired into the app.** The revise-and-rescore loop: propose a revision, have the same three audiences read it cold, rescore with the same metrics |
-| `backend/sightline/research_lens.py` | **Library only, not wired into the app.** Pairs `dmn_drive` (deck-relative) with cited fMRI findings for named populations. Reads as a hypothesis, never as a diagnosis |
+| `backend/profe/saliency.py`, `scanpath.py` | **Library only, not wired into the app.** Bottom-up visual saliency (OpenCV spectral residual) and a greedy fixation order over it |
+| `backend/profe/fix.py` | **Library only, not wired into the app.** The revise-and-rescore loop: propose a revision, have the same three audiences read it cold, rescore with the same metrics |
+| `backend/profe/research_lens.py` | **Library only, not wired into the app.** Pairs `dmn_drive` (deck-relative) with cited fMRI findings for named populations. Reads as a hypothesis, never as a diagnosis |
 | `docs/` | The spec (the source of truth for scope), the design system the UI follows, the GX10 runbook, and the neurodivergent fine-tune research record |
 | `backend/fixtures/runs/` | Bundled, read-only sample runs (`make sample` rebuilds them; about 50 API calls. `backend/scripts/restructure_sample.py` re-derives only the comparison and recommendations from the stored readings; about 16 calls) |
 
@@ -122,12 +122,12 @@ and the thresholds apply to that percentile. Only when a deck has fewer than fiv
 which basis it used. Because tiers are relative, they can shift while a run is still streaming, and
 some slides of any deck will land in the upper tiers: a tier says where a slide sits among *its
 own deck's* slides. (Under the field-wise comparator the states are categorical and are read directly; only the
-novice's term count is a level, and it keeps this deck-relative reading.) All thresholds are in one dict, `CONFIG` in `backend/sightline/tiers.py`; tune
+novice's term count is a level, and it keeps this deck-relative reading.) All thresholds are in one dict, `CONFIG` in `backend/profe/tiers.py`; tune
 them there against real decks.
 
 ## Comparators
 
-`SIGHTLINE_COMPARATOR` (or `create_app(comparator=...)`) chooses how a run's numbers are made, per
+`PROFE_COMPARATOR` (or `create_app(comparator=...)`) chooses how a run's numbers are made, per
 run, and each saved run remembers and shows the one that made it. Flipping it changes runs started
 afterwards; nothing is re-run and nothing else changes.
 
@@ -241,7 +241,7 @@ supply-and-demand chart even the novice persona named "supply and demand" and "e
 the image and, in a test, with only the description (the labels and the lines' slopes were enough).
 A persona is a model role-playing a background; it cannot un-know a well-known diagram. The
 description does not cause this (it names no principle), and a less familiar figure will separate
-the readers more. `SIGHTLINE_FIGURE_INPUT=description_only` withholds the image on slides that
+the readers more. `PROFE_FIGURE_INPUT=description_only` withholds the image on slides that
 have a description, so the description is the only way the figure reaches them; the default is
 `image+description`.
 
@@ -258,7 +258,7 @@ reference it equals one minus the novice's alignment and adds nothing.
 
 ## Models
 
-`backend/sightline/llm.py` is the only module that talks to an LLM SDK (OpenAI, through the Responses
+`backend/profe/llm.py` is the only module that talks to an LLM SDK (OpenAI, through the Responses
 API with strict structured outputs). The model and the reasoning effort for every role are in the one
 `CONFIG` dict at the top of that file, and each can be overridden from the environment (`.env.example`).
 Effort is sent explicitly on every call: OpenAI's own default is `medium`, where the Claude setup ran at
@@ -311,7 +311,7 @@ Per slide: three persona calls, then (field-wise) one structuring call that over
 persona calls, so the per-slide time is close to the slower of the two, not their sum. Measured on Claude
 on the bundled 8-slide sample: **5.4 s and 6.9 s per slide wall-clock** on two runs. Not yet re-measured
 end to end on OpenAI; the gate's persona calls took 1.8 to 3.5 s at low effort (see above).
-`SIGHTLINE_COMPARATOR=cosine` drops the structuring call. Figure descriptions are made once at upload, in
+`PROFE_COMPARATOR=cosine` drops the structuring call. Figure descriptions are made once at upload, in
 parallel with the subfield inference. The tripwire's re-ask, one more structuring-sized call, happens only for
 a `divergent` pair that is also close in wording, which is rare. Recommendations are a separate call made
 only when a slide is opened, then cached with the run.
@@ -359,11 +359,11 @@ on movie-watching fMRI. It is precomputed, never live, and every constraint belo
 code rather than left to discipline.
 
 **It is precomputed because it has to be.** One slide costs 6-13 GPU-minutes across three
-transformer backbones, CUDA only. `sightline/neural.py` therefore contains no ML import at all: it
+transformer backbones, CUDA only. `profe/neural.py` therefore contains no ML import at all: it
 is the output contract, the arithmetic, and a read-only loader. The half that runs the model lives
 in `backend/scripts/precompute_neural/`, in a separate virtualenv (TRIBE pins `numpy==2.2.6` and
 `torch<2.7`, which cannot coexist with this package), and calls `assert_may_run_tribe()` first —
-which refuses outright when `SIGHTLINE_PROCESS=server`, the variable `server.py` sets on import.
+which refuses outright when `PROFE_PROCESS=server`, the variable `server.py` sets on import.
 Nothing a web request can reach can start a GPU run.
 
 **What it reports, and what it refuses to report.** The readout is *where* the predicted response

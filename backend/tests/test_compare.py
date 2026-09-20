@@ -5,12 +5,12 @@ from __future__ import annotations
 
 import pytest
 
-from sightline import compare as C
-from sightline.compare import (
+from profe import compare as C
+from profe.compare import (
     FileStructureCache, StructuringError, build_fieldwise_metrics, clean_fields, compare_concept, compare_field,
     compare_result, example_bound, figure_dependent, null_if_blank, slide_profile, structure_slide,
 )
-from sightline.llm import LLMError
+from profe.llm import LLMError
 
 # ---- the live example this rework exists for: the expert names the principle and gives the answer;
 # ---- the novice only describes the task.

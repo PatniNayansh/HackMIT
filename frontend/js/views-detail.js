@@ -398,7 +398,7 @@ export function detail(root, runId, n) {
     if (meta.legacy) { location.hash = `#/run/${runId}`; return; }
     const total = meta.slide_count;
     const r = state.results.get(n);
-    document.title = `Slide ${n} — ${meta.title} — Sightline`;
+    document.title = `Slide ${n} — ${meta.title} — ProFe`;
 
     if (n < 1 || n > total) { mount(root, h("p", { class: "err" }, `This deck has ${total} slides.`), h("a", { href: runHref(state) }, "Back to the overview")); return; }
 

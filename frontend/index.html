@@ -4,20 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>Sightline</title>
+  <title>ProFe</title>
   <!-- Blocking, and before the stylesheet: sets the theme before first paint so there is no flash of
        the wrong one. A saved choice wins; otherwise the system setting. localStorage can throw. -->
   <script>
     (function () {
       var t = null;
-      try { t = localStorage.getItem("sightline-theme"); } catch (e) {}
+      try { t = localStorage.getItem("profe-theme"); } catch (e) {}
       if (t !== "light" && t !== "dark") {
         t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       }
       document.documentElement.setAttribute("data-theme", t);
     })();
   </script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='7' y='11' width='4' height='11' fill='%2396801e'/%3E%3Crect x='14' y='8' width='4' height='14' fill='%23b84a3e'/%3E%3Crect x='21' y='11' width='4' height='11' fill='%232b5e4a'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="/static/img/profe-mark.png">
+  <link rel="apple-touch-icon" href="/static/img/profe-mark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Source+Sans+3:wght@400;500;600&display=swap">
@@ -25,8 +26,10 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>Sightline</a>
-    <nav aria-label="Main"><a href="#/">New review and saved runs</a></nav>
+    <a class="brand" href="#/" aria-label="ProFe, home">
+    <img class="brand-logo" src="/static/img/profe-wordmark.png" alt="ProFe" width="1208" height="311">
+  </a>
+    <nav aria-label="Main"><a href="#/">New review</a><a href="#/audio">Lecture audio</a></nav>
     <button id="theme-toggle" class="icon-btn" type="button" aria-pressed="false" aria-label="Switch theme">
       <svg class="i-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 12.2A6.8 6.8 0 0 1 7.8 3.5a6.8 6.8 0 1 0 8.7 8.7Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
       <svg class="i-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>

@@ -10,7 +10,7 @@ import os
 
 import pytest
 
-from sightline.neural import (
+from profe.neural import (
     SURFACE_VIEWS,
     CachedNeural,
     NeuralNotCached,
@@ -57,13 +57,13 @@ def test_deck_z_scores_single_slide_is_zero():
 
 
 def test_tribe_refuses_to_run_inside_the_server_process(monkeypatch):
-    monkeypatch.setenv("SIGHTLINE_PROCESS", "server")
+    monkeypatch.setenv("PROFE_PROCESS", "server")
     with pytest.raises(NotRunnableHere, match="6-13 minutes"):
         assert_may_run_tribe()
 
 
 def test_tribe_guard_is_silent_outside_the_server_process(monkeypatch):
-    monkeypatch.delenv("SIGHTLINE_PROCESS", raising=False)
+    monkeypatch.delenv("PROFE_PROCESS", raising=False)
     assert_may_run_tribe() is None
 
 

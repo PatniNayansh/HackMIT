@@ -37,9 +37,9 @@ from slides import (
     jargon_slide,
 )
 
-from sightline.audiences import AudienceEngine, FileCache
-from sightline.divergence import default_embedder, normalize_term, score_slide
-from sightline.llm import OpenAIClient
+from profe.audiences import AudienceEngine, FileCache
+from profe.divergence import default_embedder, normalize_term, score_slide
+from profe.llm import OpenAIClient
 
 pytestmark = pytest.mark.live
 
@@ -48,7 +48,7 @@ REPORT_PATH = Path(__file__).parent.parent / ".cache" / "gate_last_run.json"
 
 def _fail_loudly(why: str, e: BaseException) -> None:
     pytest.fail(
-        "\n\n=== SIGHTLINE GATE COULD NOT RUN ===\n"
+        "\n\n=== PROFE GATE COULD NOT RUN ===\n"
         f"{why}: {e!r}\n"
         "The gate is the go/no-go test for the whole project and is never skipped.\n"
         "Put OPENAI_API_KEY=... in the repo-root .env (see .env.example), then re-run `make gate`.\n",

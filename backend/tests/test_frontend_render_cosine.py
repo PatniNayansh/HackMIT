@@ -13,9 +13,9 @@ import subprocess
 import pytest
 from fastapi.testclient import TestClient
 
-from sightline.audiences import FileCache
-from sightline.server import FRONTEND_DIR, create_app
-from sightline.store import BUNDLED_RUNS_DIR, RunStore
+from profe.audiences import FileCache
+from profe.server import FRONTEND_DIR, create_app
+from profe.store import BUNDLED_RUNS_DIR, RunStore
 
 from builders import HashEmbedder
 
@@ -30,7 +30,7 @@ ALIGN = [(0.45, 0.77), (0.44, 0.47), (0.31, 0.76), (0.54, 0.60), (0.70, 0.62), (
 def payload(tmp_path_factory):
     """A run made by the ORIGINAL cosine comparator, saved by hand from the cosine builder, and read
     back through the real server: the cosine UI must keep working when the flag is flipped."""
-    from sightline.ingest import Slide
+    from profe.ingest import Slide
     from builders import slide_result
 
     tmp = tmp_path_factory.mktemp("render")

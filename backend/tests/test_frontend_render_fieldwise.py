@@ -12,10 +12,10 @@ import subprocess
 import pytest
 from fastapi.testclient import TestClient
 
-from sightline.audiences import FileCache
-from sightline.ingest import Slide
-from sightline.server import FRONTEND_DIR, create_app
-from sightline.store import BUNDLED_RUNS_DIR, RunStore
+from profe.audiences import FileCache
+from profe.ingest import Slide
+from profe.server import FRONTEND_DIR, create_app
+from profe.store import BUNDLED_RUNS_DIR, RunStore
 
 from builders import HashEmbedder, fw_slide_result
 

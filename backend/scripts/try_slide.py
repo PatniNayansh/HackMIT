@@ -16,9 +16,9 @@ sys.path.insert(0, str(BACKEND / "tests"))
 
 import slides  # noqa: E402
 
-from sightline.audiences import AudienceEngine, FileCache  # noqa: E402
-from sightline.divergence import score_slide  # noqa: E402
-from sightline.llm import OpenAIClient  # noqa: E402
+from profe.audiences import AudienceEngine, FileCache  # noqa: E402
+from profe.divergence import score_slide  # noqa: E402
+from profe.llm import OpenAIClient  # noqa: E402
 
 SLIDES = {
     "jargon": (slides.jargon_slide, slides.JARGON_PROFILE, slides.JARGON_INTENT),

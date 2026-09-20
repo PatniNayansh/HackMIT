@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-from sightline import diagnose
-from sightline.diagnose import RecommendationsUnavailable, quoted_in, recommend
-from sightline.intent import SlideIntent
-from sightline.llm import LLMError
+from profe import diagnose
+from profe.diagnose import RecommendationsUnavailable, quoted_in, recommend
+from profe.intent import SlideIntent
+from profe.llm import LLMError
 
 from builders import slide_result
 

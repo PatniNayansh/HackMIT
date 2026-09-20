@@ -1,15 +1,15 @@
-# SIGHTLINE — Project Scope
+# PROFE — Project Scope
 
 _HackMIT 2026 · 9.19–9.20 · Active development on `tribev2-implementation`_
 
-This is a working snapshot of what SIGHTLINE is, what's built, and what's left — derived
-from `docs/SIGHTLINE_spec.md` and a read of the codebase as of the `tribev2-implementation`
+This is a working snapshot of what PROFE is, what's built, and what's left — derived
+from `docs/PROFE_spec.md` and a read of the codebase as of the `tribev2-implementation`
 branch. Treat the spec as the source of truth for intent; treat this as the source of truth
 for **status**.
 
 ## 1. What it is
 
-SIGHTLINE reads a presentation the way three different audiences would. Three simulated
+PROFE reads a presentation the way three different audiences would. Three simulated
 personas — **novice**, **peer**, **expert** — differ *only* in prior knowledge. Each reads
 every slide independently and reports what they took away. A metrics layer measures how far
 apart those readings are, and how far each is from what the presenter says they meant.
@@ -67,7 +67,7 @@ ranks, recurring-term table, narrative arc) all work end-to-end, backed by real 
 ## 4. Architecture
 
 ```
-backend/sightline/
+backend/profe/
   audiences.py    3 personas, prompting, caching, isolation guarantees
   divergence.py   embedding-based metrics (local sentence-transformers, no API call)
   ingest.py       PDF → per-slide text + rendered PNG; one-shot subfield inference

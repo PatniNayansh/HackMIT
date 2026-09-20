@@ -8,13 +8,13 @@ import itertools
 import numpy as np
 import pytest
 
-from sightline import compare as C
-from sightline.compare import (
+from profe import compare as C
+from profe.compare import (
     build_fieldwise_metrics, chart_value, clean_propositions, coverage_state, judge_coverage,
     quoted_word_for_word, reask_contradiction, structure_slide,
 )
-from sightline.llm import LLMError
-from sightline.tiers import CONFIG
+from profe.llm import LLMError
+from profe.tiers import CONFIG
 
 # ------------------------------------------------------------------------- the live bug, slide 5
 EXPERT_CLAIM = "Cost-benefit/opportunity cost analysis applies to the college decision, challenging the standard case for college."

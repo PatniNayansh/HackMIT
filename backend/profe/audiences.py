@@ -19,7 +19,7 @@ everything the prompt depends on except the persona's own notes (image, text, in
 profile, prompt version); `context_hash` covers the notes. Keying on (slide_hash, persona)
 alone would serve stale answers on slide N after slide N-1 changes. The model name is
 recorded in each cache entry but is deliberately NOT part of the key, so bundled sample
-caches keep working if SIGHTLINE_MODEL changes; it is provenance, not identity.
+caches keep working if PROFE_MODEL changes; it is provenance, not identity.
 """
 
 from __future__ import annotations
@@ -340,7 +340,7 @@ class AudienceEngine:
     ):
         self.client = client
         self.cache = cache
-        self.offline = offline if offline is not None else os.environ.get("SIGHTLINE_OFFLINE") == "1"
+        self.offline = offline if offline is not None else os.environ.get("PROFE_OFFLINE") == "1"
         self.max_attempts = max_attempts
 
     async def read_slide(

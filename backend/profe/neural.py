@@ -71,8 +71,8 @@ class NotRunnableHere(RuntimeError):
 def assert_may_run_tribe() -> None:
     """The one check standing between "someone imported the wrong thing" and 6-13 minutes
     of GPU time firing inside a web request. `scripts/precompute_neural/run.py` calls this
-    before touching the model; nothing under `sightline/` ever does."""
-    if os.environ.get("SIGHTLINE_PROCESS") == "server":
+    before touching the model; nothing under `profe/` ever does."""
+    if os.environ.get("PROFE_PROCESS") == "server":
         raise NotRunnableHere(
             "TRIBE inference cannot run inside the FastAPI process: it costs 6-13 minutes "
             "of GPU time per slide. Run scripts/precompute_neural/run.py (on a CUDA "

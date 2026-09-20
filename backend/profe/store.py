@@ -39,7 +39,7 @@ BUNDLED_RUNS_DIR = BACKEND / "fixtures" / "runs"
 
 
 def data_dir() -> Path:
-    return Path(os.environ.get("SIGHTLINE_DATA_DIR") or REPO_ROOT / "data")
+    return Path(os.environ.get("PROFE_DATA_DIR") or REPO_ROOT / "data")
 
 
 # 2: per-slide inferred intent; alignment measured against it; confidence, blind-spot and
