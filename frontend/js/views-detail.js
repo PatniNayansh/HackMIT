@@ -112,6 +112,21 @@ function neuralSection(runId, n) {
 }
 
 
+// ------------------------------------------------------------- disclosures that survive a repaint
+// The slide page repaints whenever the run's state changes, which rebuilds every node on it. A
+// <details> rebuilt from scratch comes back closed, so an open panel would snap shut each time
+// another slide landed. Open-ness is therefore kept outside the DOM, keyed by run, slide and
+// panel, so each one is independent of every other and of the repaint.
+
+const openPanels = new Set();
+
+function disclosure(key, label, ...children) {
+  const el = h("details", { class: "panel" }, h("summary", null, label), h("div", { class: "panel-body" }, ...children));
+  if (openPanels.has(key)) el.setAttribute("open", "");
+  el.addEventListener("toggle", () => (el.open ? openPanels.add(key) : openPanels.delete(key)));
+  return el;
+}
+
 // ------------------------------------------------------------------ the cards
 
 function badCard(persona, rd, profile) {
@@ -246,12 +261,12 @@ function fieldwiseCard(state, r, persona, recsSlot) {
         h("p", { class: "muted small", style: "margin: 6px 0 4px" }, "Its takeaway is the intent of this slide, shown under the slide image."),
         metricRow("strong", "Reading of this slide", h("span", { class: "val ref" }, numBtn("reference", { kind: "reference", slide: n }, state, "reference. Show why this is definitional.")),
           h("span", { class: "cmp" }, REFERENCE_NOTE)),
-        h("div", { class: "fields-wrap" }, h("div", { class: "take-label" }, "What its takeaway names (this defines the slide’s shape)"), fieldsTable(state, r, "expert")),
-        termsRow,
-        h("details", null, h("summary", null, "More from this reading"),
-          h("div", { class: "stack", style: "margin-top:8px" },
-            h("div", null, h("div", { class: "take-label" }, "Questions it would need answered"),
-              rd.questions.length ? h("ul", null, ...rd.questions.map((q) => h("li", null, q))) : h("p", { class: "muted" }, "None"))))));
+        disclosure(`${state.meta.run_id}:${n}:expert:more`, "More",
+          h("div", { class: "take-label" }, "What its takeaway names (this defines the slide’s shape)"),
+          fieldsTable(state, r, "expert"),
+          termsRow,
+          h("div", { class: "take-label", style: "margin-top:12px" }, "Questions it would need answered"),
+          rd.questions.length ? h("ul", null, ...rd.questions.map((q) => h("li", null, q))) : h("p", { class: "muted" }, "None"))));
   }
 
   const claim = m.comparisons[persona].claim;
@@ -269,15 +284,18 @@ function fieldwiseCard(state, r, persona, recsSlot) {
       ...findingsFor(state, r, persona),
       h("div", { class: "take-label", style: "margin-top:12px" }, "Takeaway, verbatim"),
       h("blockquote", { class: "take" }, `“${rd.takeaway}”`),
-      h("div", { class: "fields-wrap" }, fieldsTable(state, r, persona)),
-      over.length ? h("p", { class: "muted small" }, `Beyond the expert: this reader also gave a ${over.join(" and a ")} the expert did not. Not penalised.`) : null,
-      termsRow,
       recsSlot && h("div", { class: "recs-slot" }, h("h4", null, "What to change"), recsSlot),
-      h("details", null, h("summary", null, "More from this reading"),
-        h("div", { class: "stack", style: "margin-top:8px" },
-          h("div", null, h("div", { class: "take-label" }, "Claim it thinks you want believed"), h("p", null, rd.inferred_claim)),
-          h("div", null, h("div", { class: "take-label" }, "Questions it would need answered"),
-            rd.questions.length ? h("ul", null, ...rd.questions.map((q) => h("li", null, q))) : h("p", { class: "muted" }, "None"))))));
+      // The table and the term list are the evidence, not the headline: behind "More", one panel
+      // per persona per slide, so opening the novice's here does not open the peer's anywhere.
+      disclosure(`${state.meta.run_id}:${n}:${persona}:more`, "More",
+        h("div", { class: "take-label" }, "Fields, beside the expert’s"),
+        fieldsTable(state, r, persona),
+        over.length ? h("p", { class: "muted small" }, `Beyond the expert: this reader also gave a ${over.join(" and a ")} the expert did not. Not penalised.`) : null,
+        termsRow,
+        h("div", { class: "take-label", style: "margin-top:12px" }, "Claim it thinks you want believed"),
+        h("p", null, rd.inferred_claim),
+        h("div", { class: "take-label", style: "margin-top:12px" }, "Questions it would need answered"),
+        rd.questions.length ? h("ul", null, ...rd.questions.map((q) => h("li", null, q))) : h("p", { class: "muted" }, "None"))));
 }
 
 /** Headline, field-wise: what the field logic found (findings), the tier, and what the tier was read from. */
@@ -302,7 +320,7 @@ function fieldwiseSummary(state, r) {
       h("span", { class: "cmp" }, c.status === "gap" ? `The expert reached \u201c${c.expert}\u201d.` : c.outcome === "mismatch" ? `Expert \u201c${c.expert}\u201d, reader \u201c${c.audience}\u201d.` : `\u201c${c.audience}\u201d`));
   };
   return h("section", { class: "summary card" },
-    h("div", { class: "small muted" }, "What this slide demands of its reader"),
+    h("h2", { class: "demands-title" }, "What this slide demands of its reader"),
     findings.length ? h("div", { class: "findings" }, ...findings.map(([f, i]) => h("div", { class: `finding-callout lead ${f.id}` }, warnIcon(),
       h("div", null, h("strong", null, f.id === "example_bound" ? "Example-bound. " : "Figure-dependent. "),
         numBtn(f.text, { kind: "finding", slide: n, index: i }, state, `${f.text} Show the rule and the quoted evidence.`))))) : null,
@@ -310,11 +328,12 @@ function fieldwiseSummary(state, r) {
       ? [h("div", { class: "summary-head" }, tierChip(state, n, { large: true }), h("span", { class: "tier-meaning" }, t.meaning)),
          h("p", { class: "muted small" }, basis, state.meta.status === "running" && " Tiers are read against the slides read so far and can shift as more arrive.")]
       : h("div", { class: "banner", style: "margin-top:8px" }, infoIcon(), h("div", null, h("strong", null, "No tier. "), "The expert’s takeaway gave this slide no concept, claim or result to judge a reader by.")),
-    h("div", { class: "small muted", style: "margin-top:12px" }, "What it was read from"),
-    stateRow("novice"), stateRow("peer"),
-    ...["concept", "result"].map((f) => presence("novice", f)),
-    metricRow("strong", "Novice unresolved terms", h("span", { class: "val" }, numBtn(String(r.readings.novice.unresolved_terms.length), { kind: "unresolved", slide: n, persona: "novice" }, state)),
-      deckStrip(state, "unresolved_count.novice", n, COLOR.novice), cmpLine(state, "unresolved_count.novice", n)));
+    disclosure(`${state.meta.run_id}:${n}:read-from`, "More info",
+      h("div", { class: "take-label" }, "What it was read from"),
+      stateRow("novice"), stateRow("peer"),
+      ...["concept", "result"].map((f) => presence("novice", f)),
+      metricRow("strong", "Novice unresolved terms", h("span", { class: "val" }, numBtn(String(r.readings.novice.unresolved_terms.length), { kind: "unresolved", slide: n, persona: "novice" }, state)),
+        deckStrip(state, "unresolved_count.novice", n, COLOR.novice), cmpLine(state, "unresolved_count.novice", n))));
 }
 
 /** "This slide names a principle and works to a numeric result." How to read everything below it. */
@@ -341,7 +360,7 @@ function summary(state, r) {
   const t = state.rollup.per_slide.find((p) => p.slide === n)?.tier;
   if (!r.metrics || !t) {
     return h("section", { class: "summary card" },
-      h("div", { class: "small muted" }, "What this slide demands of its reader"),
+      h("h2", { class: "demands-title" }, "What this slide demands of its reader"),
       h("div", { class: "banner bad", style: "margin-top:8px" }, warnIcon(), h("div", null, h("strong", null, "No tier. "), r.metrics_error || "Not computed for this slide.")));
   }
   const m = r.metrics;
@@ -351,13 +370,14 @@ function summary(state, r) {
   const row = (label, valueNode, key, color, ...extra) => metricRow("strong", label, h("span", { class: "val" }, valueNode),
     deckStrip(state, key, n, color), cmpLine(state, key, n), ...extra);
   return h("section", { class: "summary card" },
-    h("div", { class: "small muted" }, "What this slide demands of its reader"),
+    h("h2", { class: "demands-title" }, "What this slide demands of its reader"),
     h("div", { class: "summary-head" }, tierChip(state, n, { large: true }), h("span", { class: "tier-meaning" }, t.meaning)),
     h("p", { class: "muted small" }, basis, state.meta.status === "running" && " Tiers are read against the slides read so far and can shift as more arrive."),
-    h("div", { class: "small muted", style: "margin-top:12px" }, "What it was read from"),
-    row("Novice alignment", numBtn(f2(m.intent_alignment.novice.value), { kind: "alignment", slide: n, persona: "novice" }, state), "intent_alignment.novice", COLOR.novice),
-    row("Peer alignment", numBtn(f2(m.intent_alignment.peer.value), { kind: "alignment", slide: n, persona: "peer" }, state), "intent_alignment.peer", COLOR.peer),
-    row("Novice unresolved terms", numBtn(String(r.readings.novice.unresolved_terms.length), { kind: "unresolved", slide: n, persona: "novice" }, state), "unresolved_count.novice", COLOR.novice));
+    disclosure(`${state.meta.run_id}:${n}:read-from`, "More info",
+      h("div", { class: "take-label" }, "What it was read from"),
+      row("Novice alignment", numBtn(f2(m.intent_alignment.novice.value), { kind: "alignment", slide: n, persona: "novice" }, state), "intent_alignment.novice", COLOR.novice),
+      row("Peer alignment", numBtn(f2(m.intent_alignment.peer.value), { kind: "alignment", slide: n, persona: "peer" }, state), "intent_alignment.peer", COLOR.peer),
+      row("Novice unresolved terms", numBtn(String(r.readings.novice.unresolved_terms.length), { kind: "unresolved", slide: n, persona: "novice" }, state), "unresolved_count.novice", COLOR.novice)));
 }
 
 /** The ONE place the slide page states what the slide is for. In the current pipeline the slide's
@@ -423,6 +443,25 @@ export function detail(root, runId, n) {
         h("div", { class: "card" }, meta.status === "running"
           ? h("p", null, h("span", { class: "spinner" }), ` Slide ${n} has not been read yet. It will appear here as soon as it lands.`)
           : h("p", { class: "muted" }, `Slide ${n} has no result: the run ended before reaching it.`)));
+      return;
+    }
+
+    // The title card: nothing was run on it, so it has nothing to report and says so plainly
+    // rather than showing a row of dashes where every other slide shows a reading.
+    if (r.title_slide) {
+      mount(root, head, chips, ...runBanners(state),
+        h("div", { class: "detail" },
+          h("div", { class: "slide-col" }, slideImage(state.imageUrls[n - 1], `Slide ${n}`)),
+          h("div", null,
+            h("section", { class: "summary card title-slide" },
+              h("h2", { class: "demands-title" }, "Title Slide"),
+              h("p", { class: "lede" },
+                "A deck opens on its name, not on an idea, so this slide is not analysed: no audience read it and it counts toward no ranking. ",
+                "Slide numbering follows the PDF, so slide 2 here is slide 2 there."),
+              h("details", { class: "panel" },
+                h("summary", null, "Text on this slide"),
+                h("div", { class: "panel-body" },
+                  h("div", { class: "textbox" }, r.text || "(no extractable text on this slide)")))))));
       return;
     }
 

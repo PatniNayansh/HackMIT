@@ -212,6 +212,56 @@ main:has(.detail) { max-width: 1240px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
 
+/* ---------------------------------------------------------------- condensed persona results */
+/* A persona box leads with its verdict; the table and the term list are evidence, and evidence
+   is something you ask for. Each panel is keyed per slide per persona, so they open apart. */
+.panel { border-top: 1px solid var(--grid); margin-top: 14px; }
+.panel > summary {
+  cursor: pointer; list-style: none; padding: 10px 0 2px; color: var(--ink-2);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel > summary::-webkit-details-marker { display: none; }
+.panel > summary::after { content: "+"; font-size: 14px; line-height: 1; color: var(--muted); }
+.panel[open] > summary::after { content: "3"; }
+.panel > summary:hover { color: var(--ink); }
+.panel-body { padding-top: 6px; }
+
+/* "What this slide demands of its reader" is the page's question, so it is set as one. */
+.demands-title { text-align: center; font-size: 22px; margin: 4px 0 14px; }
+
+.title-slide .lede { text-align: center; max-width: 54ch; margin: 0 auto; }
+
+/* ------------------------------------------------------------------- hover-revealed sub-text */
+/* Section sub-text is held back until the section is hovered or something inside it takes
+   focus. Opacity alone, never visibility or display: the text keeps its box, so nothing on the
+   page moves when it appears, and it stays in the accessibility tree, so a screen reader reads
+   it whether or not a pointer ever touches the page.
+
+   The trigger is the whole section rather than its header alone: headers hold no focusable
+   element, so a header-only rule would leave keyboard users with no way to reveal anything. */
+.section > .lede,
+.summary.card > .lede,
+.card > .dek {
+  opacity: 0;
+  transition: opacity .15s ease-out;
+}
+.section:hover > .lede,
+.section:focus-within > .lede,
+.summary.card:hover > .lede,
+.summary.card:focus-within > .lede,
+.card:hover > .dek,
+.card:focus-within > .dek {
+  opacity: 1;
+}
+@media (hover: none) {
+  /* No pointer to hover with: show it outright rather than make it unreachable. */
+  .section > .lede, .summary.card > .lede, .card > .dek { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .section > .lede, .summary.card > .lede, .card > .dek { transition: none; }
+}
+
 /* -------------------------------------------------------------- upload and its loading screen */
 /* Every step of an upload is something the person waits on, so every step is on screen: what is
    done, what is running, what is queued. Steps hold their height from the start, so the panel

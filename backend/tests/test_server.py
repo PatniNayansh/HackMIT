@@ -71,9 +71,10 @@ def env(tmp_path):
     factory = Fake()
     neural_cache = CachedNeural(tmp_path / "neural")
 
-    def make_app(client_factory=factory, comparator="cosine"):
+    def make_app(client_factory=factory, comparator="cosine", skip_title_slide=False):
         return create_app(
             comparator=comparator,
+            skip_title_slide=skip_title_slide,
             store=store,
             cache=FileCache(tmp_path / "cache"),
             client_factory=client_factory,
@@ -353,6 +354,45 @@ def test_a_failed_recommendation_call_is_a_502_and_is_not_saved(env):
         factory.recs_fail = True
         r = c.get(f"/api/runs/{run_id}/slides/1/recommendations")
     assert r.status_code == 502 and store.load_recs(run_id, 1) is None
+
+
+# ---------------------------------------------------------------------------- title slide
+# The product default, which every other fixture in this file turns off: a deck's first slide
+# is its title card, and nothing is run on it.
+
+
+def test_the_title_slide_costs_nothing_and_is_stored_as_unscored(env):
+    _, factory, make_app, tmp = env
+    with TestClient(make_app(skip_title_slide=True)) as c:
+        run_id = upload(c, tmp, pages=3)["run_id"]
+        before = len(factory.llm.calls)
+        c.post(f"/api/runs/{run_id}/start", json=START)
+        body = wait_done(c, run_id)
+
+    results = {r["index"]: r for r in body["results"]}
+    assert set(results) == {1, 2, 3}  # it keeps its place and its number
+
+    title = results[1]
+    assert title["title_slide"] is True
+    assert title["readings"] == {} and title["metrics"] is None and title["slide_intent"] is None
+    assert title["metrics_error"] is None  # it did not fail; it was not run
+
+    # three personas on each of the two content slides, and nothing at all for the title
+    assert len(factory.llm.calls) - before == 2 * 3
+
+
+def test_the_title_slide_is_in_no_distribution_and_no_ranking(env):
+    _, _, make_app, tmp = env
+    with TestClient(make_app(skip_title_slide=True)) as c:
+        run_id = upload(c, tmp, pages=3)["run_id"]
+        c.post(f"/api/runs/{run_id}/start", json=START)
+        body = wait_done(c, run_id)
+
+    roll = body["rollup"]
+    assert 1 not in [p["slide"] for p in roll["per_slide"]]
+    assert 1 not in roll["unscored"]  # unscored means a bad reply, not a slide nobody read
+    for dist in roll["distributions"].values():
+        assert 1 not in [v["slide"] for v in dist["values"]]
 
 
 # --------------------------------------------------------------------------------- neural

@@ -44,7 +44,16 @@ from .audiences import (
     slide_hash,
 )
 from .compare import FileStructureCache, StructuringError, build_fieldwise_metrics, structure_slide
-from .deck import SlideResult, build_metrics, error_record, expert_takeaway_intent, reading_record
+from .deck import (
+    TITLE_SLIDE_INDEX,
+    SlideResult,
+    build_metrics,
+    error_record,
+    expert_takeaway_intent,
+    plain,
+    reading_record,
+    title_slide_result,
+)
 from .divergence import Embedder
 from .llm import LLMClient, LLMError
 from .store import RunStore, now_iso
@@ -143,9 +152,14 @@ async def run_deck(
     comparator: str = "fieldwise",
     structuring_client: LLMClient | None = None,
     structure_cache: FileStructureCache | None = None,
+    skip_title_slide: bool = True,
 ) -> None:
     """Run every slide of a stored deck, in order. Never raises for a failed run: the outcome is
-    in the run's metadata. Cancellation is recorded and re-raised."""
+    in the run's metadata. Cancellation is recorded and re-raised.
+
+    `skip_title_slide` is the product default: a deck's first slide is its title card, so no
+    persona reads it and no model call is made for it. Tests that are about the runner's own
+    mechanics rather than about decks turn it off, because a two-slide fixture has no title."""
     meta = store.load_meta(run_id)
     profile = DeckProfile(meta["profile"]["domain"], meta["profile"]["adjacent_field"])
     store.update_meta(
@@ -167,6 +181,14 @@ async def run_deck(
     try:
         memory: dict[Persona, Memory] = {p: () for p in PERSONAS}
         for slide in store.load_slides(run_id):
+            if skip_title_slide and slide.index == TITLE_SLIDE_INDEX:
+                # Saved so the slide keeps its place and its number, and so the UI can show it;
+                # no persona sees it, so this costs nothing and the deck's stats never see it.
+                if pending is not None:
+                    await land(pending)
+                    pending = None
+                store.save_result(run_id, plain(title_slide_result(slide)))
+                continue
             t0 = time.perf_counter()
             outcomes = await engine.read_slide_tolerant(slide.to_input(), profile, memory)
             personas_s = time.perf_counter() - t0

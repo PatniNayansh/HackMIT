@@ -17,7 +17,13 @@ PROFILE = DeckProfile("LLM serving", "distributed systems")
 
 async def run_deck(*args, **kwargs):
     """These tests cover the ORIGINAL cosine path, which the COMPARATOR flag keeps reachable
-    (tests/test_fieldwise_runner.py covers the field-wise path)."""
+    (tests/test_fieldwise_runner.py covers the field-wise path).
+
+    These fixtures are two- and three-slide decks built to exercise the runner itself, so
+    they have no title card to skip: skip_title_slide is off here, and the product default
+    (on) is covered end to end in test_server.py.
+    """
+    kwargs.setdefault("skip_title_slide", False)
     return await _run_deck(*args, comparator="cosine", **kwargs)
 
 

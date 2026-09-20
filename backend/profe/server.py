@@ -113,6 +113,7 @@ def create_app(
     helper_client_factory: Callable[[], LLMClient | None] = default_helper_client_factory,
     structuring_client_factory: Callable[[], LLMClient | None] = default_structuring_client_factory,
     comparator: str | None = None,
+    skip_title_slide: bool = True,
     embedder: Embedder | None = None,
     neural_cache: CachedNeural | None = None,
     frontend_dir: Path = FRONTEND_DIR,
@@ -272,7 +273,7 @@ def create_app(
             run_deck(
                 store, run_id, engine, get_embedder(), comparator=comparator,
                 structuring_client=structuring_client_factory() if comparator == "fieldwise" else None,
-                structure_cache=structure_cache,
+                structure_cache=structure_cache, skip_title_slide=skip_title_slide,
             )
         )
         active[run_id] = task

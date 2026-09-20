@@ -13,7 +13,18 @@ from profe import server as server_mod
 from profe.audiences import DeckProfile, FileCache
 from profe.compare import FileStructureCache
 from profe.ingest import Slide
-from profe.runner import TolerantEngine, run_deck
+from profe.runner import TolerantEngine, run_deck as _run_deck
+
+
+async def run_deck(*args, **kwargs):
+    """Field-wise path, on fixtures with no title card.
+
+    These fixtures are two- and three-slide decks built to exercise the runner itself, so
+    they have no title card to skip: skip_title_slide is off here, and the product default
+    (on) is covered end to end in test_server.py.
+    """
+    kwargs.setdefault("skip_title_slide", False)
+    return await _run_deck(*args, **kwargs)
 from profe.server import COMPARATORS, create_app, default_comparator
 from profe.store import RunStore
 
@@ -197,7 +208,7 @@ def make_app(tmp_path, comparator, llm=None, structurer=None):
     return create_app(
         store=RunStore(tmp_path / "history"), cache=FileCache(tmp_path / "cache"), client_factory=lambda: Main(),
         helper_client_factory=lambda: None, structuring_client_factory=lambda: st, embedder=HashEmbedder(),
-        frontend_dir=tmp_path / "none", comparator=comparator,
+        frontend_dir=tmp_path / "none", comparator=comparator, skip_title_slide=False,
     ), llm, st
 
 

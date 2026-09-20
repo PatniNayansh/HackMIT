@@ -359,3 +359,71 @@ def test_the_cortical_renders_are_framed_like_slide_images_so_dark_mode_cannot_d
     assert 'h("img"' not in panel and "slideImage(" in panel
     empty = src[src.index("function neuralAbsent"):src.index("function neuralBody")]
     assert 'h("img"' not in empty and "slideImage(" in empty
+
+
+# --------------------------------------------------------------- condensed results (task 6)
+
+
+def test_the_persona_box_leads_with_its_verdict_and_files_the_evidence_behind_more(sample, tmp_path):
+    out = render(tmp_path, sample, "3")
+    page = out["slide3"]
+    assert "More" in page and "More info" in page
+    src = (FRONTEND_DIR / "js" / "views-detail.js").read_text(encoding="utf-8")
+    body = src[src.index("function fieldwiseCard") : src.index("function fieldwiseSummary")]
+    # the table and the term list are inside a disclosure, not loose in the card
+    assert "disclosure(" in body
+    assert body.index("disclosure(") < body.index("fieldsTable(state, r, persona)")
+
+
+def test_every_disclosure_is_keyed_per_slide_and_per_persona_so_they_open_apart(sample, tmp_path):
+    """Acceptance: opening one must not open or reset another, including across the repaint that
+    lands when the next slide arrives."""
+    src = (FRONTEND_DIR / "js" / "views-detail.js").read_text(encoding="utf-8")
+    assert "const openPanels = new Set()" in src  # state lives outside the DOM
+    keys = re.findall(r"disclosure\(`([^`]+)`", src)
+    assert keys, "no keyed disclosures found"
+    for k in keys:
+        assert "${state.meta.run_id}" in k and "${n}" in k, k
+
+
+def test_what_this_slide_demands_is_a_title_not_a_label(sample, tmp_path):
+    src = (FRONTEND_DIR / "js" / "views-detail.js").read_text(encoding="utf-8")
+    assert 'h("h2", { class: "demands-title" }, "What this slide demands of its reader")' in src
+    rule = CSS_DETAIL()
+    assert "text-align: center" in rule and "font-size: 22px" in rule
+
+
+def CSS_DETAIL() -> str:
+    css = (FRONTEND_DIR / "style.css").read_text(encoding="utf-8")
+    i = css.index(".demands-title {")
+    return css[i : css.index("}", i)]
+
+
+# ------------------------------------------------------------------ the title slide (task 7)
+
+
+def test_the_title_slide_page_reports_no_scores_and_says_why(tmp_path):
+    results = [fw_slide_result(1), fw_slide_result(2), fw_slide_result(3)]
+    results[0] = {**results[0], "title_slide": True, "readings": {}, "metrics": None,
+                  "slide_intent": None, "metrics_error": None, "scored_by": None}
+    payload = make_run(tmp_path, results, run_id="title-demo")
+    out = render(tmp_path, payload, "1,2", run="title-demo")
+
+    first = out["slide1"]
+    assert "Title Slide" in first
+    assert "not analysed" in first and "no audience read it" in first
+    # nothing scored leaks onto it
+    for word in ("Unresolved terms", "Claim", "Takeaway, verbatim", "What to change"):
+        assert word not in first, word
+    # and the slide after it is analysed as normal, still numbered 2
+    assert "Slide 2 of 3" in out["slide2"]
+
+
+def test_the_title_slide_is_labelled_on_the_overview_and_carries_no_tier(tmp_path):
+    results = [fw_slide_result(1), fw_slide_result(2), fw_slide_result(3)]
+    results[0] = {**results[0], "title_slide": True, "readings": {}, "metrics": None,
+                  "slide_intent": None, "metrics_error": None, "scored_by": None}
+    payload = make_run(tmp_path, results, run_id="title-demo")
+    o = render(tmp_path, payload, "2", run="title-demo")["overview"]
+    assert "title slide" in o
+    assert "bad response" not in o  # unread is not the same as a failed reply

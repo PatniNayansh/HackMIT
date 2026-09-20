@@ -26,7 +26,7 @@ from __future__ import annotations
 import json
 from collections import Counter
 from dataclasses import asdict
-from typing import Any, Mapping, Sequence, TypedDict
+from typing import Any, Mapping, NotRequired, Sequence, TypedDict
 
 import numpy as np
 
@@ -44,11 +44,26 @@ TOP_HARDEST_SLIDES = 3
 RECURRING_TERM_MIN_SLIDES = 2
 
 
+# The first slide of a deck is its title card: a name, an author, a date. Nobody's comprehension
+# of it is interesting, and scoring it drags every deck-relative number toward a slide that was
+# never trying to teach anything. It is excluded from analysis entirely -- no model call in the
+# runner, no place in any distribution here -- and shown in the results as what it is.
+TITLE_SLIDE_INDEX = 1
+
+
+def is_title_slide(result: "SlideResult | Mapping[str, Any]") -> bool:
+    """The stored flag, not the index. A result that carries three readings was read, whatever
+    its position; only the runner, which decided to skip it, gets to say a slide is the title."""
+    return bool(result.get("title_slide", False))
+
+
 # ------------------------------------------------------------------------- slide records
 
 
 class SlideResult(TypedDict):
     index: int
+    # True for the deck's title card: no personas were run on it and it carries no scores.
+    title_slide: NotRequired[bool]
     text: str  # what the personas were shown, verbatim
     # persona -> reading_record(...) or error_record(...); an "ok" flag tells them apart
     readings: dict[str, dict[str, Any]]
@@ -71,6 +86,23 @@ def plain(obj: Any) -> Any:
     """Round-trip through JSON so a record held in memory is identical to the one reloaded from
     disk (tuples become lists, numpy scalars fail loudly here rather than in the server)."""
     return json.loads(json.dumps(obj))
+
+
+def title_slide_result(slide: Any) -> SlideResult:
+    """The record for a slide nothing was run on. Every scored field is None rather than zero:
+    the slide was not read and did not score badly, and those are different facts."""
+    return {
+        "index": slide.index,
+        "title_slide": True,
+        "text": slide.text,
+        "readings": {},
+        "slide_intent": None,
+        "metrics": None,
+        "metrics_error": None,
+        "scored_by": None,
+        "timing": {"personas_s": 0.0},
+        "image_content": getattr(slide, "image_content", None),
+    }
 
 
 def reading_record(r: AudienceReading) -> dict[str, Any]:
@@ -315,7 +347,9 @@ def _fieldwise_hardest(scored: Sequence[SlideResult], values: Mapping[int, Mappi
 
 
 def rollup(results: Sequence[SlideResult]) -> DeckRollup:
-    results = sorted(results, key=lambda r: r["index"])
+    # The title slide never reaches any statistic: it has no readings to summarise, and letting
+    # it in would put an unscored slide in every rank and distribution.
+    results = sorted((r for r in results if not is_title_slide(r)), key=lambda r: r["index"])
     values = {r["index"]: _slide_values(r) for r in results}
     keys = sorted({k for v in values.values() for k in v})
 

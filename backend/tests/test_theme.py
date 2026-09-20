@@ -315,3 +315,38 @@ def test_the_toggle_persists_follows_the_system_and_survives_a_throwing_localsto
     assert r["follows the system until a choice is made"]["after"] == "dark"
     assert r["stops following once the user has chosen"]["after"] == "dark"
     assert all(v["pressed"] == str(v["after"] == "dark").lower() for v in r.values())  # aria-pressed tracks the theme
+
+
+# ------------------------------------------------------- hover-revealed section sub-text
+
+
+def _rules(selector_fragment: str) -> str:
+    """Every declaration that applies to the selector, in cascade order: a property can be set
+    in one rule and overridden in a later one, so a single rule is not the whole answer."""
+    found = [m.group(2) for m in re.finditer(r"([^{}]+)\{([^}]*)\}", CSS) if selector_fragment in m.group(1)]
+    assert found, f"no rule contains {selector_fragment!r}"
+    return "\n".join(found)
+
+
+def test_section_subtext_is_hidden_by_opacity_so_the_page_never_reflows():
+    """display:none or visibility:hidden would move the page when the text appears, and would
+    take it out of the accessibility tree. Opacity does neither."""
+    resting = _rules(".section > .lede")
+    assert "opacity: 0" in resting
+    assert "display:" not in resting and "visibility:" not in resting
+
+
+def test_the_subtext_comes_back_on_hover_and_on_focus_within():
+    """focus-within is not decoration: a keyboard user never generates a hover."""
+    for m in re.finditer(r"([^{}]+)\{([^}]*)\}", CSS):
+        sel, body = m.group(1), m.group(2)
+        if ".section:hover > .lede" in sel:
+            assert ".section:focus-within > .lede" in sel
+            assert "opacity: 1" in body
+            return
+    raise AssertionError("no hover rule for section sub-text")
+
+
+def test_a_device_without_hover_is_not_left_unable_to_read_it():
+    block = CSS[CSS.index("@media (hover: none)") :]
+    assert "opacity: 1" in block.split("}")[1] + block.split("}")[0]

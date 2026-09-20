@@ -40,7 +40,10 @@ export function overview(root, runId) {
       const img = h("div", { class: "thumb slide-card" }, h("img", { src: url, alt: `Slide ${n}`, loading: "lazy" }));
       if (!r) return h("div", { class: `tile pending${meta.status === "running" && n === nextPending ? " next" : ""}` }, img, h("div", { class: "cap" }, h("b", null, n), h("span", null, "pending")));
       // A saved-before-tiers run has nowhere to go: its slide page was retired with the metrics it showed.
-      const label = meta.legacy ? h("span", null, "read") : (r.metrics ? tierMini(state, n) : h("span", { class: "pill bad" }, "bad response"));
+      // The title card has no tier because nothing read it -- not a bad response, just not analysed.
+      const label = r.title_slide ? h("span", { class: "pill" }, "title slide")
+        : meta.legacy ? h("span", null, "read")
+        : (r.metrics ? tierMini(state, n) : h("span", { class: "pill bad" }, "bad response"));
       const tag = meta.legacy ? "div" : "a";
       return h(tag, { class: "tile", href: meta.legacy ? null : runHref(state, n) }, img, h("div", { class: "cap" }, h("b", null, n), label));
     }));
