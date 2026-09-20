@@ -49,7 +49,9 @@ make dev                    # http://localhost:8000
    Each novice and peer card leads with the **state** of their claim in words, then the four fields
    beside the expert's, then unresolved terms and *What to change*: concrete edits, each quoting
    the persona's report or the slide (made the first time you open a slide, about 5 s, and saved
-   with the run). Click any state, field, finding or number for the texts it came from.
+   with the run). Click any state, field, finding or number for the texts it came from. Last on
+   the page, a **predicted neural response** to the slide, if one was precomputed for it — see
+   [The neural layer](#the-neural-layer).
 4. **History** is the front page's list of saved runs. Runs save automatically, slide by slide,
    to `data/history/<run_id>/` as plain JSON and images. Opening one makes no API calls, so it
    works with no network and no key, and recommendations you opened before saving replay too. The
@@ -81,6 +83,12 @@ inverted or dimmed, so they look as they will when projected.
 | `backend/sightline/runner.py`, `store.py` | Runs a deck and saves each slide as it lands |
 | `backend/sightline/server.py` | FastAPI: upload, start, poll, replay. Streaming is polling |
 | `frontend/` | Plain HTML, CSS and ES modules. No build step. `frontend/smoke/render.mjs` renders the real views in Node for the tests |
+| `backend/sightline/neural.py` | The neural layer's read-only half: the output contract, the arithmetic, and `CachedNeural`. Imports no ML library and makes no GPU call |
+| `backend/scripts/precompute_neural/` | The other half: the CLI that actually runs TRIBE, in its own virtualenv on a CUDA machine. See [The neural layer](#the-neural-layer) |
+| `backend/sightline/saliency.py`, `scanpath.py` | **Library only, not wired into the app.** Bottom-up visual saliency (OpenCV spectral residual) and a greedy fixation order over it |
+| `backend/sightline/fix.py` | **Library only, not wired into the app.** The revise-and-rescore loop: propose a revision, have the same three audiences read it cold, rescore with the same metrics |
+| `backend/sightline/research_lens.py` | **Library only, not wired into the app.** Pairs `dmn_drive` (deck-relative) with cited fMRI findings for named populations. Reads as a hypothesis, never as a diagnosis |
+| `docs/` | The spec (the source of truth for scope), the GX10 runbook, and the neurodivergent fine-tune research record |
 | `backend/fixtures/runs/` | Bundled, read-only sample runs (`make sample` rebuilds them; about 50 API calls. `backend/scripts/restructure_sample.py` re-derives only the comparison and recommendations from the stored readings; about 16 calls) |
 
 ## Tiers
@@ -308,6 +316,45 @@ parallel with the subfield inference. The tripwire's re-ask, one more structurin
 a `divergent` pair that is also close in wording, which is rare. Recommendations are a separate call made
 only when a slide is opened, then cached with the run.
 
+## The neural layer
+
+A slide page also shows a **predicted** cortical response to that slide, from
+[TRIBE v2](https://github.com/facebookresearch/tribev2) (Meta AI), a brain-encoding model trained
+on movie-watching fMRI. It is precomputed, never live, and every constraint below is enforced in
+code rather than left to discipline.
+
+**It is precomputed because it has to be.** One slide costs 6-13 GPU-minutes across three
+transformer backbones, CUDA only. `sightline/neural.py` therefore contains no ML import at all: it
+is the output contract, the arithmetic, and a read-only loader. The half that runs the model lives
+in `backend/scripts/precompute_neural/`, in a separate virtualenv (TRIBE pins `numpy==2.2.6` and
+`torch<2.7`, which cannot coexist with this package), and calls `assert_may_run_tribe()` first —
+which refuses outright when `SIGHTLINE_PROCESS=server`, the variable `server.py` sets on import.
+Nothing a web request can reach can start a GPU run.
+
+**What it reports, and what it refuses to report.** The readout is *where* the predicted response
+sits — language-region drive against visual-region drive, as `processing_ratio`, expressed as a
+Z-score against the rest of its own deck. It is a proposed readout, not a validated metric, and it
+says so wherever it appears. What it will not report is a single scalar collapsed from the whole
+response as a stand-in for "engagement": that is a documented null result (arXiv 2607.01400, pooled
+partial *r* = 0.058, *p* = 0.23 against real attention data). It stays on disk as
+`gfp_negative_baseline`, for a Methods panel to reproduce next to its citation, and never reaches
+an API response or a screen. A test enforces both halves of that.
+
+**The bundled sample carries a real run.** `backend/fixtures/neural/sample-llm-serving/` is output
+from an actual GX10 run: slides 1-7, four cortical surface renders and a `metrics.json` each. Slide
+8 was added to the deck later and was never run, so it 404s and the page says so — the empty state
+is an unlit surface, which stands for the absence and never for a result.
+
+To compute more, on a CUDA machine (see `docs/GX10_SETUP.md` for the full path):
+
+```bash
+cd backend/scripts/precompute_neural     # its own venv, not the repo's
+python run.py --run-id sample-llm-serving --out ../../fixtures/neural
+```
+
+It is resumable: a slide with a `metrics.json` is skipped unless `--force` is passed, so a crash
+costs at most the slide in flight.
+
 ## What these numbers do and do not mean
 
 - **(Cosine comparator only.) Alignment is semantic similarity, the weaker instrument.** It measures topic and phrasing,
@@ -338,3 +385,10 @@ only when a slide is opened, then cached with the run.
   flagged*.
 - **The personas are simulated readers.** They say what someone with a given background would
   probably take from a slide. They are not your audience, and one run is one sample.
+- **The neural layer is a prediction about an average brain, not a measurement of yours.** TRIBE
+  v2 was trained on people watching films, so narrated slides are out of distribution for it, and
+  the narration it heard is synthetic text-to-speech of the slide's own text — not a real presenter,
+  with none of the emphasis, pauses or asides a real talk has. The released model has no
+  subject-conditioning at inference either: it produces one group-average output for everyone.
+  Compare `processing_ratio` as ranks within one deck; the level on one slide means nothing on its
+  own.

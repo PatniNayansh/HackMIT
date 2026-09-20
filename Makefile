@@ -1,6 +1,16 @@
 # One virtualenv for the whole project, at the repo root. Never install into a global Python.
 VENV := .venv
-PY   := $(VENV)/bin
+
+# This repo is developed on both macOS and Windows (the neural precompute runs on a Linux GPU box
+# besides), so the venv layout is detected rather than assumed: Windows puts the binaries in
+# Scripts/ and has no `python3.11` on PATH -- the py launcher is how you ask for a version there.
+ifeq ($(OS),Windows_NT)
+  PY        := $(VENV)/Scripts
+  BOOTSTRAP := py -3.11
+else
+  PY        := $(VENV)/bin
+  BOOTSTRAP := python3.11
+endif
 
 # Extra pytest arguments, e.g.  make test ARGS="tests/test_audiences.py -v"
 ARGS ?=
@@ -14,15 +24,15 @@ PORT ?= 8000
 .PHONY: setup test gate gate-repeat demo dev sample clean-venv
 
 # Idempotent: creates .venv if missing, then (re)installs the backend and its dev deps.
-setup: $(VENV)/bin/activate
+setup: $(PY)/activate
 	$(PY)/pip install -q -e "backend[dev]"
 	# macOS marks the editable-install .pth file "hidden" and Python then ignores it,
 	# which makes `import sightline` fail outside backend/. Clear the flag.
 	@chflags -R nohidden $(VENV) 2>/dev/null || true
 	@$(PY)/python -c "import sightline; print('sightline importable from', sightline.__file__)"
 
-$(VENV)/bin/activate:
-	python3.11 -m venv $(VENV)
+$(PY)/activate:
+	$(BOOTSTRAP) -m venv $(VENV)
 
 # Offline and deterministic: fake LLM + the local embedding model. No API key needed.
 test: setup
