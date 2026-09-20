@@ -84,18 +84,3 @@ export function infoIcon() {
     s("path", { d: "M10 9v5", stroke: "currentColor", "stroke-width": 1.6, "stroke-linecap": "round" }),
     s("circle", { cx: 10, cy: 6.4, r: 0.9, fill: "currentColor" }));
 }
-
-// An inert, unlit outline -- never colored or filled like a real prediction. Only ever
-// used as an empty-state illustration when there is no precomputed neural data to show
-// (spec 9 warns against a "placeholder brain" reading as a result; this stays plainly
-// inert -- no colormap, no activation, no numbers -- so it cannot be mistaken for one).
-export function brainIcon() {
-  return s("svg", { width: 84, height: 68, viewBox: "0 0 100 80", "aria-hidden": "true" },
-    s("path", {
-      d: "M28 10 C15 10 8 20 8 32 C8 40 12 46 10 52 C8 58 14 64 22 64 C24 70 32 74 40 72 C46 76 56 76 62 72 C72 74 82 68 82 58 C90 56 92 46 86 40 C90 32 86 20 76 16 C74 8 62 4 52 8 C46 4 34 4 28 10 Z",
-      fill: "none", stroke: "currentColor", "stroke-width": 2.2, "stroke-linejoin": "round",
-    }),
-    s("path", { d: "M40 14 C40 26 34 30 34 40 C34 50 42 52 40 62", fill: "none", stroke: "currentColor", "stroke-width": 1.5, "stroke-linecap": "round" }),
-    s("path", { d: "M58 12 C60 24 68 26 66 38 C64 48 56 50 58 62", fill: "none", stroke: "currentColor", "stroke-width": 1.5, "stroke-linecap": "round" }),
-    s("path", { d: "M46 18 C48 30 44 34 48 44", fill: "none", stroke: "currentColor", "stroke-width": 1.3, "stroke-linecap": "round" }));
-}

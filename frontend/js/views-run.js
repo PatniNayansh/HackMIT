@@ -1,4 +1,4 @@
-import { h, mount, f2, when, describe, warnIcon, infoIcon, brainIcon, PERSONAS, LABEL, COLOR } from "./dom.js";
+import { h, mount, f2, when, describe, warnIcon, infoIcon, PERSONAS, LABEL, COLOR } from "./dom.js";
 import { getJSON } from "./api.js";
 import { watch } from "./run.js";
 import { arcChart } from "./charts.js";
@@ -292,7 +292,7 @@ function neuralPanel(runId, n) {
   }).catch((e) => {
     box.replaceChildren(e.status === 404
       ? h("div", { class: "neural-empty" },
-          brainIcon(),
+          h("img", { class: "neural-empty-brain", src: "/static/img/brain-unlit.png", alt: "", "aria-hidden": "true" }),
           h("p", { class: "empty" }, "No precomputed neural data for this slide. The neural layer runs offline on a GPU, only for the bundled sample decks — see docs/SIGHTLINE_spec.md §5."))
       : h("p", { class: "err" }, e.message));
   });
