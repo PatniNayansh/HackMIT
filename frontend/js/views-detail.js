@@ -1,4 +1,4 @@
-import { h, mount, f2, describe, warnIcon, infoIcon, slideImage, stateChip, STATE_MEANING, PERSONAS, LABEL, COLOR } from "./dom.js";
+import { h, mount, f2, describe, warnIcon, infoIcon, slideImage, stateChip, STATE_MEANING, meaningOf, PERSONAS, LABEL, COLOR } from "./dom.js";
 import { getJSON } from "./api.js";
 import { watch } from "./run.js";
 import { numBtn, cmpLine, deckStrip, src, usesTakeawayIntent, isFieldwise, openProvenance } from "./provenance.js";
@@ -152,6 +152,17 @@ function fieldsTable(state, r, persona) {
     })));
 }
 
+/** The finding in plain words: the propositions of the expert's claim this reader missed (and any it
+ *  contradicted). The state chip beside it opens the table behind them. Nothing for runs saved before coverage. */
+function missedLines(state, r, persona) {
+  const cov = r.metrics.comparisons[persona].claim.coverage;
+  if (!cov) return [];
+  const line = (label, texts, cls) => texts.length
+    ? h("p", { class: `missed ${cls}` }, h("strong", null, label), " ", ...texts.flatMap((t, i) => [i ? "; " : null, h("em", null, t)]))
+    : null;
+  return [line("Contradicts:", cov.contradicted, "contradicts"), line("Missed:", cov.missed, "omitted")].filter(Boolean);
+}
+
 function findingsFor(state, r, persona) {
   const idx = r.metrics.findings.map((f, i) => [f, i]).filter(([f]) => f.audience === persona);
   return idx.map(([f, i]) => h("div", { class: `finding-callout ${f.id}` },
@@ -192,8 +203,9 @@ function fieldwiseCard(state, r, persona, recsSlot) {
         ? h("div", { class: "lead-row" }, h("span", { class: "muted small" }, "This slide states no general claim, so there is no claim to compare."))
         : h("div", { class: "lead-row" },
             h("span", { class: "lead-label" }, "Claim"),
-            h("button", { class: "state-btn", type: "button", "aria-label": `${claim.outcome}. Show the two claims and the verdict.`, on: { click: (e) => { e.stopPropagation(); openProvenance({ kind: "state", slide: n, persona }, state); } } }, stateChip(claim.outcome, { large: true })),
-            h("span", { class: "muted small" }, STATE_MEANING[claim.outcome])),
+            h("button", { class: "state-btn", type: "button", "aria-label": `${claim.outcome}. Show the propositions and the quoted spans behind it.`, on: { click: (e) => { e.stopPropagation(); openProvenance({ kind: "state", slide: n, persona }, state); } } }, stateChip(claim.outcome, { large: true })),
+            h("span", { class: "muted small" }, meaningOf(claim))),
+      ...missedLines(state, r, persona),
       ...findingsFor(state, r, persona),
       h("div", { class: "take-label", style: "margin-top:12px" }, "Takeaway, verbatim"),
       h("blockquote", { class: "take" }, `“${rd.takeaway}”`),
@@ -218,7 +230,10 @@ function fieldwiseSummary(state, r) {
     : `Too few slides scored to read the terms check against this deck (needs ${t.min_slides_for_relative}, has ${t.n_slides}): a rough absolute threshold was used.`);
   const stateRow = (persona) => {
     const c = m.comparisons[persona].claim;
-    return c.status === "excluded" ? null : metricRow("strong", `${LABEL[persona]} claim`, h("span", { class: "val" }, numBtn(c.outcome, { kind: "state", slide: n, persona }, state)), h("span", { class: "cmp" }, STATE_MEANING[c.outcome]));
+    if (c.status === "excluded") return null;
+    const cov = c.coverage, gaps = cov ? [...cov.contradicted, ...cov.missed] : [];
+    const detail = cov ? `${cov.covered} of ${cov.total} propositions covered.${gaps.length ? ` ${cov.contradicted.length ? "Contradicts" : "Missed"}: \u201c${gaps.join("\u201d; \u201c")}\u201d` : ""}` : meaningOf(c);
+    return metricRow("strong", `${LABEL[persona]} claim`, h("span", { class: "val" }, numBtn(c.outcome, { kind: "state", slide: n, persona }, state)), h("span", { class: "cmp" }, detail));
   };
   const presence = (persona, field) => {
     const c = m.comparisons[persona][field];

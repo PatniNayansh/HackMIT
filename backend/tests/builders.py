@@ -81,25 +81,49 @@ class HashEmbedder:
 # ------------------------------------------------------------------ field-wise (compare.py) slides
 
 
+# The states, as coverage of a two-proposition expert claim: (statuses, extra assertions).
+_STATE_COVERAGE = {
+    "equivalent": (("covered", "covered"), ()),
+    "over-claimed": (("covered", "covered"), ("and more besides",)),
+    "under-specified": (("covered", "omitted"), ()),
+    "divergent": (("covered", "contradicted"), ()),
+    "absent": (("omitted", "omitted"), ()),
+}
+
+
 def fw_slide_result(
     index: int,
     novice: dict | None = None,
     peer: dict | None = None,
     expert: dict | None = None,
-    verdicts: dict | None = None,
+    states: dict | None = None,
     unresolved: tuple = ((), (), ()),
     text: str = "[title] A slide",
     image: str | None = None,
 ) -> SlideResult:
     """A scored slide under the field-wise comparator, built through the REAL `build_fieldwise_metrics`
-    so the payload shape cannot drift. Fields default to a slide where everyone reached everything."""
-    from sightline.compare import build_fieldwise_metrics
+    so the payload shape cannot drift. Fields default to a slide where everyone reached everything.
+    `states` maps an audience to the claim state it should land in (default equivalent); the expert's
+    claim has two propositions, and evidence is always the audience's own claim, word for word."""
+    from sightline.compare import all_omitted, build_fieldwise_metrics, clean_propositions, judge_coverage
 
     full = {"concept": "isotope", "claim": "Isotopes are atoms of one element with different neutron counts.", "result": "6", "vehicle": "carbon-12 and carbon-14"}
     fields = {"novice": novice if novice is not None else dict(full), "peer": peer if peer is not None else dict(full), "expert": expert if expert is not None else dict(full)}
-    yes = {"evaluated": True, "expert_entails_audience": True, "audience_entails_expert": True, "rationale": "Same idea.", "quote": "atoms of one element", "quote_verified": True}
-    structured = {"fields": fields, "verdicts": {"novice": yes, "peer": yes, **(verdicts or {})},
-                  "meta": {"model": "fake-sonnet", "attempts": 1, "latency_s": 0.1, "dropped": [], "retried_because": []}}
+    props = clean_propositions([{"id": "p1", "text": "Isotopes are atoms of one element"}, {"id": "p2", "text": "They differ in neutron counts"}], fields["expert"]["claim"]) if fields["expert"]["claim"] else []
+
+    def coverage(aud):
+        claim = fields[aud]["claim"]
+        if not props:
+            return None
+        if claim is None:
+            return all_omitted(props)
+        statuses, extras = _STATE_COVERAGE[(states or {}).get(aud, "equivalent")]
+        raw = {"judgements": [{"id": p["orig"], "status": st, "evidence": claim if st != "omitted" else ""} for p, st in zip(props, statuses)],
+               "extra_assertions": [claim] if extras else [], "note": "n"}
+        return judge_coverage(raw, props, claim)
+
+    structured = {"fields": fields, "propositions": props, "coverage": {"novice": coverage("novice"), "peer": coverage("peer")},
+                  "meta": {"model": "fake-sonnet", "attempts": 1, "latency_s": 0.1, "dropped": [], "retried_because": [], "tripwire": []}}
     takeaways = {p: f"takeaway of {p} on slide {index}" for p in PERSONAS}
     responses = {
         p: AudienceResponse(takeaway=takeaways[p], confidence=0.5, unresolved_terms=list(u), questions=[], inferred_claim=f"{p} claim")

@@ -52,6 +52,11 @@ CONFIG["fieldwise"] = {
     "absolute": {"novice_terms_low_max": 2},
 }
 
+# The local tripwire (compare.py): a pair judged `divergent` whose two claims are this close in cosine
+# similarity is re-asked ONCE, naming the contradicted proposition. Never a scorer: similarity cannot
+# see negation. Costs nothing on the common path; fires only on suspicious pairs.
+CONFIG["tripwire"] = {"cosine": 0.75}
+
 TIERS: dict[str, dict[str, str]] = {
     "self_contained": {
         "label": "Self-contained",
@@ -150,6 +155,16 @@ def _field_line(persona: str, field: str, comp: Mapping[str, Any]) -> tuple[bool
     who = persona.capitalize()
     exp, aud = comp.get("expert"), comp.get("audience")
     o = comp.get("outcome")
+    if field == "claim" and comp.get("coverage"):
+        cov, n = comp["coverage"], comp["coverage"]["total"]
+        line = {
+            "equivalent": f"{who} claim covers all {n} of the expert's propositions and asserts nothing more (equivalent).",
+            "over-claimed": f"{who} claim covers all {n} of the expert's propositions and also asserts more than the expert did (over-claimed).",
+            "under-specified": f"{who} claim covers {cov['covered']} of {n} of the expert's propositions (under-specified); missed: " + "; ".join(f"\u201c{t}\u201d" for t in cov["missed"]) + ".",
+            "divergent": f"{who} claim contradicts a proposition of the expert's (divergent): " + "; ".join(f"\u201c{t}\u201d" for t in cov["contradicted"]) + ".",
+            "absent": f"{who} claim covers none of the expert's {n} proposition{'s' if n != 1 else ''} (absent).",
+        }[o]
+        return o in ("equivalent", "over-claimed"), line
     if field == "claim":
         line = {
             "equivalent": f"{who} claim is equivalent to the expert's.",

@@ -20,7 +20,7 @@ the run:
   * "cosine":    step 1's whole-takeaway cosine against the expert's takeaway (`deck.build_metrics`).
                  Nothing else is called: the batch is the three persona calls per slide.
   * "fieldwise": `compare.py`. After the three personas, ONE cheap structuring call turns the three
-                 takeaways into fields and entailment verdicts; everything after that is pure code.
+                 takeaways into fields and proposition coverage; everything after that is pure code.
 
 A run stops early only when a slide fails for reasons that are not the model's output (no key,
 API down, nothing cached while offline), since every later slide would fail the same way.
@@ -110,7 +110,7 @@ async def _build(
         if structured is None and structuring_client is not None:
             t0 = time.perf_counter()
             try:
-                structured = await structure_slide(structuring_client, takeaways)
+                structured = await structure_slide(structuring_client, takeaways, embedder=embedder)
                 if structure_cache:
                     structure_cache.put(takeaways, structured)
             except (StructuringError, LLMError) as e:

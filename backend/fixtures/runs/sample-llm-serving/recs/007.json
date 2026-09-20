@@ -1,23 +1,11 @@
 {
-  "novice": [
-    {
-      "audience": "novice",
-      "bullet": "Name the specific optimization technique/principle behind 'serve more users on the same GPUs' rather than only stating the outcome",
-      "evidence": "The presenter wants us to remember that their new method serves more users on existing hardware without changing model outputs"
-    }
-  ],
-  "peer": [
-    {
-      "audience": "peer",
-      "bullet": "State explicitly what underlying principle/technique produces the efficiency gain, not just the outcome, so it's not reduced to a generic 'efficiency-only' claim",
-      "evidence": "The presenter wants the audience to remember these gains are efficiency-only and soon publicly available."
-    }
-  ],
+  "novice": [],
+  "peer": [],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T02:57:45+00:00",
-    "latency_s": 3.53,
+    "generated_at": "2026-09-20T03:47:44+00:00",
+    "latency_s": 1.62,
     "intent": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
     "dropped_without_evidence": 0
   }

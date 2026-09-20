@@ -79,6 +79,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "Combining PagedAttention's memory efficiency with speculative decoding and tuned batching/prefill settings yields the claimed 2.4x p99 goodput improvement.",
     "takeaways": {
       "novice": "The presenter combined two technical methods (PagedAttention and speculative decoding) with other tweaks to achieve a 2.4x improvement in serving performance for slower/worst-case requests.",
@@ -87,63 +88,101 @@
     },
     "fields": {
       "novice": {
-        "concept": "PagedAttention and speculative decoding",
-        "claim": "Combining memory-efficient attention methods with speculative decoding and other tweaks improves serving performance for slower/worst-case requests.",
+        "concept": "PagedAttention, speculative decoding",
+        "claim": "Combining two technical methods with other tweaks improves serving performance for slower/worst-case requests by a stated factor",
         "result": "2.4x",
         "vehicle": null
       },
       "peer": {
-        "concept": null,
-        "claim": "Combining memory-efficient attention with speculative decoding improves serving throughput at tail latency, backed by tuning metrics.",
+        "concept": "memory-efficient attention, speculative decoding",
+        "claim": "Combining memory-efficient attention with speculative decoding improves serving throughput at tail latency, backed by specific tuning metrics",
         "result": "2.4x",
         "vehicle": null
       },
       "expert": {
-        "concept": null,
-        "claim": "Combining memory-efficient attention with speculative decoding and tuned batching/prefill settings improves p99 goodput.",
-        "result": "2.4x",
+        "concept": "PagedAttention, speculative decoding",
+        "claim": "Combining memory efficiency with speculative decoding and tuned batching/prefill settings yields an improvement in p99 goodput",
+        "result": "2.4x p99 goodput improvement",
         "vehicle": null
       }
     },
     "slide_profile": {
       "fields": [
+        "concept",
         "claim",
         "result"
       ],
       "scored": [
+        "concept",
         "claim",
         "result"
       ],
       "thin": false,
-      "text": "This slide states a claim and reaches a numeric result; no example."
+      "text": "This slide names a principle and reaches a numeric result; no example."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "PagedAttention's memory efficiency is combined with speculative decoding and tuned batching/prefill settings"
+      },
+      {
+        "id": "p2",
+        "text": "This combination yields the claimed 2.4x p99 goodput improvement"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
           "field": "concept",
-          "expert": null,
-          "audience": "PagedAttention and speculative decoding",
-          "status": "over_reach"
+          "expert": "PagedAttention, speculative decoding",
+          "audience": "PagedAttention, speculative decoding",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "pagedattention",
+            "pagedattention"
+          ],
+          "how": "identical after normalisation"
         },
         "claim": {
           "field": "claim",
-          "expert": "Combining memory-efficient attention with speculative decoding and tuned batching/prefill settings improves p99 goodput.",
-          "audience": "Combining memory-efficient attention methods with speculative decoding and other tweaks improves serving performance for slower/worst-case requests.",
+          "expert": "Combining memory efficiency with speculative decoding and tuned batching/prefill settings yields an improvement in p99 goodput",
+          "audience": "Combining two technical methods with other tweaks improves serving performance for slower/worst-case requests by a stated factor",
           "status": "compared",
-          "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both describe combining memory-efficient attention and speculative decoding (plus tuning) to improve tail/worst-case serving performance by 2.4x.",
-            "quote": "2.4x",
-            "quote_verified": true
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "PagedAttention's memory efficiency is combined with speculative decoding and tuned batching/prefill settings",
+                "status": "covered",
+                "evidence": "Combining two technical methods with other tweaks"
+              },
+              {
+                "id": "p2",
+                "text": "This combination yields the claimed 2.4x p99 goodput improvement",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice recovers the combination but not the specific goodput metric, giving only a vague 'serving performance' outcome.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "This combination yields the claimed 2.4x p99 goodput improvement"
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Some of the expert's propositions are covered and some are missed."
         },
         "result": {
           "field": "result",
-          "expert": "2.4x",
+          "expert": "2.4x p99 goodput improvement",
           "audience": "2.4x",
           "status": "compared",
           "outcome": "match",
@@ -163,29 +202,57 @@
       "peer": {
         "concept": {
           "field": "concept",
-          "expert": null,
-          "audience": null,
-          "status": "excluded"
+          "expert": "PagedAttention, speculative decoding",
+          "audience": "memory-efficient attention, speculative decoding",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "speculative decoding",
+            "speculative decoding"
+          ],
+          "how": "identical after normalisation"
         },
         "claim": {
           "field": "claim",
-          "expert": "Combining memory-efficient attention with speculative decoding and tuned batching/prefill settings improves p99 goodput.",
-          "audience": "Combining memory-efficient attention with speculative decoding improves serving throughput at tail latency, backed by tuning metrics.",
+          "expert": "Combining memory efficiency with speculative decoding and tuned batching/prefill settings yields an improvement in p99 goodput",
+          "audience": "Combining memory-efficient attention with speculative decoding improves serving throughput at tail latency, backed by specific tuning metrics",
           "status": "compared",
-          "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both describe the same combination of techniques yielding a 2.4x improvement in tail-latency serving performance.",
-            "quote": "2.4x",
-            "quote_verified": true
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "PagedAttention's memory efficiency is combined with speculative decoding and tuned batching/prefill settings",
+                "status": "covered",
+                "evidence": "Combining memory-efficient attention with speculative decoding"
+              },
+              {
+                "id": "p2",
+                "text": "This combination yields the claimed 2.4x p99 goodput improvement",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [
+              "backed by specific tuning metrics"
+            ],
+            "note": "Peer covers the combination but describes throughput at tail latency rather than p99 goodput specifically.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "This combination yields the claimed 2.4x p99 goodput improvement"
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Some of the expert's propositions are covered and some are missed."
         },
         "result": {
           "field": "result",
-          "expert": "2.4x",
+          "expert": "2.4x p99 goodput improvement",
           "audience": "2.4x",
           "status": "compared",
           "outcome": "match",
@@ -203,30 +270,33 @@
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
-        "value": 1.0,
-        "basis": "claim",
-        "state": "equivalent",
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
         "thin": false
       },
       "peer": {
-        "value": 1.0,
-        "basis": "claim",
-        "state": "equivalent",
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
         "thin": false
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 2,
+        "total": 2,
         "state": "equivalent",
         "thin": false,
         "definitional": true
       }
     },
     "reach": {
-      "novice": "ok",
-      "peer": "ok"
+      "novice": "partial",
+      "peer": "partial"
     },
     "findings": [],
     "term_gap": {
@@ -259,29 +329,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 11.412,
-      "dropped": [
-        {
-          "persona": "peer",
-          "field": "concept",
-          "value": "memory-efficient attention and speculative decoding",
-          "reason": "the takeaway does not name this concept"
-        },
-        {
-          "persona": "expert",
-          "field": "concept",
-          "value": "PagedAttention, speculative decoding, batching/prefill tuning",
-          "reason": "the takeaway does not name this concept"
-        }
-      ],
-      "retried_because": []
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 5.546
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 3.712,
-    "structuring_s": 11.414
+    "structuring_s": 5.546
   },
   "image_content": null
 }

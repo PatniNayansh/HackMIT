@@ -2,28 +2,33 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Explain why 500ms matters, e.g., label it as the SLO threshold",
+      "bullet": "Define p99 latency on first use (e.g., 'p99 latency: the slowest 1% of requests')",
+      "evidence": "p99"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a sentence explaining why 500ms matters, e.g., 'SLO threshold: requests must complete under 500ms'",
       "evidence": "Why does 500 ms matter as a threshold?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Annotate the request rate at which 'ours' crosses the 500ms line, if it does",
+      "bullet": "Label the request rate at which 'ours' crosses the 500ms line, or state it does not cross within the tested range",
       "evidence": "What request rate does 'ours' cross 500ms?"
     },
     {
       "audience": "peer",
-      "bullet": "Add a note on workload/hardware used to generate the graph",
+      "bullet": "State the workload/hardware setup used to generate the graph",
       "evidence": "What workload/hardware generated this graph?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T02:57:48+00:00",
-    "latency_s": 2.98,
+    "generated_at": "2026-09-20T03:47:53+00:00",
+    "latency_s": 3.69,
     "intent": "The proposed system sustains lower p99 latency than the baseline as request rate increases, staying under the 500ms SLO longer.",
-    "dropped_without_evidence": 1
+    "dropped_without_evidence": 0
   }
 }

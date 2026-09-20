@@ -61,6 +61,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "The proposed system sustains lower p99 latency than the baseline as request rate increases, staying under the 500ms SLO longer.",
     "takeaways": {
       "novice": "The new system ('ours') keeps response times lower than the baseline as request load increases, staying below the 500ms threshold longer.",
@@ -71,40 +72,51 @@
       "novice": {
         "concept": null,
         "claim": "The new system keeps response times lower than the baseline as request load increases, staying below the 500ms threshold longer.",
-        "result": null,
-        "vehicle": "'ours' system vs baseline under increasing request load"
+        "result": "500ms",
+        "vehicle": null
       },
       "peer": {
         "concept": "p99 latency",
         "claim": "The presenter's system keeps p99 latency lower than the baseline as request load increases, delaying when latency crosses the 500ms threshold.",
-        "result": null,
-        "vehicle": "presenter's system vs baseline under increasing request load"
+        "result": "500ms",
+        "vehicle": null
       },
       "expert": {
-        "concept": "p99 latency, SLO",
+        "concept": "p99 latency / SLO",
         "claim": "The proposed system sustains lower p99 latency than the baseline as request rate increases, staying under the 500ms SLO longer.",
-        "result": null,
-        "vehicle": "proposed system vs baseline under increasing request rate"
+        "result": "500ms",
+        "vehicle": null
       }
     },
     "slide_profile": {
       "fields": [
         "concept",
         "claim",
-        "vehicle"
+        "result"
       ],
       "scored": [
         "concept",
-        "claim"
+        "claim",
+        "result"
       ],
       "thin": false,
-      "text": "This slide names a principle and works through an example; no worked result."
+      "text": "This slide names a principle and reaches a numeric result; no example."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The proposed system sustains lower p99 latency than the baseline as request rate increases"
+      },
+      {
+        "id": "p2",
+        "text": "It stays under the 500ms SLO longer"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
           "field": "concept",
-          "expert": "p99 latency, SLO",
+          "expert": "p99 latency / SLO",
           "audience": null,
           "status": "gap",
           "outcome": "absent"
@@ -115,33 +127,56 @@
           "audience": "The new system keeps response times lower than the baseline as request load increases, staying below the 500ms threshold longer.",
           "status": "compared",
           "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both claims describe the same relationship between the new system and baseline latency relative to the 500ms threshold, using 'response times' as a general stand-in for latency.",
-            "quote": "staying below the 500ms threshold longer",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The proposed system sustains lower p99 latency than the baseline as request rate increases",
+                "status": "covered",
+                "evidence": "The new system keeps response times lower than the baseline as request load increases"
+              },
+              {
+                "id": "p2",
+                "text": "It stays under the 500ms SLO longer",
+                "status": "covered",
+                "evidence": "staying below the 500ms threshold longer"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers both propositions using 'response times' instead of 'p99 latency'.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
         },
         "result": {
           "field": "result",
-          "expert": null,
-          "audience": null,
-          "status": "excluded"
+          "expert": "500ms",
+          "audience": "500ms",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "500ms",
+            "500ms"
+          ]
         },
         "vehicle": {
           "field": "vehicle",
-          "expert": "proposed system vs baseline under increasing request rate",
-          "audience": "'ours' system vs baseline under increasing request load",
+          "expert": null,
+          "audience": null,
           "status": "not_scored"
         }
       },
       "peer": {
         "concept": {
           "field": "concept",
-          "expert": "p99 latency, SLO",
+          "expert": "p99 latency / SLO",
           "audience": "p99 latency",
           "status": "compared",
           "outcome": "match",
@@ -158,46 +193,72 @@
           "audience": "The presenter's system keeps p99 latency lower than the baseline as request load increases, delaying when latency crosses the 500ms threshold.",
           "status": "compared",
           "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both claims describe the system maintaining lower p99 latency than baseline and delaying crossing the 500ms threshold.",
-            "quote": "p99 latency",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The proposed system sustains lower p99 latency than the baseline as request rate increases",
+                "status": "covered",
+                "evidence": "The presenter's system keeps p99 latency lower than the baseline as request load increases"
+              },
+              {
+                "id": "p2",
+                "text": "It stays under the 500ms SLO longer",
+                "status": "covered",
+                "evidence": "delaying when latency crosses the 500ms threshold"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer covers both propositions with matching terminology.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
         },
         "result": {
           "field": "result",
-          "expert": null,
-          "audience": null,
-          "status": "excluded"
+          "expert": "500ms",
+          "audience": "500ms",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "500ms",
+            "500ms"
+          ]
         },
         "vehicle": {
           "field": "vehicle",
-          "expert": "proposed system vs baseline under increasing request rate",
-          "audience": "presenter's system vs baseline under increasing request load",
+          "expert": null,
+          "audience": null,
           "status": "not_scored"
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 2,
+        "total": 2,
         "state": "equivalent",
         "thin": false
       },
       "peer": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 2,
+        "total": 2,
         "state": "equivalent",
         "thin": false
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 2,
+        "total": 2,
         "state": "equivalent",
         "thin": false,
         "definitional": true
@@ -220,35 +281,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 4.789,
-      "dropped": [
-        {
-          "persona": "novice",
-          "field": "result",
-          "value": "stays below 500ms threshold longer than baseline",
-          "reason": "the result does not appear in the takeaway"
-        },
-        {
-          "persona": "peer",
-          "field": "result",
-          "value": "delays crossing of 500ms threshold compared to baseline",
-          "reason": "the result does not appear in the takeaway"
-        },
-        {
-          "persona": "expert",
-          "field": "result",
-          "value": "stays under 500ms SLO longer than baseline",
-          "reason": "the result does not appear in the takeaway"
-        }
-      ],
-      "retried_because": []
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 5.161
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 3.668,
-    "structuring_s": 4.791
+    "structuring_s": 5.161
   },
   "image_content": {
     "text": "A graph with axes labeled \"Requests per second\" (horizontal) and \"p99 latency (ms)\" (vertical). Two upward-curving lines originate near the origin: an orange line labeled \"baseline\" and a blue line labeled \"ours\". The orange line rises more steeply than the blue line. A horizontal dashed line at 500 ms intersects the orange line in the upper right portion of the graph.",

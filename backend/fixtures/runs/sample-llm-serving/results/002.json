@@ -65,6 +65,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
     "takeaways": {
       "novice": "The slide lists three technical reasons why serving AI models efficiently is difficult: growing memory needs, wasted capacity, and slow worst-case response times.",
@@ -74,7 +75,7 @@
     "fields": {
       "novice": {
         "concept": null,
-        "claim": "Serving AI models efficiently is difficult due to three technical reasons: growing memory needs, wasted capacity, and slow worst-case response times.",
+        "claim": "Serving AI models efficiently is difficult due to growing memory needs, wasted capacity, and slow worst-case response times.",
         "result": null,
         "vehicle": null
       },
@@ -85,8 +86,8 @@
         "vehicle": null
       },
       "expert": {
-        "concept": "KV-cache, memory fragmentation, tail latency",
-        "claim": "LLM serving has three core challenges: growing KV-cache, memory fragmentation, and tail latency.",
+        "concept": "KV-cache",
+        "claim": "There are three core challenges in LLM serving: growing KV-cache, memory fragmentation, and tail latency.",
         "result": null,
         "vehicle": null
       }
@@ -103,30 +104,67 @@
       "thin": false,
       "text": "This slide names a principle; no example, no worked result."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "Growing KV-cache is a core challenge in LLM serving"
+      },
+      {
+        "id": "p2",
+        "text": "Memory fragmentation is a core challenge in LLM serving"
+      },
+      {
+        "id": "p3",
+        "text": "Tail latency is a core challenge in LLM serving"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
           "field": "concept",
-          "expert": "KV-cache, memory fragmentation, tail latency",
+          "expert": "KV-cache",
           "audience": null,
           "status": "gap",
           "outcome": "absent"
         },
         "claim": {
           "field": "claim",
-          "expert": "LLM serving has three core challenges: growing KV-cache, memory fragmentation, and tail latency.",
-          "audience": "Serving AI models efficiently is difficult due to three technical reasons: growing memory needs, wasted capacity, and slow worst-case response times.",
+          "expert": "There are three core challenges in LLM serving: growing KV-cache, memory fragmentation, and tail latency.",
+          "audience": "Serving AI models efficiently is difficult due to growing memory needs, wasted capacity, and slow worst-case response times.",
           "status": "compared",
           "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both list the same three challenges, just with different phrasing for the same underlying issues.",
-            "quote": "growing memory needs, wasted capacity, and slow worst-case response times",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Growing KV-cache is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "growing memory needs"
+              },
+              {
+                "id": "p2",
+                "text": "Memory fragmentation is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "wasted capacity"
+              },
+              {
+                "id": "p3",
+                "text": "Tail latency is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "slow worst-case response times"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers all three challenges in general terms.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
         },
         "result": {
           "field": "result",
@@ -144,32 +182,57 @@
       "peer": {
         "concept": {
           "field": "concept",
-          "expert": "KV-cache, memory fragmentation, tail latency",
+          "expert": "KV-cache",
           "audience": "tail latency",
           "status": "compared",
-          "outcome": "match",
-          "comparator": "identity",
+          "outcome": "mismatch",
+          "comparator": "fuzzy",
           "normalised": [
-            "tail latency",
+            "kv cache",
             "tail latency"
           ],
-          "how": "identical after normalisation"
+          "how": "edit similarity 0.20"
         },
         "claim": {
           "field": "claim",
-          "expert": "LLM serving has three core challenges: growing KV-cache, memory fragmentation, and tail latency.",
+          "expert": "There are three core challenges in LLM serving: growing KV-cache, memory fragmentation, and tail latency.",
           "audience": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
           "status": "compared",
-          "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both identify the same three challenges: growing memory/cache, fragmentation, and tail latency.",
-            "quote": "growing memory caches, memory fragmentation, and tail latency",
-            "quote_verified": true
+          "outcome": "over-claimed",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Growing KV-cache is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "growing memory caches"
+              },
+              {
+                "id": "p2",
+                "text": "Memory fragmentation is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "memory fragmentation"
+              },
+              {
+                "id": "p3",
+                "text": "Tail latency is a core challenge in LLM serving",
+                "status": "covered",
+                "evidence": "tail latency"
+              }
+            ],
+            "extra_assertions": [
+              "strain GPU resources and user experience"
+            ],
+            "note": "Peer covers all three challenges and adds an effect claim.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition is covered, and the reading also asserts something the expert's claim does not."
         },
         "result": {
           "field": "result",
@@ -185,22 +248,25 @@
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
         "thin": false
       },
       "peer": {
         "value": 1.0,
-        "basis": "claim",
-        "state": "equivalent",
+        "covered": 3,
+        "total": 3,
+        "state": "over-claimed",
         "thin": false
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
         "thin": false,
         "definitional": true
@@ -208,7 +274,7 @@
     },
     "reach": {
       "novice": "partial",
-      "peer": "ok"
+      "peer": "partial"
     },
     "findings": [],
     "term_gap": {
@@ -225,16 +291,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 3.956,
       "dropped": [],
-      "retried_because": []
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 4.872
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 3.705,
-    "structuring_s": 3.957
+    "structuring_s": 4.872
   },
   "image_content": null
 }

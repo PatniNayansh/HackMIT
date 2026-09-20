@@ -24,8 +24,8 @@ PROFILE = DeckProfile("LLM serving", "distributed systems")
 
 
 class Structurer:
-    """Stands in for the structuring model. Every viewer's claim is its own takeaway, and every pair
-    'entails' both ways, unless a scenario says otherwise."""
+    """Stands in for the structuring model. Every viewer's claim is its own takeaway; the expert claim is
+    one proposition, and each reader covers it (evidence: the reader's own claim, word for word)."""
 
     model = "fake-sonnet"
 
@@ -38,8 +38,8 @@ class Structurer:
             await asyncio.sleep(self.delay)
         tk = {p: re.search(rf"<{p}_takeaway>\n(.*?)\n</{p}_takeaway>", user_text, re.S).group(1) for p in ("novice", "peer", "expert")}
         fields = {p: {"concept": None, "claim": tk[p], "result": None, "vehicle": None} for p in tk}
-        yes = {"evaluated": True, "expert_entails_audience": True, "audience_entails_expert": True, "rationale": "same", "quote": tk["expert"][:9]}
-        out = {"fields": fields, "verdicts": {"novice": yes, "peer": yes}}
+        cov = lambda p: {"judgements": [{"id": "p1", "status": "covered", "evidence": tk[p]}], "extra_assertions": [], "note": "same"}  # noqa: E731
+        out = {"fields": fields, "propositions": [{"id": "p1", "text": tk["expert"]}], "coverage": {"novice": cov("novice"), "peer": cov("peer")}}
         if self.override:
             out = self.override(out, tk)
         return out
@@ -74,7 +74,7 @@ async def test_a_fieldwise_run_stores_fields_comparisons_and_findings_with_one_s
     m = results[1]["metrics"]
     assert m["comparator"] == "fieldwise" and m["intent"] == "SENTINEL-EXPERT-2 takeaway"
     assert m["fields"]["novice"]["claim"] == "SENTINEL-NOVICE-2 takeaway"
-    assert m["comparisons"]["novice"]["claim"]["outcome"] == "equivalent" and m["ordinal"]["expert"]["definitional"] is True
+    assert m["comparisons"]["novice"]["claim"]["outcome"] == "equivalent" and m["chart"]["expert"]["definitional"] is True
     assert "intent_alignment" not in m  # no cosine anywhere on this path
     assert set(results[1]["timing"]) == {"personas_s", "structuring_s"}
     assert results[1]["slide_intent"] == {"text": "SENTINEL-EXPERT-2 takeaway", "source": "expert_takeaway"}
@@ -97,8 +97,8 @@ async def test_a_failed_structuring_call_leaves_only_that_slide_unscored(store):
 
     def flaky(out, tk):
         calls["n"] += 1
-        if calls["n"] == 2:  # the second slide's answer is missing a verdict for a pair with both claims, on both attempts
-            out["verdicts"]["peer"] = {"evaluated": False, "expert_entails_audience": False, "audience_entails_expert": False, "rationale": "", "quote": ""}
+        if calls["n"] == 2:  # the second slide's decomposition is unusable, on both attempts
+            out["propositions"] = []  # an unusable decomposition for a present expert claim
         return out
 
     class Flaky(Structurer):
@@ -112,14 +112,14 @@ async def test_a_failed_structuring_call_leaves_only_that_slide_unscored(store):
     def both(out, tk):
         out = orig(out, tk)
         if calls["n"] == 3:
-            out["verdicts"]["peer"] = {"evaluated": False, "expert_entails_audience": False, "audience_entails_expert": False, "rationale": "", "quote": ""}
+            out["propositions"] = []  # an unusable decomposition for a present expert claim
         return out
 
     st.override = both
     await run_deck(store, run_id, TolerantEngine(FakeLLM()), HashEmbedder(), comparator="fieldwise", structuring_client=st)
     r1, r2, r3 = store.load_results(run_id)
     assert store.load_meta(run_id)["status"] == "complete"
-    assert r2["metrics"] is None and "structuring call failed" in r2["metrics_error"] and "verdict missing" in r2["metrics_error"]
+    assert r2["metrics"] is None and "structuring call failed" in r2["metrics_error"] and "no propositions" in r2["metrics_error"]
     assert r2["readings"]["novice"]["ok"] and r1["metrics"] and r3["metrics"]  # the readings survive; the neighbours are fine
 
 

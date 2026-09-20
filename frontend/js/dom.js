@@ -47,12 +47,24 @@ export function slideImage(url, alt, extra = "") {
 /** The claim's entailment state as a word. Words are the point: no scalar. The five states differ by
  *  fill weight on the tier ramp (never red/amber/green), and the text is always present. */
 export const STATES = ["equivalent", "over-claimed", "under-specified", "divergent", "absent"];
-export const STATE_MEANING = {
+/** What each state meant for field-wise runs saved before proposition coverage (two-way entailment). */
+export const LEGACY_STATE_MEANING = {
   equivalent: "Same understanding.",
   "over-claimed": "The reading over-generalised: it claims more than the expert did.",
   "under-specified": "The reading got a weaker version of the point.",
   divergent: "Neither implies the other: likely a misconception.",
   absent: "The reading stated no general claim.",
+};
+
+/** The meaning of a claim comparison's state, in the terms of the method that produced it. */
+export const meaningOf = (claim) => (claim.coverage ? STATE_MEANING : LEGACY_STATE_MEANING)[claim.outcome];
+
+export const STATE_MEANING = {
+  equivalent: "Every proposition in the expert's claim is covered, and nothing more is asserted.",
+  "over-claimed": "Every proposition is covered, and the reading also asserts something the expert's claim does not.",
+  "under-specified": "Some of the expert's propositions are covered and some are missed.",
+  divergent: "A proposition is contradicted: likely a misconception.",
+  absent: "None of the expert's propositions is covered (or no general claim was stated).",
 };
 export function stateChip(state, { large = false } = {}) {
   return h("span", { class: `state-chip ${state.replace(/[^a-z]/g, "_")}${large ? " large" : ""}` }, state);

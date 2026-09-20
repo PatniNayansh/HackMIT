@@ -67,12 +67,21 @@ def test_a_slides_intent_is_the_expert_takeaway_and_the_fieldwise_payload_is_sel
                 if f in ("concept", "result") and stored["status"] == "compared":
                     assert stored["outcome"] == fresh["outcome"]
             claim = m["comparisons"][aud]["claim"]
-            if claim["status"] == "compared":
-                v = claim["verdict"]
-                assert claim["outcome"] == C.entailment_state(claim["expert"], claim["audience"], v)
-                assert v["quote"] and v["rationale"]  # every state traces to a quoted span
+            if claim["status"] in ("compared", "gap"):
+                cov = claim["coverage"]
+                assert [p["text"] for p in cov["propositions"]] == [p["text"] for p in m["propositions"]]
+                assert claim["outcome"] == C.coverage_state(claim["expert"], claim["audience"], cov)  # the state is derived from the stored judgements
+                assert (claim["outcome"] == "divergent") == any(p["status"] == "contradicted" for p in cov["propositions"])
+                for p in cov["propositions"]:
+                    if p["status"] in ("covered", "contradicted"):  # provenance: a span found word for word in the reader's claim
+                        assert p["evidence"] and C.quoted_word_for_word(p["evidence"], claim["audience"]), (r["index"], aud, p)
+                    else:
+                        assert not p["evidence"]
+                assert m["chart"][aud]["value"] == C.chart_value(claim["outcome"], cov)
+                assert cov["covered"] == sum(p["status"] == "covered" for p in cov["propositions"]) and cov["total"] == len(m["propositions"])
             assert m["comparisons"][aud]["vehicle"]["status"] == "not_scored"  # never scored
-        assert m["ordinal"]["expert"]["definitional"] is True and "intent_alignment" not in m
+        assert m["chart"]["expert"]["definitional"] is True and "ordinal" not in m and "intent_alignment" not in m
+        assert m["claim_comparison"] == "coverage" and body["rollup"]["arc_kind"] == "coverage"
         assert not ({"audience_divergence", "blind_spot_score", "pairwise_distance"} & set(m))
 
 

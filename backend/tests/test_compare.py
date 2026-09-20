@@ -8,7 +8,7 @@ import pytest
 from sightline import compare as C
 from sightline.compare import (
     FileStructureCache, StructuringError, build_fieldwise_metrics, clean_fields, compare_concept, compare_field,
-    compare_result, entailment_state, example_bound, figure_dependent, null_if_blank, slide_profile, structure_slide,
+    compare_result, example_bound, figure_dependent, null_if_blank, slide_profile, structure_slide,
 )
 from sightline.llm import LLMError
 
@@ -24,17 +24,36 @@ EXPERT_F = {"concept": "opportunity cost", "claim": "Opportunity cost is the val
 NOVICE_F = {"concept": None, "claim": None, "result": None, "vehicle": "tickets to see Tyler at $150 versus Doja Cat at $100"}
 PEER_F = {"concept": "Opportunity cost", "claim": "Opportunity cost is the benefit foregone from the next best alternative.",
           "result": "$50", "vehicle": "Tyler at $150 chosen over Doja Cat"}
-V_EQ = {"evaluated": True, "expert_entails_audience": True, "audience_entails_expert": True, "rationale": "Same idea.", "quote": "next best alternative"}
 
 
-def structured(novice=NOVICE_F, peer=PEER_F, expert=EXPERT_F, peer_verdict=V_EQ):
-    verdict = lambda v: None if v is None else {**v, "quote_verified": True}  # noqa: E731
-    return {"fields": {"novice": novice, "peer": peer, "expert": expert}, "verdicts": {"novice": None, "peer": verdict(peer_verdict)},
-            "meta": {"model": "fake-haiku", "attempts": 1, "latency_s": 0.1, "dropped": []}}
+def props_of(expert):
+    """The expert claim as ONE proposition (the whole claim), enough for tests that are not about decomposition."""
+    return C.clean_propositions([{"id": "p1", "text": expert["claim"]}], expert["claim"]) if expert.get("claim") else []
+
+
+def coverage_of(fields, props, statuses=None, extras=()):
+    """What structure_slide produces for one audience: nothing without a claim (no model consulted),
+    all-omitted with a claim of None, otherwise the checked judgements. Evidence is the audience's own claim."""
+    if not props:
+        return None
+    if fields.get("claim") is None:
+        return C.all_omitted(props)
+    statuses = statuses or ["covered"] * len(props)
+    raw = {"judgements": [{"id": p["orig"], "status": st, "evidence": fields["claim"] if st != "omitted" else ""} for p, st in zip(props, statuses)],
+           "extra_assertions": list(extras), "note": "n"}
+    return C.judge_coverage(raw, props, fields["claim"])
+
+
+def structured(novice=NOVICE_F, peer=PEER_F, expert=EXPERT_F, novice_statuses=None, peer_statuses=None, extras=((), ())):
+    props = props_of(expert)
+    return {"fields": {"novice": novice, "peer": peer, "expert": expert}, "propositions": props,
+            "coverage": {"novice": coverage_of(novice, props, novice_statuses, extras[0]), "peer": coverage_of(peer, props, peer_statuses, extras[1])},
+            "meta": {"model": "fake-sonnet", "attempts": 1, "latency_s": 0.1, "dropped": [], "tripwire": []}}
 
 
 def metrics(**kw):
-    return build_fieldwise_metrics(TAKEAWAYS, structured(**kw), {"novice": ["p99"], "peer": [], "expert": []}, kw.pop("image", None))
+    image = kw.pop("image", None)
+    return build_fieldwise_metrics(TAKEAWAYS, structured(**kw), {"novice": ["p99"], "peer": [], "expert": []}, image)
 
 
 # ------------------------------------------------------------------------- result: exact match
@@ -109,13 +128,12 @@ def test_null_table_row_4_audience_introduced_something_is_over_reach_and_not_pe
 def test_a_slide_with_no_result_and_no_vehicle_is_never_a_gap_on_account_of_those_absences():
     expert = {"concept": "isotope", "claim": "Isotopes are atoms of one element with different neutron counts.", "result": None, "vehicle": None}
     novice = dict(expert)
-    m = build_fieldwise_metrics({"novice": "n", "peer": "p", "expert": "e"}, structured(novice=novice, peer=dict(expert), expert=expert, peer_verdict=V_EQ) | {"verdicts": {"novice": {**V_EQ, "quote_verified": True}, "peer": {**V_EQ, "quote_verified": True}}},
-                                {"novice": [], "peer": [], "expert": []})
+    m = build_fieldwise_metrics({"novice": "n", "peer": "p", "expert": "e"}, structured(novice=novice, peer=dict(expert), expert=expert), {"novice": [], "peer": [], "expert": []})
     assert m["slide_profile"]["fields"] == ["concept", "claim"]
     for aud in ("novice", "peer"):
         assert m["comparisons"][aud]["result"]["status"] == "excluded"
         assert m["comparisons"][aud]["vehicle"]["status"] == "not_scored"
-        assert m["reach"][aud] == "ok" and m["ordinal"][aud]["value"] == 1.0
+        assert m["reach"][aud] == "ok" and m["chart"][aud]["value"] == 1.0
     assert m["findings"] == []
 
 
@@ -128,7 +146,7 @@ def test_vehicle_is_recorded_and_shown_and_never_scored():
         m = metrics(peer=peer)
         assert m["comparisons"]["peer"]["vehicle"]["status"] == "not_scored"
         assert m["comparisons"]["peer"]["vehicle"]["audience"] == vehicle  # recorded
-        assert m["reach"]["peer"] == "ok" and m["ordinal"]["peer"]["value"] == 1.0  # ...and no effect on any score
+        assert m["reach"]["peer"] == "ok" and m["chart"]["peer"]["value"] == 1.0  # ...and no effect on any score
     # even when the audience's vehicle is null and the expert's is present, that is not a gap
     assert metrics(peer={**PEER_F, "vehicle": None})["comparisons"]["peer"]["vehicle"]["status"] == "not_scored"
 
@@ -140,7 +158,7 @@ def test_the_tyler_versus_doja_cat_penalty_is_gone_deterministically():
     m = metrics()
     novice = m["comparisons"]["novice"]
     assert novice["concept"]["status"] == "gap" and novice["result"]["status"] == "gap" and novice["claim"]["outcome"] == "absent"
-    assert m["reach"]["novice"] == "fail" and m["ordinal"]["novice"]["value"] == 0.0
+    assert m["reach"]["novice"] == "fail" and m["chart"]["novice"]["value"] == 0.0
     assert m["reach"]["peer"] == "ok"
 
 
@@ -186,7 +204,7 @@ def test_example_bound_ignores_a_result_the_slide_does_not_have():
     aud = {"concept": None, "claim": None, "result": None, "vehicle": "carbon-12 and carbon-14"}
     assert example_bound(aud, expert, slide_profile(expert)) is True  # result is not in the profile, so its absence is not required...
     assert example_bound({**aud, "result": "6"}, expert, slide_profile(expert)) is True  # ...and one the expert never had does not excuse the miss
-    text = [x for x in build_fieldwise_metrics(TAKEAWAYS, structured(novice=aud, expert=expert, peer=aud, peer_verdict=None) | {"verdicts": {"novice": None, "peer": None}}, {"novice": [], "peer": [], "expert": []})["findings"]][0]["text"]
+    text = [x for x in build_fieldwise_metrics(TAKEAWAYS, structured(novice=aud, expert=expert, peer=aud), {"novice": [], "peer": [], "expert": []})["findings"]][0]["text"]
     assert "reaches the answer" not in text
 
 
@@ -228,79 +246,6 @@ def test_the_figure_finding_uses_the_specs_wording_and_quotes_both_claims():
     assert f["audience"] == "novice"
     assert f["text"] == "The substance of this slide is in the figure, and the novice reading does not engage with it: the figure is carrying meaning it does not label."
     assert [e["text"] for e in f["evidence"]] == ["Markets are complicated.", expert["claim"]]
-
-
-# --------------------------------------------------------------- entailment: the four states + absent
-
-
-@pytest.mark.parametrize("e2a,a2e,state", [
-    (True, True, "equivalent"), (True, False, "under-specified"), (False, True, "over-claimed"), (False, False, "divergent"),
-])
-def test_the_four_entailment_states(e2a, a2e, state):
-    v = {"expert_entails_audience": e2a, "audience_entails_expert": a2e}
-    assert entailment_state("Opportunity cost is the value of the best alternative given up.", "Opportunity cost is a cost.", v) == state
-
-
-def test_an_absent_audience_claim_is_absent_without_running_entailment():
-    assert entailment_state("A claim.", None, None) == "absent"  # no verdict is needed or consulted
-    assert entailment_state(None, "A claim.", None) is None       # the expert has none: the field is not part of the slide
-    assert entailment_state(None, None, None) is None
-
-
-# Hand-written fixtures: (expert claim, audience claim, the verdict a careful reader gives).
-STATE_FIXTURES = [
-    ("Price rises when demand exceeds supply.", "When more people want a good than there is of it, its price goes up.", True, True, "equivalent"),
-    ("Opportunity cost is the value of the next best alternative given up.", "Opportunity cost is a cost.", True, False, "under-specified"),
-    ("Opportunity cost is the value of the next best alternative given up.", "Every choice in life has a cost that someone bears.", False, True, "over-claimed"),
-    ("Opportunity cost is the value of the next best alternative given up.", "Opportunity cost is the money you spend on a purchase.", False, False, "divergent"),
-]
-
-
-@pytest.mark.parametrize("expert_claim,aud_claim,e2a,a2e,state", STATE_FIXTURES)
-async def test_each_state_end_to_end_from_a_hand_written_fixture(expert_claim, aud_claim, e2a, a2e, state):
-    class Client:
-        model = "fake-haiku"
-        calls = 0
-
-        async def complete_json(self, **_):
-            Client.calls += 1
-            fields = lambda c: {"concept": None, "claim": c, "result": None, "vehicle": None}  # noqa: E731
-            return {"fields": {"novice": fields(aud_claim), "peer": fields(aud_claim), "expert": fields(expert_claim)},
-                    "verdicts": {"novice": {"evaluated": True, "expert_entails_audience": e2a, "audience_entails_expert": a2e, "rationale": "r", "quote": aud_claim[:12]},
-                                 "peer": {"evaluated": True, "expert_entails_audience": e2a, "audience_entails_expert": a2e, "rationale": "r", "quote": aud_claim[:12]}}}
-
-    takeaways = {"novice": aud_claim, "peer": aud_claim, "expert": expert_claim}
-    got = await structure_slide(Client(), takeaways)
-    m = build_fieldwise_metrics(takeaways, got, {"novice": [], "peer": [], "expert": []})
-    assert m["comparisons"]["novice"]["claim"]["outcome"] == state == m["ordinal"]["novice"]["state"]
-    assert Client.calls == 1  # extraction and entailment are ONE call per slide
-    v = m["comparisons"]["novice"]["claim"]["verdict"]
-    assert v["quote"] and v["quote_verified"] is True  # every state traces to a quoted span
-
-
-def test_the_ordinal_rungs_are_exactly_the_four_in_the_spec():
-    assert C.ORDINAL == {"equivalent": 1.0, "over-claimed": 0.66, "under-specified": 0.33, "divergent": 0.0, "absent": 0.0}
-    m = metrics()
-    assert m["ordinal"]["expert"] == {"value": 1.0, "basis": "claim", "state": "equivalent", "thin": False, "definitional": True}
-    assert m["ordinal"]["peer"]["value"] == 1.0 and m["ordinal"]["novice"]["value"] == 0.0
-
-
-def test_a_thin_profile_is_marked_and_falls_back_to_concept_then_result_for_its_rung():
-    expert = {"concept": "isotope", "claim": None, "result": None, "vehicle": None}
-    aud = {"concept": "isotope", "claim": None, "result": None, "vehicle": None}
-    m = build_fieldwise_metrics(TAKEAWAYS, structured(novice=aud, peer=aud, expert=expert, peer_verdict=None) | {"verdicts": {"novice": None, "peer": None}}, {"novice": [], "peer": [], "expert": []})
-    assert m["slide_profile"]["thin"] is True
-    assert m["ordinal"]["novice"] == {"value": 1.0, "basis": "concept", "state": "match", "thin": True}
-    none = build_fieldwise_metrics(TAKEAWAYS, structured(novice=NOVICE_F, peer=NOVICE_F, expert={f: None for f in C.FIELDS}, peer_verdict=None) | {"verdicts": {"novice": None, "peer": None}}, {"novice": [], "peer": [], "expert": []})
-    assert none["ordinal"]["novice"]["value"] is None and none["reach"]["novice"] == "none"
-
-
-def test_a_verdict_quote_that_is_not_in_the_text_is_marked_unverified_but_the_panel_still_has_both_claims():
-    v = C._verdict({"evaluated": True, "expert_entails_audience": True, "audience_entails_expert": True, "rationale": "r", "quote": "words nobody wrote"},
-                   "Expert claim here.", "Audience claim here.", [])
-    assert v["quote_verified"] is False
-    ok = C._verdict({"evaluated": True, "expert_entails_audience": True, "audience_entails_expert": True, "rationale": "r", "quote": "audience claim"}, "Expert claim here.", "Audience claim here.", [])
-    assert ok["quote_verified"] is True
 
 
 # --------------------------------------------- extraction: nulls, grounding, one call, no inference
@@ -355,9 +300,19 @@ class Scripted:
         return r
 
 
-def reply(novice=NOVICE_F, peer=PEER_F, expert=EXPERT_F, peer_verdict=V_EQ):
-    nv = {"evaluated": False, "expert_entails_audience": False, "audience_entails_expert": False, "rationale": "", "quote": ""}
-    return {"fields": {"novice": novice, "peer": peer, "expert": expert}, "verdicts": {"novice": nv, "peer": peer_verdict or nv}}
+def reply(novice=NOVICE_F, peer=PEER_F, expert=EXPERT_F, novice_cov=None, peer_cov=None, propositions=None):
+    """What the model returns: fields, the expert claim's propositions, and each audience's judgements."""
+    props = propositions if propositions is not None else ([{"id": "p1", "text": expert["claim"]}] if expert["claim"] else [])
+
+    def cov(f, given):
+        if given is not None:
+            return given
+        if not f["claim"] or not props:
+            return {"judgements": [], "extra_assertions": [], "note": ""}
+        return {"judgements": [{"id": "p1", "status": "covered", "evidence": f["claim"]}], "extra_assertions": [], "note": "Same."}
+
+    return {"fields": {"novice": novice, "peer": peer, "expert": expert}, "propositions": props,
+            "coverage": {"novice": cov(novice, novice_cov), "peer": cov(peer, peer_cov)}}
 
 
 async def test_one_call_per_slide_takes_all_three_takeaways_and_never_the_image():
@@ -366,8 +321,9 @@ async def test_one_call_per_slide_takes_all_three_takeaways_and_never_the_image(
     (call,) = c.calls
     for t in TAKEAWAYS.values():
         assert t in call["user"]
-    assert call["image"] is None and set(call["schema"]["properties"]) == {"fields", "verdicts"}  # two clearly separated sections
+    assert call["image"] is None and set(call["schema"]["properties"]) == {"fields", "propositions", "coverage"}  # clearly separated sections
     assert got["fields"]["novice"] == NOVICE_F and got["meta"]["attempts"] == 1 and got["meta"]["model"] == "fake-haiku"
+    assert [p["text"] for p in got["propositions"]] == [EXPERT_F["claim"]]
 
 
 async def test_the_prompt_forbids_inference_and_placeholders_and_demands_general_claims():
@@ -385,21 +341,14 @@ async def test_an_extractor_that_fills_blanks_is_corrected_in_code():
     assert got["fields"]["novice"] == {"concept": None, "claim": None, "result": None, "vehicle": NOVICE_F["vehicle"]}
 
 
-async def test_a_missing_verdict_for_a_pair_with_both_claims_is_retried_then_an_error():
-    bad = reply(peer_verdict={"evaluated": False, "expert_entails_audience": False, "audience_entails_expert": False, "rationale": "", "quote": ""})
-    good = Scripted(bad, reply())
-    assert (await structure_slide(good, TAKEAWAYS))["meta"]["attempts"] == 2
-    with pytest.raises(StructuringError, match="verdict missing"):
-        await structure_slide(Scripted(bad, bad), TAKEAWAYS)
-    with pytest.raises(StructuringError):
-        await structure_slide(Scripted(LLMError("not json"), LLMError("not json")), TAKEAWAYS)
 
 
-async def test_a_verdict_for_a_claim_the_grounding_check_nulled_is_ignored():
-    # the model invented a concept-free claim full of new terms; grounding drops it, so no verdict is needed
+
+async def test_coverage_for_a_claim_the_grounding_check_nulled_is_ignored():
+    # the model invented a claim full of new terms; grounding drops it, so the reader has no claim and is absent
     hallucinated = {**PEER_F, "claim": "Stochastic eigenvalue blockchain arbitrage hedging."}
-    got = await structure_slide(Scripted(reply(peer=hallucinated, peer_verdict={"evaluated": False, "expert_entails_audience": False, "audience_entails_expert": False, "rationale": "", "quote": ""})), TAKEAWAYS)
-    assert got["fields"]["peer"]["claim"] is None and got["verdicts"]["peer"] is None
+    got = await structure_slide(Scripted(reply(peer=hallucinated)), TAKEAWAYS)
+    assert got["fields"]["peer"]["claim"] is None
     m = build_fieldwise_metrics(TAKEAWAYS, got, {"novice": [], "peer": [], "expert": []})
     assert m["comparisons"]["peer"]["claim"]["outcome"] == "absent"
 
@@ -408,7 +357,7 @@ def test_structurings_are_cached_by_the_three_takeaways(tmp_path):
     cache = FileStructureCache(tmp_path)
     assert cache.get(TAKEAWAYS) is None
     cache.put(TAKEAWAYS, structured())
-    assert cache.get(TAKEAWAYS)["meta"]["model"] == "fake-haiku"
+    assert cache.get(TAKEAWAYS)["meta"]["model"] == "fake-sonnet"
     assert cache.get({**TAKEAWAYS, "novice": "a different takeaway"}) is None
 
 
@@ -431,5 +380,7 @@ def test_the_payload_is_plain_json_and_carries_the_texts_every_state_traces_to()
     json.dumps(m)
     assert m["comparator"] == "fieldwise" and m["takeaways"] == TAKEAWAYS and m["intent"] == EXPERT_T
     claim = m["comparisons"]["peer"]["claim"]
-    assert claim["expert"] == EXPERT_F["claim"] and claim["audience"] == PEER_F["claim"] and claim["meaning"] == "Same understanding."
-    assert claim["verdict"]["quote"] and m["term_gap"]["novice_unresolved"] == ["p99"]
+    assert claim["expert"] == EXPERT_F["claim"] and claim["audience"] == PEER_F["claim"]
+    assert claim["meaning"] == C.STATE_MEANING["equivalent"] and claim["outcome"] == "equivalent"
+    assert claim["coverage"]["propositions"][0]["evidence"] == PEER_F["claim"]  # the quoted span it traces to
+    assert m["claim_comparison"] == "coverage" and m["term_gap"]["novice_unresolved"] == ["p99"] and "verdicts" not in m

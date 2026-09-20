@@ -154,7 +154,8 @@ class DeckRollup(TypedDict):
     per_slide: list[dict[str, Any]]
     hardest: list[dict[str, Any]]  # slides, hardest for the novice first
     terms: list[dict[str, Any]]  # novice-unresolved terms, most slides first
-    arc: list[dict[str, Any]]  # alignment to the inferred intent per persona, in slide order
+    arc: list[dict[str, Any]]  # per persona, in slide order: alignment (cosine) or propositions covered (field-wise)
+    arc_kind: str  # "alignment" | "coverage" (propositions covered) | "ordinal" (field-wise runs saved before coverage)
     definitional: list[str]  # personas in `arc` that are the reference, not measured
     notes: list[dict[str, Any]]  # restatements of the above; each carries its evidence
 
@@ -184,9 +185,15 @@ def _mode(m: Mapping[str, Any] | None) -> str:
     return (m or {}).get("comparator", "cosine")
 
 
+def _chart_of(m: Mapping[str, Any]) -> Mapping[str, Any]:
+    """What the field-wise arc draws. Runs made since proposition coverage carry `chart` (propositions
+    covered over total); runs saved before it carry `ordinal` (a four-rung rank) and are read as such."""
+    return m["chart"] if "chart" in m else m["ordinal"]
+
+
 def _definitional(m: Mapping[str, Any], persona: str) -> bool:
     if _mode(m) == "fieldwise":
-        return bool(m["ordinal"][persona].get("definitional"))
+        return bool(_chart_of(m)[persona].get("definitional"))
     return bool(m["intent_alignment"][persona].get("definitional"))
 
 
@@ -285,24 +292,25 @@ def _notes(
 
 
 def _fieldwise_hardest(scored: Sequence[SlideResult], values: Mapping[int, Mapping[str, float]]) -> list[dict[str, Any]]:
-    """Hardest for a newcomer, from the novice's rung on the four-rung ordinal (claim state, else
-    concept, else result): lowest first; ties by more missing fields, then more unresolved terms.
-    The rung orders slides; it is never shown as a score."""
+    """Hardest for a newcomer, from the share of the expert claim's propositions the novice covered
+    (divergent counts as 0): lowest first; ties by more missing fields, then more unresolved terms.
+    The value orders slides; the row shows the state, never a score."""
     rows = []
     for r in scored:
         m = r["metrics"]
         comps = m["comparisons"]["novice"]
-        rung = m["ordinal"]["novice"]
-        if rung["value"] is None:  # the slide has no scored field: nothing to rank it by
+        rung = _chart_of(m)["novice"]
+        if rung["value"] is None:  # the expert made no claim: nothing to count, nothing to rank by
             continue
         gaps = sum(1 for f in m["slide_profile"]["scored"] if comps[f].get("outcome") in ("absent", "mismatch", "divergent"))
         rows.append(
             {
-                "slide": r["index"], "novice_state": rung["state"], "novice_rung": rung["value"], "novice_gaps": gaps,
+                "slide": r["index"], "novice_state": rung["state"], "novice_value": rung["value"], "novice_gaps": gaps,
+                "novice_covered": rung.get("covered"), "novice_total": rung.get("total"),
                 "novice_unresolved": int(values[r["index"]]["unresolved_count.novice"]),
             }
         )
-    rows.sort(key=lambda h: (h["novice_rung"], -h["novice_gaps"], -h["novice_unresolved"], h["slide"]))
+    rows.sort(key=lambda h: (h["novice_value"], -h["novice_gaps"], -h["novice_unresolved"], h["slide"]))
     return rows
 
 
@@ -387,13 +395,15 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
     for r in results:
         m = r["metrics"]
         if m and _mode(m) == "fieldwise":
-            # An ordinal with four rungs, drawn only so the chart can be drawn. `thin` marks a slide
-            # whose profile has at most one scored field: not a low-comprehension slide, so the
-            # chart hollows its points and the tooltip names the profile.
+            # Propositions covered over propositions in the expert's claim (divergent is 0.0). `thin`
+            # marks a slide whose profile has at most one scored field: not a low-comprehension slide,
+            # so the chart hollows its points and the tooltip names the profile.
+            ch = _chart_of(m)
             arc.append({
-                "slide": r["index"], **{p: m["ordinal"][p]["value"] for p in PERSONAS},
+                "slide": r["index"], **{p: ch[p]["value"] for p in PERSONAS},
                 "thin": m["slide_profile"]["thin"], "profile": m["slide_profile"]["text"],
-                "states": {p: m["ordinal"][p]["state"] for p in PERSONAS},
+                "states": {p: ch[p]["state"] for p in PERSONAS},
+                "counts": {p: {"covered": ch[p].get("covered"), "total": ch[p].get("total")} for p in PERSONAS},
             })
         else:
             arc.append({"slide": r["index"], **{p: (float(m["intent_alignment"][p]["value"]) if m else None) for p in PERSONAS}})
@@ -411,6 +421,7 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
         "hardest": hardest,
         "terms": terms,
         "arc": arc,
+        "arc_kind": ("coverage" if scored and "chart" in scored[0]["metrics"] else "ordinal") if mode == "fieldwise" else "alignment",
         "definitional": definitional,
         "notes": _notes(terms, hardest, comparable),
     }

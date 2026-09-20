@@ -14,9 +14,6 @@ from builders import fw_slide_result
 
 FULL = {"concept": "isotope", "claim": "Isotopes are atoms of one element with different neutron counts.", "result": "6", "vehicle": "carbon-12 and carbon-14"}
 NONE = {"concept": None, "claim": None, "result": None, "vehicle": "carbon-12 and carbon-14"}
-NO = {"evaluated": True, "expert_entails_audience": False, "audience_entails_expert": False, "rationale": "Different.", "quote": "atoms", "quote_verified": True}
-WEAKER = {**NO, "expert_entails_audience": True}
-STRONGER = {**NO, "audience_entails_expert": True}
 
 
 def tiers_for(results):
@@ -43,14 +40,14 @@ def test_expert_gated_when_neither_the_novice_nor_the_peer_reaches_it():
 
 
 def test_an_under_specified_peer_still_counts_as_aligned_but_an_under_specified_novice_does_not():
-    r = deck(5) + [fw_slide_result(6, novice=dict(FULL, result=None, concept=None), peer=dict(FULL, result=None, concept=None), verdicts={"novice": WEAKER, "peer": WEAKER})]
+    r = deck(5) + [fw_slide_result(6, novice=dict(FULL, result=None, concept=None), peer=dict(FULL, result=None, concept=None), states={"novice": "under-specified", "peer": "under-specified"})]
     assert tiers_for(r)[6] == "background_needed"  # novice: partial (not aligned); peer: partial (aligned)
     both_fail = deck(5) + [fw_slide_result(6, novice=dict(NONE), peer=dict(FULL, claim=None, concept=None, result=None))]
     assert tiers_for(both_fail)[6] == "expert_gated"
 
 
 def test_an_over_claiming_reader_reached_the_point():
-    r = deck(5) + [fw_slide_result(6, verdicts={"novice": STRONGER})]
+    r = deck(5) + [fw_slide_result(6, states={"novice": "over-claimed"})]
     assert tiers_for(r)[6] == "self_contained"
 
 
@@ -97,7 +94,7 @@ def test_a_short_deck_uses_the_absolute_term_threshold_and_says_so():
 def test_every_check_is_plain_words_and_names_the_text_it_reads():
     tier = rollup(deck(5) + [fw_slide_result(6, novice=dict(NONE))])["per_slide"][-1]["tier"]
     lines = [c["text"] for c in tier["checks"]]
-    assert any("Novice takeaway stated no general claim (absent)." == t for t in lines)
+    assert any("Novice claim covers none of the expert's 2 propositions (absent)." == t for t in lines)
     assert any("did not reach the concept; the expert reached “isotope”." in t for t in lines)
     assert any("did not reach the result; the expert reached “6”." in t for t in lines)
 
@@ -111,40 +108,51 @@ def test_thresholds_for_the_terms_check_live_in_the_one_config_dict():
 
 def test_hardest_slides_are_ranked_by_the_novices_rung_then_missing_fields_then_terms():
     r = rollup([
-        fw_slide_result(1),                                                                # equivalent
-        fw_slide_result(2, verdicts={"novice": WEAKER}),                                    # under-specified (0.33)
+        fw_slide_result(1),                                                                # equivalent (1.0)
+        fw_slide_result(2, states={"novice": "under-specified"}),                           # 1 of 2 propositions (0.5)
         fw_slide_result(3, novice=dict(NONE)),                                              # absent (0.0), 3 gaps
         fw_slide_result(4, novice=dict(FULL, claim=None)),                                  # absent (0.0), 1 gap... claim absent only
-        fw_slide_result(5, verdicts={"novice": STRONGER}),                                  # over-claimed (0.66)
+        fw_slide_result(5, states={"novice": "over-claimed"}),                                # all covered plus extra (1.0)
         fw_slide_result(6, novice=dict(NONE), unresolved=(("a", "b", "c"), (), ())),        # absent, 3 gaps, more terms
     ])["hardest"]
-    assert [h["slide"] for h in r] == [6, 3, 4, 2, 5, 1]
-    assert [h["novice_state"] for h in r] == ["absent", "absent", "absent", "under-specified", "over-claimed", "equivalent"]
+    # values: 6, 3, 4 are 0.0 (absent); 2 is 0.5; 1 and 5 are 1.0. Ties break on missing fields, then terms.
+    assert [h["slide"] for h in r] == [6, 3, 4, 2, 1, 5]
+    assert [h["novice_state"] for h in r] == ["absent", "absent", "absent", "under-specified", "equivalent", "over-claimed"]
+    assert [h["novice_value"] for h in r] == [0.0, 0.0, 0.0, 0.5, 1.0, 1.0]
+    assert (r[3]["novice_covered"], r[3]["novice_total"]) == (1, 2)
     assert r[0]["novice_gaps"] == 3 and r[2]["novice_gaps"] == 1 and r[0]["novice_unresolved"] == 3
 
 
 # ----------------------------------------------------------------------------------- arc
 
 
-def test_the_arc_is_an_ordinal_with_four_rungs_and_the_expert_at_the_top_by_definition():
+def test_the_arc_is_propositions_covered_over_total_and_the_expert_is_at_the_top_by_definition():
     r = rollup([
         fw_slide_result(1),
-        fw_slide_result(2, verdicts={"novice": WEAKER, "peer": STRONGER}),
-        fw_slide_result(3, novice=dict(NONE), verdicts={"peer": NO}),
+        fw_slide_result(2, states={"novice": "under-specified", "peer": "over-claimed"}),
+        fw_slide_result(3, novice=dict(NONE), states={"peer": "divergent"}),
     ])
     arc = r["arc"]
-    assert [(a["novice"], a["peer"], a["expert"]) for a in arc] == [(1.0, 1.0, 1.0), (0.33, 0.66, 1.0), (0.0, 0.0, 1.0)]
+    assert [(a["novice"], a["peer"], a["expert"]) for a in arc] == [(1.0, 1.0, 1.0), (0.5, 1.0, 1.0), (0.0, 0.0, 1.0)]  # propositions covered / total; divergent is 0
+    assert arc[1]["counts"]["novice"] == {"covered": 1, "total": 2} and arc[0]["counts"]["peer"] == {"covered": 2, "total": 2}
     assert arc[2]["states"] == {"novice": "absent", "peer": "divergent", "expert": "equivalent"}
-    assert r["definitional"] == ["expert"] and r["comparator"] == "fieldwise"
+    assert r["definitional"] == ["expert"] and r["comparator"] == "fieldwise" and r["arc_kind"] == "coverage"
 
 
 def test_a_thin_slide_is_marked_and_its_profile_named_not_treated_as_low_comprehension():
-    thin = {"concept": "isotope", "claim": None, "result": None, "vehicle": None}
+    thin = {"concept": None, "claim": "Isotopes are atoms of one element with different neutron counts.", "result": None, "vehicle": None}
     r = rollup([fw_slide_result(1), fw_slide_result(2, novice=dict(thin), peer=dict(thin), expert=dict(thin))])
     a1, a2 = r["arc"]
     assert a1["thin"] is False and a2["thin"] is True
-    assert a2["profile"] == "This slide names a principle; no example, no worked result."
-    assert a2["novice"] == 1.0  # a thin slide where the novice matched the concept is on the top rung, not penalised for what it lacks
+    assert a2["profile"] == "This slide states a claim; no example, no worked result."
+    assert a2["novice"] == 1.0  # a thin slide where the novice covered everything is at the top, not penalised for what it lacks
+
+
+def test_a_slide_whose_expert_made_no_claim_has_nothing_to_count_and_no_point():
+    no_claim = {"concept": "isotope", "claim": None, "result": None, "vehicle": None}
+    r = rollup([fw_slide_result(1), fw_slide_result(2, novice=dict(no_claim), peer=dict(no_claim), expert=dict(no_claim))])
+    assert r["arc"][1]["novice"] is None and r["arc"][1]["peer"] is None and r["arc"][1]["expert"] is None
+    assert [h["slide"] for h in r["hardest"]] == [1]  # nothing to rank it by
 
 
 def test_a_slide_without_a_scored_field_has_no_point_on_the_arc():

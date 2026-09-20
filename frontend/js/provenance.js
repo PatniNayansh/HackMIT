@@ -4,7 +4,7 @@
 // the other side of the comparison, and the raw arithmetic. Nothing is derived that the payload
 // does not already carry. `numBtn` is how a number gets onto the screen at all: a value with no
 // provenance spec has no way to be rendered.
-import { h, f2, ordinal, stateChip, STATE_MEANING, PERSONAS, LABEL, COLOR } from "./dom.js";
+import { h, f2, ordinal, stateChip, STATE_MEANING, LEGACY_STATE_MEANING, PERSONAS, LABEL, COLOR } from "./dom.js";
 import { strip } from "./charts.js";
 
 const KEY_LABEL = {
@@ -204,7 +204,57 @@ export { statusWord };
 const yes = (b) => (b ? "yes" : "no");
 
 const fw = {
+  /** The claim's state from proposition coverage: each proposition of the expert's claim, its status,
+   *  and the span quoted word for word from the reader's claim. Runs saved before coverage (entailment
+   *  verdicts) go to `legacyClaimState`. */
   claimState(slide, persona, r) {
+    const m = r.metrics, c = m.comparisons[persona].claim;
+    if (!c.coverage) return fw.legacyClaimState(slide, persona, r);
+    const cov = c.coverage, who = LABEL[persona];
+    const spans = cov.propositions.map((p) => p.evidence).filter(Boolean);
+    const trip = (m.structuring.tripwire || []).filter((t) => t.persona === persona);
+    const dropped = (m.structuring.dropped || []).filter((d) => d.persona === persona || d.persona === "expert");
+    const downgraded = cov.downgraded || [];
+    const ch = m.chart[persona];
+    const table = h("table", { class: "props" },
+      h("thead", null, h("tr", null, h("th", null, "Proposition in the expert’s claim"), h("th", null, "Status"), h("th", null, `Quoted from the ${who.toLowerCase()}’s claim`))),
+      h("tbody", null, ...cov.propositions.map((p) => h("tr", null,
+        h("td", null, h("span", { class: "pid" }, p.id), " ", p.text),
+        h("td", null, h("span", { class: `pstatus ${p.status}` }, p.status)),
+        h("td", null, p.evidence ? h("blockquote", { class: "span" }, p.evidence) : h("span", { class: "muted" }, "\u2014"))))));
+    return {
+      title: `Claim \u2014 ${who}, slide ${slide}`,
+      body: [
+        h("div", null, stateChip(c.outcome, { large: true })),
+        h("p", null, `${cov.covered} of ${cov.total} proposition${cov.total === 1 ? "" : "s"} covered. ${STATE_MEANING[c.outcome]}`),
+        c.status === "gap"
+          ? h("p", { class: "muted" }, "The reader\u2019s takeaway states no general claim, so none of the expert\u2019s propositions is covered. No model was asked about this pair.")
+          : h("p", { class: "muted" }, "The expert\u2019s claim is broken into atomic propositions, and the reader\u2019s claim is judged against each. Standard definitions of named concepts count as the same proposition; a new claim, quantity, direction or scope does not. A proposition is covered or contradicted only with a span found word for word in the reader\u2019s claim."),
+        section("The propositions", table),
+        cov.extra_assertions.length ? section("Asserted by the reader and not by the expert", h("div", { class: "stack" }, ...cov.extra_assertions.map((t) => src("Extra assertion, quoted from the reader\u2019s claim", t, persona)))) : null,
+        cov.note ? src("Note", cov.note) : null,
+        section("How the state was reached", calc([
+          "any proposition contradicted            -> divergent",
+          "all covered, nothing extra              -> equivalent",
+          "all covered, plus unsupported extra     -> over-claimed",
+          "some covered, none contradicted         -> under-specified",
+          "none covered                            -> absent",
+          `this reader: ${cov.covered} covered, ${cov.propositions.filter((p) => p.status === "contradicted").length} contradicted, ${cov.extra_assertions.length} extra of ${cov.total}  => ${c.outcome}`,
+          `arc value: ${ch.covered} / ${ch.total}${c.outcome === "divergent" ? ", counted as 0 because a proposition is contradicted" : ""}  =  ${ch.value?.toFixed(2)}`,
+          `model: ${m.structuring.model}`,
+        ].join("\n"))),
+        section("The two claims (each restated in general terms from its takeaway)", h("div", { class: "stack" },
+          srcNodes("Expert claim", [c.expert], "expert"),
+          c.audience ? srcNodes(`${who} claim, with the quoted spans highlighted`, highlight(c.audience, spans), persona) : src(`${who} takeaway`, "(states no general claim)", persona))),
+        trip.length ? h("p", { class: "caveat" }, trip.map((t) => `A local similarity tripwire flagged this pair (cosine ${t.cosine.toFixed(2)}, above ${t.limit}): a divergent verdict on nearly identical wording. The model was asked once more, naming the contradicted proposition: ${t.outcome === "confirmed" ? "it confirmed the contradiction." : t.outcome === "downgraded" ? `no contradiction came back, so the state was downgraded to ${t.after}.` : "the second call failed, so the first judgement stands."}`).join(" ")) : null,
+        downgraded.length ? h("p", { class: "caveat" }, `The model called ${downgraded.map((d) => d.id + " " + d.claimed).join(", ")} without a span that appears word for word in the reader\u2019s claim, so ${downgraded.length === 1 ? "it was" : "they were"} treated as omitted.`) : null,
+        section("The takeaways they were extracted from (verbatim)", h("div", { class: "stack" }, src("Expert takeaway", m.takeaways.expert, "expert"), src(`${who} takeaway`, m.takeaways[persona], persona))),
+        dropped.length ? h("p", { class: "caveat" }, `Fields the takeaways did not support were left empty, not filled: ${dropped.map((d) => `${d.persona} ${d.field} (${d.reason})`).join("; ")}.`) : null,
+      ],
+    };
+  },
+
+  legacyClaimState(slide, persona, r) {
     const m = r.metrics, c = m.comparisons[persona].claim, v = c.verdict;
     const who = LABEL[persona];
     const dropped = (m.structuring.dropped || []).filter((d) => d.persona === persona || d.persona === "expert");
@@ -212,7 +262,7 @@ const fw = {
       title: `Claim \u2014 ${who}, slide ${slide}`,
       body: [
         h("div", null, stateChip(c.outcome, { large: true })),
-        h("p", null, STATE_MEANING[c.outcome]),
+        h("p", null, LEGACY_STATE_MEANING[c.outcome]),
         c.status === "gap"
           ? h("p", { class: "muted" }, "The reader\u2019s takeaway states no general claim, so no entailment was run: an absent claim is the strongest form of under-specified.")
           : h("p", { class: "muted" }, "Entailment is checked in both directions and reported as a state, not a score. This is the check the alignment number never made: whether the takeaway is right about the point."),
@@ -312,7 +362,7 @@ const fw = {
       body: [
         h("div", null, h("div", { class: "big" }, "reference"), h("span", { class: "pill outline" }, "definitional, not measured")),
         h("p", null, REFERENCE_NOTE),
-        h("p", { class: "muted" }, "The expert\u2019s takeaway is the slide\u2019s intent, and its extracted fields define which fields the slide has. There is nothing to score it against. It stays in the payload and on the arc so they keep their shape for when the expert is measured independently."),
+        h("p", { class: "muted" }, "The expert\u2019s takeaway is the slide\u2019s intent, its extracted fields define which fields the slide has, and its claim defines the propositions everyone else is counted against. There is nothing to score it against. It stays in the payload and on the arc so they keep their shape for when the expert is measured independently."),
         section("What it defined", h("div", { class: "stack" },
           src("Expert takeaway, verbatim: the intent of this slide", m.takeaways.expert, "expert"),
           src("The slide\u2019s shape", p.text, "expert"))),
@@ -499,7 +549,7 @@ const BUILDERS = {
               h("div", { class: "who" }, `“${t.term}” · novice unresolved on ${t.count} slides`),
               h("p", null, ...t.slides.flatMap((s, i) => [i ? ", " : "", slideLink(state, s)])))))
           : h("div", { class: "vals" }, ...ev.rows.map((g) => h("a", { class: "vrow", href: `#/run/${state.meta.run_id}/slide/${g.slide}`, on: { click: closeDrawer } },
-              h("span", null, `Slide ${g.slide}`), h("span", null, g.novice_state ? `novice: ${g.novice_state}` : `novice alignment ${f2(g.novice_alignment)}`), h("span", null, `${g.novice_unresolved} terms`)))),
+              h("span", null, `Slide ${g.slide}`), h("span", null, g.novice_state ? `novice: ${g.novice_state}${g.novice_total ? ` (${g.novice_covered} of ${g.novice_total})` : ""}` : `novice alignment ${f2(g.novice_alignment)}`), h("span", null, `${g.novice_unresolved} terms`)))),
       ],
     };
   },

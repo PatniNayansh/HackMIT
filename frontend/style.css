@@ -482,6 +482,20 @@ a.tile:hover .tier-mini { outline: 2px solid var(--stroke); }
 .profile-line { margin: 0 0 10px; font-size: 14px; color: var(--ink-2); }
 .profile-line .num { font-size: 14px; }
 
+.missed { margin: 6px 0 2px; padding: 8px 12px; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--sunken); font-size: 15px; line-height: 1.4; }
+.missed.contradicts { border-width: 2.5px; border-style: double; }
+.missed em { font-style: italic; }
+
+table.props { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 13px; }
+table.props th, table.props td { padding: 6px 8px; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; }
+table.props thead th { font-size: 11.5px; color: var(--ink-2); font-weight: 500; }
+table.props blockquote.span { margin: 0; padding-left: 8px; border-left: 3px solid var(--stroke); overflow-wrap: anywhere; }
+.pid { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+.pstatus { display: inline-block; border: 1.5px solid var(--border); border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pstatus.covered { background: var(--surface); border-color: var(--tier-1-border); }
+.pstatus.omitted { background: var(--tier-2-bg); border-color: var(--tier-2-border); border-style: dashed; }
+.pstatus.contradicted { background: var(--tier-3-bg); border-color: var(--tier-3-bg); color: var(--tier-3-fg); }
+
 .finding-callout { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--ink); border-radius: 10px; padding: 9px 12px; margin: 8px 0; background: var(--sunken); }
 .finding-callout svg { flex: none; margin-top: 2px; }
 .finding-callout.lead { border-width: 2px; }

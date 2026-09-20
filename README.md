@@ -8,8 +8,8 @@ a tier (what it demands of its reader) and concrete, evidence-quoting edits for 
 peer.
 
 > **Live comparator: `fieldwise`** (`compare.py`). Each takeaway is structured into fields and each
-> field is compared with the comparator that suits it; the claim is checked by entailment and reported
-> as a *state*, not a score. The original whole-takeaway cosine (`divergence.py`) is intact and one
+> field is compared with the comparator that suits it; the claim is checked by proposition coverage and
+> reported as a *state*, not a score. The original whole-takeaway cosine (`divergence.py`) is intact and one
 > setting away: `SIGHTLINE_COMPARATOR=cosine make dev`. See [Comparators](#comparators).
 >
 > The expert's `takeaway`, verbatim, is the slide's intent under both, and it is the very string
@@ -40,7 +40,7 @@ make dev                    # http://localhost:8000
 2. **Deck overview** fills in as slides land (about 6 s each, in order). It lists the *hardest
    slides for a newcomer*, the terms the novice could not resolve across the deck, and the
    narrative arc: how each audience's reading of the claim compares with the expert's as the deck
-   goes on (an ordinal with four rungs, labelled as such).
+   goes on (the number of the expert's propositions each audience covered).
 3. **Slide detail**: the slide on the left, on a light card in both themes. Directly under it, one
    block, *Intent of this slide*, shows the expert persona's takeaway **verbatim**; if the slide
    has a chart or diagram, a collapsed *Figure description (machine-generated)* sits beneath it. On
@@ -72,7 +72,7 @@ inverted or dimmed, so they look as they will when projected.
 | Path | What it is |
 |---|---|
 | `backend/sightline/audiences.py`, `divergence.py`, `llm.py` | Step 1: the personas, the cosine metrics, the only code that talks to the Anthropic SDK. Untouched |
-| `backend/sightline/compare.py` | **The field-wise comparator**: structuring call, null table, comparators, entailment states, findings |
+| `backend/sightline/compare.py` | **The field-wise comparator**: structuring call, null table, comparators, proposition coverage and its states, findings |
 | `backend/sightline/ingest.py` | PDF to per-slide records behind `parse(path)`; subfield inference; which slides carry a figure and its neutral description |
 | `backend/sightline/intent.py` | **Kept, unused.** Rephrases the expert's takeaway into a sentence (Haiku, checked). Not in the pipeline: the takeaway itself is the intent |
 | `backend/sightline/tiers.py` | The three tiers, for either comparator. **Every threshold is in `CONFIG` at the top** |
@@ -81,7 +81,7 @@ inverted or dimmed, so they look as they will when projected.
 | `backend/sightline/runner.py`, `store.py` | Runs a deck and saves each slide as it lands |
 | `backend/sightline/server.py` | FastAPI: upload, start, poll, replay. Streaming is polling |
 | `frontend/` | Plain HTML, CSS and ES modules. No build step. `frontend/smoke/render.mjs` renders the real views in Node for the tests |
-| `backend/fixtures/runs/` | Bundled, read-only sample runs (`make sample` rebuilds them; about 50 API calls) |
+| `backend/fixtures/runs/` | Bundled, read-only sample runs (`make sample` rebuilds them; about 50 API calls. `backend/scripts/restructure_sample.py` re-derives only the comparison and recommendations from the stored readings; about 16 calls) |
 
 ## Tiers
 
@@ -103,7 +103,7 @@ intent, the peer's alignment to it, and the novice's unresolved-term count.
 - **Expert-gated**: neither the novice nor the peer aligns.
 
 Under the field-wise comparator the same three tiers are read from the new signals, **over the
-fields in the slide's profile only**: the claim's state, whether the concept and the result were
+fields in the slide's profile only**: the claim's state (how many of the expert's propositions were covered), whether the concept and the result were
 reached, and the novice's unresolved-term count. The novice counts as aligned only if they reached
 everything the slide has; the peer counts as aligned unless they reached none of it (an
 under-specified claim is partial).
@@ -156,28 +156,67 @@ field, reader against expert:
 **Comparators.** `result`: exact match on the quantity it states (`2.4x improvement` and `2.4 times
 faster` both state 2.4x), no model. `concept`: identity, then near matches (same words reordered, a
 listed synonym, one name containing the other, mostly shared words, a small edit distance). `claim`:
-bidirectional entailment, reported as one of four states, or `absent`:
+**proposition coverage**, reported as one of five states.
 
-| State | Meaning |
+The expert's claim is broken into 1 to 3 atomic propositions (in the same structuring call, so no
+extra call and no extra model). For each proposition the reader's claim is judged `covered`,
+`omitted` or `contradicted`, and any assertion in the reader's claim that the expert's does not
+make is listed as an extra. A proposition is `covered` or `contradicted` **only with a span found
+word for word in the reader's claim**; the code checks this, and a judgement without such a span is
+downgraded to `omitted` and recorded. The state is then derived from the judgements, in this order:
+
+| Condition | State |
 |---|---|
-| **equivalent** | Both directions entail: same understanding |
-| **over-claimed** | The reader's claim entails the expert's, not the reverse: over-generalised |
-| **under-specified** | The expert's claim entails the reader's, not the reverse: a weaker version |
-| **divergent** | Neither entails the other: likely a misconception |
-| **absent** | The reader stated no general claim (no entailment is run) |
+| Any proposition `contradicted` (checked first: it outranks everything) | **divergent**: likely a misconception |
+| All `covered`, no extra assertions | **equivalent**: same understanding |
+| All `covered`, plus an assertion the expert did not make | **over-claimed**: over-generalised |
+| Some `covered`, none `contradicted` | **under-specified**: the reader got part of the point |
+| None `covered` (including a reader who states no general claim) | **absent** |
 
-Every state traces to a quoted span in its provenance panel, next to both claims and both takeaways.
+`divergent` therefore needs positive evidence of a contradiction; it is no longer the fallthrough
+for "no clean match". A reader who covers two propositions and contradicts a third is divergent,
+not partly right.
+
+**Coverage permits definitional paraphrase, and does not permit new assertions.** The prompt states
+the rule: two statements are the same proposition when a reader who understood one would assent to
+the other, and a standard definition of a named concept counts as the same proposition ("cost-benefit
+analysis" and "weighing benefits against costs" are one proposition stated two ways). A new claim, a
+different quantity for the same measure, a different direction or scope, or an assertion the expert
+did not make is not covered. A reader who is vaguer than the expert has omitted the proposition; only
+a negation or a conflicting value contradicts it. The prompt carries a worked example: expert "cost-benefit
+analysis applies to the college decision, challenging the standard case for college", novice "cost-benefit
+thinking applies to the decision of going to college by weighing benefits against opportunity costs":
+p1 covered, p2 omitted, so **under-specified**, and the slide page says
+"Missed: *it challenges the standard case for college*": the novice took away the method and missed the argument.
+
+Where a slide is under-specified, or the reader is `absent`, the slide page names each missed proposition on the
+audience card, the provenance panel shows the proposition table (each proposition, its status, the
+quoted span for the ones that were covered, and the extras), and the missed propositions go to the
+recommender as a trigger. Every state traces to a quoted span in its provenance panel, next to both claims and
+both takeaways.
+
+**A local tripwire, never a scorer.** `sentence-transformers` already runs locally for the
+original comparator. If the model calls a pair `divergent` while the two claims sit above a cosine of
+`TRIPWIRE` (0.75, in `CONFIG["tripwire"]` in `tiers.py` beside the tier thresholds), the model is
+asked once more, told to name the contradicted proposition. If none comes back contradicted the state
+is downgraded per the table above, and the disagreement is logged in the run's `structuring.tripwire`
+and shown in the state's provenance panel. This costs nothing on the common path and fires only on
+suspicious pairs. Similarity is never used to score anything: it cannot see negation, and negation
+is where misconceptions live (the step-1 gate measured a contradiction at 0.94 against the claim it
+contradicts).
 
 **Two findings**, deterministic field logic with no model, shown as prominently as a score once
 was, and passed to the recommender as triggers: **example-bound** (no general claim, no concept, and
 no result where the slide has one: the reader attached to the example, not the principle) and
 **figure-dependent** (the expert's claim uses the figure and the reader's uses nothing in it).
 
-**The narrative arc** maps the states to an ordinal purely so the chart can be drawn: equivalent
-1.0, over-claimed 0.66, under-specified 0.33, divergent or absent 0.0. It is labelled ordinal, not
-continuous; it is a rank with four rungs, not a similarity or a probability. A slide whose profile
-has at most one scored field is drawn with a hollow marker and its profile is named in the tooltip:
-a thin slide is not a low-comprehension slide.
+**The narrative arc** plots a real quantity: propositions covered / propositions in the expert's
+claim, with a `divergent` slide drawn at 0 whatever else was covered. "2 of 3 propositions covered" is
+countable and traces to quoted text; the axis reads "propositions covered" and the tooltip gives the
+count. It is not a similarity or a probability. A slide whose profile has at most one scored field is
+drawn with a hollow marker and its profile is named in the tooltip: a thin slide is not a low-comprehension
+slide. Runs saved before coverage keep their own four-rung ordinal chart and entailment panel; they are
+not rewritten.
 
 **`image_content` is machine-generated and deliberately non-interpretive.** At upload, one Haiku 4.5
 vision call per figure-bearing slide (chosen by image area, vector-path count, or almost no text
@@ -198,7 +237,7 @@ the readers more. `SIGHTLINE_FIGURE_INPUT=description_only` withholds the image 
 have a description, so the description is the only way the figure reaches them; the default is
 `image+description`.
 
-**Models.** Structuring and entailment run on **Sonnet 5**, not Haiku: on hand-written directional
+**Models.** Structuring and coverage run on **Sonnet 5**, not Haiku: on hand-written directional
 fixtures Haiku 4.5 called a plain paraphrase "under-specified" (3 of 4 correct) while Sonnet 5 got
 4 of 4, and a false gap is exactly what this comparator exists to avoid. Set
 `SIGHTLINE_STRUCTURING_MODEL=claude-haiku-4-5` to trade accuracy for speed.
@@ -223,7 +262,7 @@ sum. Measured on the bundled 8-slide sample: **5.4 s and 6.9 s per slide wall-cl
 the edge of a 7 s budget; if runs are slower for you, `SIGHTLINE_COMPARATOR=cosine` drops the
 structuring call, or `SIGHTLINE_STRUCTURING_MODEL=claude-haiku-4-5` shortens it at some cost in
 accuracy. The cosine path is three persona calls a slide (about 3.7 s). Figure descriptions are made
-once at upload, in parallel with the subfield inference. Recommendations are a separate Sonnet call
+once at upload, in parallel with the subfield inference. The tripwire's re-ask, one more structuring-sized call, happens only for a `divergent` pair that is also close in wording, which is rare. Recommendations are a separate Sonnet call
 made only when a slide is opened (about 5 s), then cached with the run.
 
 ## What these numbers do and do not mean
@@ -233,6 +272,11 @@ made only when a slide is opened (about 5 s), then cached with the run.
   alignment, believe the term count: it separated the audiences most cleanly in testing. The
   overview's ranking orders by alignment first, as specified, and shows the term count beside
   every row for that reason.
+- **A proposition is all or nothing.** Coverage counts whole propositions, so a reader who gets most of one
+  (says \"an improvement in some throughput metric\" where the expert says \"a 2.4x improvement in p99
+  goodput\") has omitted it, and the count does not give partial credit. How finely the expert's claim is split
+  changes the count, and the model's judgement of \"the same proposition\" varies a little between runs; read
+  the quoted spans in the provenance panel rather than the fraction alone.
 - **The level on one slide is not a verdict.** The same slide moves between runs by about as
   much as slides differ from each other. Trust how slides *separate* inside a deck. That is why
   every value is shown against the deck's own distribution, and why a deck needs five scored

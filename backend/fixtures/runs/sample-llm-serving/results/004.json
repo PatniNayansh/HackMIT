@@ -68,6 +68,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "The slide explains PagedAttention's block table mechanism (fixed-size KV-cache blocks, copy-on-write sharing) and reports a 61% prefix cache hit rate on a chat workload.",
     "takeaways": {
       "novice": "The slide describes a memory-management technique (block tables) that splits and shares cached data efficiently, boosting reuse rates, to help explain the earlier speedup.",
@@ -77,28 +78,29 @@
     "fields": {
       "novice": {
         "concept": "block tables",
-        "claim": "A memory-management technique splits and shares cached data efficiently, boosting reuse rates.",
+        "claim": "A memory-management technique splits and shares cached data efficiently, boosting reuse rates",
         "result": null,
         "vehicle": null
       },
       "peer": {
-        "concept": "KV-cache blocks / copy-on-write / prefix caching",
-        "claim": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching.",
+        "concept": "KV-cache blocks with copy-on-write sharing",
+        "claim": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching",
         "result": null,
         "vehicle": null
       },
       "expert": {
-        "concept": "PagedAttention block table mechanism",
-        "claim": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing to manage memory.",
+        "concept": "PagedAttention's block table mechanism",
+        "claim": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing",
         "result": "61% prefix cache hit rate on a chat workload",
-        "vehicle": null
+        "vehicle": "chat workload"
       }
     },
     "slide_profile": {
       "fields": [
         "concept",
         "claim",
-        "result"
+        "result",
+        "vehicle"
       ],
       "scored": [
         "concept",
@@ -106,38 +108,67 @@
         "result"
       ],
       "thin": false,
-      "text": "This slide names a principle and reaches a numeric result; no example."
+      "text": "This slide names a principle, works through an example and reaches a numeric result."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "PagedAttention uses fixed-size KV-cache blocks"
+      },
+      {
+        "id": "p2",
+        "text": "These blocks use copy-on-write sharing"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
           "field": "concept",
-          "expert": "PagedAttention block table mechanism",
+          "expert": "PagedAttention's block table mechanism",
           "audience": "block tables",
           "status": "compared",
           "outcome": "near",
           "comparator": "fuzzy",
           "normalised": [
-            "pagedattention block table mechanism",
+            "pagedattention s block table mechanism",
             "block table"
           ],
           "how": "one names the other more narrowly (its words are contained in the other's)"
         },
         "claim": {
           "field": "claim",
-          "expert": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing to manage memory.",
-          "audience": "A memory-management technique splits and shares cached data efficiently, boosting reuse rates.",
+          "expert": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing",
+          "audience": "A memory-management technique splits and shares cached data efficiently, boosting reuse rates",
           "status": "compared",
           "outcome": "under-specified",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": false,
-            "rationale": "Expert's specific block/copy-on-write mechanism implies novice's general claim of splitting and sharing cached data to boost reuse, but not vice versa.",
-            "quote": "fixed-size KV-cache blocks with copy-on-write sharing",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "PagedAttention uses fixed-size KV-cache blocks",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p2",
+                "text": "These blocks use copy-on-write sharing",
+                "status": "covered",
+                "evidence": "splits and shares cached data efficiently, boosting reuse rates"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice captures sharing/reuse but not the fixed-size block structure.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "PagedAttention uses fixed-size KV-cache blocks"
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "The reading got a weaker version of the point."
+          "meaning": "Some of the expert's propositions are covered and some are missed."
         },
         "result": {
           "field": "result",
@@ -148,7 +179,7 @@
         },
         "vehicle": {
           "field": "vehicle",
-          "expert": null,
+          "expert": "chat workload",
           "audience": null,
           "status": "not_scored"
         }
@@ -156,32 +187,51 @@
       "peer": {
         "concept": {
           "field": "concept",
-          "expert": "PagedAttention block table mechanism",
-          "audience": "KV-cache blocks / copy-on-write / prefix caching",
+          "expert": "PagedAttention's block table mechanism",
+          "audience": "KV-cache blocks with copy-on-write sharing",
           "status": "compared",
           "outcome": "mismatch",
           "comparator": "fuzzy",
           "normalised": [
-            "pagedattention block table mechanism",
-            "kv cache block"
+            "pagedattention s block table mechanism",
+            "kv cache block with copy on write sharing"
           ],
-          "how": "edit similarity 0.32"
+          "how": "edit similarity 0.38"
         },
         "claim": {
           "field": "claim",
-          "expert": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing to manage memory.",
-          "audience": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching.",
+          "expert": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing",
+          "audience": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching",
           "status": "compared",
-          "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both describe the same block-splitting, copy-on-write, reuse-boosting mechanism in equivalent general terms.",
-            "quote": "fixed-size KV-cache blocks with copy-on-write sharing",
-            "quote_verified": true
+          "outcome": "over-claimed",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "PagedAttention uses fixed-size KV-cache blocks",
+                "status": "covered",
+                "evidence": "splitting the KV-cache into blocks"
+              },
+              {
+                "id": "p2",
+                "text": "These blocks use copy-on-write sharing",
+                "status": "covered",
+                "evidence": "copy-on-write sharing"
+              }
+            ],
+            "extra_assertions": [
+              "boosting cache reuse via prefix caching"
+            ],
+            "note": "Peer covers both propositions and adds prefix caching detail.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition is covered, and the reading also asserts something the expert's claim does not."
         },
         "result": {
           "field": "result",
@@ -192,28 +242,31 @@
         },
         "vehicle": {
           "field": "vehicle",
-          "expert": null,
+          "expert": "chat workload",
           "audience": null,
           "status": "not_scored"
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
-        "value": 0.33,
-        "basis": "claim",
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
         "state": "under-specified",
         "thin": false
       },
       "peer": {
         "value": 1.0,
-        "basis": "claim",
-        "state": "equivalent",
+        "covered": 2,
+        "total": 2,
+        "state": "over-claimed",
         "thin": false
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 2,
+        "total": 2,
         "state": "equivalent",
         "thin": false,
         "definitional": true
@@ -240,16 +293,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 4.982,
       "dropped": [],
-      "retried_because": []
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 4.978
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 3.509,
-    "structuring_s": 4.985
+    "structuring_s": 4.978
   },
   "image_content": null
 }

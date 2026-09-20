@@ -2,27 +2,27 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Replace 'p99' with 'the slowest 1% of requests' or add a brief definition",
+      "bullet": "Define or rephrase p99 as 'the slowest 1% of requests' instead of using the raw term",
       "evidence": "How does p99 relate to average latency?"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Add one sentence explaining what causes fragmented memory in this context",
-      "evidence": "What causes memory fragmentation here?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Add a phrase connecting these three challenges to the 2.4x improvement claimed on the title slide",
+      "bullet": "Add a sentence connecting these three challenges explicitly to the 2.4x goodput improvement claimed on the title slide",
       "evidence": "How do these three issues connect to the 2.4x claim?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "State that these are the specific problems the presenter's system solves, not general industry challenges, to avoid over-claiming framing",
+      "evidence": "The presenter wants to justify why their solution's improvements in serving efficiency matter."
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T02:57:27+00:00",
-    "latency_s": 3.54,
+    "generated_at": "2026-09-20T03:46:52+00:00",
+    "latency_s": 5.4,
     "intent": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
     "dropped_without_evidence": 2
   }

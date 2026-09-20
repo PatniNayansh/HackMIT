@@ -92,7 +92,9 @@ def test_each_audience_card_shows_the_four_fields_with_absent_excluded_and_extra
         assert row in novice
     assert "not reached" in novice  # the gap
     p3 = render(tmp_path, sample, "3")["slide3"]
-    assert "not part of this slide" in p3  # a field the expert left null is excluded, not a gap
+    p2 = render(tmp_path, sample, "2")["slide2"]
+    assert "not part of this slide" in p2  # a field the expert left null is excluded, not a gap
+    assert "not part of this slide" not in p3
 
 
 def test_the_expert_card_says_reference_and_its_takeaway_is_shown_once_as_the_intent(tmp_path, sample):
@@ -120,30 +122,45 @@ def test_the_figure_description_is_what_the_personas_were_given_under_a_figure_m
     assert r["image_content"]["machine_generated"] is True and r["image_content"]["model"] == "claude-haiku-4-5"
 
 
-def test_the_overview_ranks_shows_state_chips_and_labels_the_arc_ordinal(tmp_path, sample):
+def test_the_overview_ranks_shows_state_chips_and_labels_the_arc_propositions_covered(tmp_path, sample):
     out = render(tmp_path, sample)
     o = out["overview"]
     assert "Hardest slides for a newcomer" in o and "field-wise comparison" in o and "Where the audiences differ most" not in o
     assert "novice: " in o and re.search(r"novice: (equivalent|over-claimed|under-specified|divergent|absent)", o)
-    for rung in ("divergent · absent", "under-specified", "over-claimed", "equivalent"):
-        assert rung in o
-    assert "ordinal: four rungs, not a similarity" in o and "hollow: thin profile" in o
-    assert "It is a rank, not a similarity or a probability." in o
-    assert out["arc_label"] and "four rungs" in out["arc_label"]
+    assert re.search(r"novice: \S+ \d of \d", o)  # the count sits beside the state
+    for tick in ("none covered", "half", "all covered"):
+        assert tick in o
+    assert "propositions covered" in o and "hollow: thin profile" in o
+    assert "ordinal" not in o and "four rungs" not in o and "a count, not a similarity or a rank" in o
+    assert out["arc_label"] and "Propositions of the expert" in out["arc_label"]
 
 
-def test_the_arc_tooltip_names_states_and_says_it_is_a_rank_not_a_similarity(tmp_path, sample):
+def test_the_arc_tooltip_gives_the_count_of_propositions_covered_and_no_similarity_number(tmp_path, sample):
     out = render(tmp_path, sample)
     for tip in out["arc_tooltips"]:
-        assert re.search(r"Slide \d", tip) and "a rank, not a similarity or a probability" in tip
-        assert re.search(r"Novice(equivalent|over-claimed|under-specified|divergent|absent|no claim)", tip) and "Expertreference" in tip
-        assert not re.search(r"\b0\.\d\d\b", tip)  # no similarity-looking numbers
+        assert re.search(r"Slide \d", tip) and "Expertreference" in tip
+        assert re.search(r"Novice\d of \d propositions covered · (equivalent|over-claimed|under-specified|divergent|absent)", tip) or "Novice" in tip and "no claim" in tip
+        assert re.search(r"Peer\d of \d propositions covered", tip) or "Peerno claim" in tip
+        assert "rank" not in tip and not re.search(r"\b0\.\d\d\b", tip)  # a count, never a similarity-looking number
 
 
 def test_no_scalar_alignment_appears_anywhere_on_a_field_wise_run(tmp_path, sample):
     out = render(tmp_path, sample, "1,2,3,4,5,6,7,8")
     bad = {k: m.group(0) for k, t in all_text(out).items() if (m := re.search(r"cosine|semantic similarity|weaker instrument|Alignment to the intended|confiden|blind|diverg(?!ent)", t, re.I))}
     assert bad == {}
+
+
+def test_an_under_specified_card_names_the_missed_proposition_in_plain_words(tmp_path, sample):
+    out = render(tmp_path, sample, "3,4,5")
+    seen = 0
+    for n in (3, 4, 5):
+        page = out[f"slide{n}"]
+        for persona in ("novice", "peer"):
+            cov = sample["run"]["results"][n - 1]["metrics"]["comparisons"][persona]["claim"]["coverage"]
+            for missed in cov["missed"]:
+                assert f"Missed: {missed}" in page, (n, persona, missed)  # the finding, in the words of the expert's proposition
+                seen += 1
+    assert seen >= 4
 
 
 def test_every_state_and_finding_panel_shows_its_quoted_span(tmp_path, sample):
@@ -156,12 +173,17 @@ def test_every_state_and_finding_panel_shows_its_quoted_span(tmp_path, sample):
                 persona = "Novice" if "Novice" in d["body"][:20] else "Peer"
                 claim = m["comparisons"][persona.lower()]["claim"]
                 assert m["takeaways"]["expert"] in d["body"] and m["takeaways"][persona.lower()] in d["body"]  # both takeaways, verbatim
+                cov = claim["coverage"]
+                for p in cov["propositions"]:  # the proposition table: each proposition, its status, and the quoted span
+                    assert p["text"] in d["body"] and p["status"] in d["body"]
+                    if p["evidence"]:
+                        assert p["evidence"] in d["body"]
+                assert f"{cov['covered']} of {cov['total']} proposition" in d["body"] and "How the state was reached" in d["body"]
+                assert "expert claim ⇒" not in d["body"] and "Rationale" not in d["body"]  # the two-booleans block is gone
                 if claim["status"] == "compared":
-                    v = claim["verdict"]
-                    assert claim["expert"] in d["body"] and claim["audience"] in d["body"] and v["quote"] in d["body"]
-                    assert "expert claim ⇒" in d["body"] and "Rationale" in d["body"]
+                    assert claim["expert"] in d["body"] and claim["audience"] in d["body"]
                 else:
-                    assert "no entailment was run" in d["body"]
+                    assert "No model was asked about this pair" in d["body"]
                 seen += 1
     assert seen >= 10
 
@@ -177,7 +199,6 @@ def test_the_tier_panel_reads_only_the_slide_profile_fields(tmp_path, sample):
 
 EXPERT = {"concept": "opportunity cost", "claim": "Opportunity cost is the value of the next best alternative that is given up.", "result": "$50", "vehicle": "Tyler at $150 over Doja Cat at $100"}
 NOVICE = {"concept": None, "claim": None, "result": None, "vehicle": "tickets to see Tyler at $150 versus Doja Cat at $100"}
-YES = {"evaluated": True, "expert_entails_audience": True, "audience_entails_expert": True, "rationale": "Same idea.", "quote": "next best alternative", "quote_verified": True}
 
 
 def screenshot_case(tmp_path):
@@ -234,13 +255,47 @@ def test_over_reach_is_surfaced_quietly_and_not_penalised(tmp_path):
 
 
 def test_thin_slides_are_hollow_on_the_arc_and_their_profile_is_named_in_the_tooltip(tmp_path):
-    thin = {"concept": "isotope", "claim": None, "result": None, "vehicle": None}
+    thin = {"concept": None, "claim": "Isotopes are atoms of one element with different neutron counts.", "result": None, "vehicle": None}
     results = [fw_slide_result(i) for i in range(1, 5)] + [fw_slide_result(5, novice=dict(thin), peer=dict(thin), expert=dict(thin))]
-    out = render(tmp_path, make_run(tmp_path, results), "5", run="fw-demo")
+    payload = make_run(tmp_path, results)
+    m = payload["run"]["results"][4]["metrics"]
+    assert m["slide_profile"]["thin"] and m["chart"]["novice"]["value"] == 1.0  # a thin slide is still counted, and drawn hollow
+    out = render(tmp_path, payload, "5", run="fw-demo")
     assert out["arc_hollow_markers"] == 2  # novice and peer on the thin slide; the reference stays solid
-    assert any("This slide names a principle; no example, no worked result. Thin profile: drawn hollow." in t for t in out["arc_tooltips"])
+    assert any(m["slide_profile"]["text"] + " Thin profile: drawn hollow." in t for t in out["arc_tooltips"])
     assert "(thin)" in out["overview"]
 
 
 def test_a_field_wise_run_shows_which_comparator_made_it_and_a_cosine_run_shows_its_own(tmp_path, sample):
     assert "field-wise comparison" in render(tmp_path, sample)["overview"]
+
+
+def _as_saved_before_coverage(payload):
+    """The payload of a field-wise run saved by the entailment version: verdicts and an ordinal, no coverage."""
+    p = copy.deepcopy(payload)
+    rung = {"equivalent": 1.0, "over-claimed": 0.66, "under-specified": 0.33, "divergent": 0.0, "absent": 0.0}
+    for r in p["run"]["results"]:
+        m = r["metrics"]
+        m.pop("claim_comparison", None), m.pop("propositions", None)
+        m["ordinal"] = {a: {"value": None if c["state"] is None else rung[c["state"]], "state": c["state"], "thin": c["thin"], **({"definitional": True} if c.get("definitional") else {})} for a, c in m.pop("chart").items()}
+        for a in ("novice", "peer"):
+            claim = m["comparisons"][a]["claim"]
+            claim.pop("coverage", None)
+            if claim["status"] == "compared":
+                claim["verdict"] = {"expert_entails_audience": True, "audience_entails_expert": False, "rationale": "Only the expert says more.", "quote": claim["audience"], "quote_verified": True}
+    p["run"]["rollup"]["arc_kind"] = "ordinal"
+    for row in p["run"]["rollup"]["hardest"]:
+        row["novice_total"] = None
+    for pt in p["run"]["rollup"]["arc"]:
+        pt.pop("counts", None)
+    return p
+
+
+def test_a_run_saved_before_coverage_keeps_its_entailment_panel_and_its_ordinal_arc(tmp_path, sample):
+    out = render(tmp_path, _as_saved_before_coverage(sample), "3,4")
+    assert out["errors"] == []
+    assert "ordinal: four rungs, not a similarity" in out["overview"] and "four rungs" in out["arc_label"]
+    for n in (3, 4):
+        assert "Missed:" not in out[f"slide{n}"]  # nothing to name without coverage
+        claim_panels = [d["body"] for d in out[f"slide{n}:drawers"] if d["body"].startswith("Claim —")]
+        assert claim_panels and all("Rationale" in b and "proposition" not in b.lower() for b in claim_panels)

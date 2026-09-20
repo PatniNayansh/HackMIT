@@ -65,6 +65,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "The slide gives a standard summary of speculative decoding mechanics as one component behind the earlier-claimed 2.4x goodput gain.",
     "takeaways": {
       "novice": "A faster small model guesses several tokens ahead, and a bigger model checks them at once while keeping results as accurate as if it worked alone.",
@@ -74,19 +75,19 @@
     "fields": {
       "novice": {
         "concept": null,
-        "claim": "A faster small model guesses several tokens ahead, and a bigger model checks them all at once, keeping accuracy the same as if the bigger model worked alone.",
+        "claim": "A faster small model guesses several tokens ahead, and a bigger model checks them at once while keeping results as accurate as if it worked alone.",
         "result": null,
         "vehicle": null
       },
       "peer": {
         "concept": null,
-        "claim": "A small draft model proposes multiple tokens that a larger target model verifies in one pass, speeding decoding without changing the output distribution.",
+        "claim": "A small draft model proposes multiple tokens that the larger target model verifies in one pass, speeding decoding without changing output distribution.",
         "result": null,
         "vehicle": null
       },
       "expert": {
         "concept": "speculative decoding",
-        "claim": "Speculative decoding mechanics are one component behind an earlier-claimed goodput gain.",
+        "claim": "The slide gives a standard summary of speculative decoding mechanics as one component behind an earlier-claimed goodput gain.",
         "result": "2.4x goodput gain",
         "vehicle": null
       }
@@ -105,6 +106,16 @@
       "thin": false,
       "text": "This slide names a principle and reaches a numeric result; no example."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The slide summarizes speculative decoding mechanics"
+      },
+      {
+        "id": "p2",
+        "text": "This is one component behind an earlier-claimed goodput gain"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
@@ -116,19 +127,40 @@
         },
         "claim": {
           "field": "claim",
-          "expert": "Speculative decoding mechanics are one component behind an earlier-claimed goodput gain.",
-          "audience": "A faster small model guesses several tokens ahead, and a bigger model checks them all at once, keeping accuracy the same as if the bigger model worked alone.",
+          "expert": "The slide gives a standard summary of speculative decoding mechanics as one component behind an earlier-claimed goodput gain.",
+          "audience": "A faster small model guesses several tokens ahead, and a bigger model checks them at once while keeping results as accurate as if it worked alone.",
           "status": "compared",
-          "outcome": "divergent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": false,
-            "audience_entails_expert": false,
-            "rationale": "Expert's claim is about goodput gain attribution, not the mechanics described by novice, so neither implies the other.",
-            "quote": "one component behind the earlier-claimed 2.4x goodput gain",
-            "quote_verified": true
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The slide summarizes speculative decoding mechanics",
+                "status": "covered",
+                "evidence": "A faster small model guesses several tokens ahead, and a bigger model checks them at once"
+              },
+              {
+                "id": "p2",
+                "text": "This is one component behind an earlier-claimed goodput gain",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [
+              "keeping results as accurate as if it worked alone"
+            ],
+            "note": "Novice describes the mechanism but not its role in the goodput gain.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "This is one component behind an earlier-claimed goodput gain"
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Neither implies the other: likely a misconception."
+          "meaning": "Some of the expert's propositions are covered and some are missed."
         },
         "result": {
           "field": "result",
@@ -154,19 +186,40 @@
         },
         "claim": {
           "field": "claim",
-          "expert": "Speculative decoding mechanics are one component behind an earlier-claimed goodput gain.",
-          "audience": "A small draft model proposes multiple tokens that a larger target model verifies in one pass, speeding decoding without changing the output distribution.",
+          "expert": "The slide gives a standard summary of speculative decoding mechanics as one component behind an earlier-claimed goodput gain.",
+          "audience": "A small draft model proposes multiple tokens that the larger target model verifies in one pass, speeding decoding without changing output distribution.",
           "status": "compared",
-          "outcome": "divergent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": false,
-            "audience_entails_expert": false,
-            "rationale": "Expert's claim concerns goodput gain contribution, not the specific mechanics peer describes, so no entailment either way.",
-            "quote": "one component behind the earlier-claimed 2.4x goodput gain",
-            "quote_verified": true
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The slide summarizes speculative decoding mechanics",
+                "status": "covered",
+                "evidence": "A small draft model proposes multiple tokens that the larger target model verifies in one pass"
+              },
+              {
+                "id": "p2",
+                "text": "This is one component behind an earlier-claimed goodput gain",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [
+              "speeding decoding without changing output distribution"
+            ],
+            "note": "Peer describes the mechanism but omits the goodput gain link.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "This is one component behind an earlier-claimed goodput gain"
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Neither implies the other: likely a misconception."
+          "meaning": "Some of the expert's propositions are covered and some are missed."
         },
         "result": {
           "field": "result",
@@ -183,30 +236,33 @@
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
-        "value": 0.0,
-        "basis": "claim",
-        "state": "divergent",
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
         "thin": false
       },
       "peer": {
-        "value": 0.0,
-        "basis": "claim",
-        "state": "divergent",
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
         "thin": false
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 2,
+        "total": 2,
         "state": "equivalent",
         "thin": false,
         "definitional": true
       }
     },
     "reach": {
-      "novice": "fail",
-      "peer": "fail"
+      "novice": "partial",
+      "peer": "partial"
     },
     "findings": [],
     "term_gap": {
@@ -225,23 +281,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 4.293,
-      "dropped": [
-        {
-          "persona": "peer",
-          "field": "concept",
-          "value": "speculative decoding",
-          "reason": "the takeaway does not name this concept"
-        }
-      ],
-      "retried_because": []
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 9.386
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 3.264,
-    "structuring_s": 4.295
+    "structuring_s": 9.386
   },
   "image_content": null
 }

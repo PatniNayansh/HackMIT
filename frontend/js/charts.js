@@ -32,7 +32,7 @@ export function strip(dist, slide, color = "var(--ink)") {
 const W = 1000, H = 320, M = { l: 44, r: 108, t: 28, b: 30 };
 
 export function arcChart(rollup, { onPoint, tableNumber }) {
-  if (rollup.comparator === "fieldwise") return ordinalArc(rollup, { onPoint, tableNumber });
+  if (rollup.comparator === "fieldwise") return ordinalArc(rollup, { onPoint, tableNumber }, rollup.arc_kind === "coverage");
   const pts = rollup.arc.filter((p) => PERSONAS.some((k) => p[k] != null));
   const definitional = new Set(rollup.definitional || []);
   const measured = PERSONAS.filter((k) => !definitional.has(k));
@@ -176,11 +176,19 @@ export function arcChart(rollup, { onPoint, tableNumber }) {
 }
 
 
-// ------------------------------------------------------- narrative arc, field-wise (ordinal)
-// The claim's entailment state per audience per slide, mapped to a RANK with four rungs purely so the
-// chart can be drawn. The axis is labelled with the rungs' names, not numbers, and says it is ordinal:
-// it is not a similarity and not a probability. A slide with a thin profile is drawn with hollow
+// ------------------------------------------------------- narrative arc, field-wise
+// Coverage runs: the value is propositions covered / propositions in the expert's claim (a contradicted
+// proposition counts the whole slide as 0). It is a count, so the axis is labelled "propositions covered"
+// and the tooltip gives "N of M". Runs saved before coverage drew the claim's state as a four-rung
+// RANK; they keep that chart, labelled as ordinal. A slide with a thin profile is drawn with hollow
 // markers (a thin slide is not a low-comprehension slide) and its profile is named in the tooltip.
+
+const COVERAGE_TICKS = [
+  { v: 0, label: "none covered" },
+  { v: 0.5, label: "half" },
+  { v: 1, label: "all covered" },
+];
+const countOf = (p, k) => (p.counts?.[k]?.total ? `${p.counts[k].covered} of ${p.counts[k].total} propositions covered` : null);
 
 const RUNGS = [
   { v: 0, label: "divergent \u00b7 absent" },
@@ -190,7 +198,8 @@ const RUNGS = [
 ];
 const OM = { l: 128, r: 108, t: 30, b: 30 };
 
-function ordinalArc(rollup, { onPoint, tableNumber }) {
+function ordinalArc(rollup, { onPoint, tableNumber }, coverage = false) {
+  const RUNG_SET = coverage ? COVERAGE_TICKS : RUNGS;
   const pts = rollup.arc.filter((p) => PERSONAS.some((k) => p[k] != null));
   const definitional = new Set(rollup.definitional || []);
   if (!pts.length) return h("p", { class: "empty" }, "No slide has been scored yet.");
@@ -199,11 +208,11 @@ function ordinalArc(rollup, { onPoint, tableNumber }) {
   const Y = (v) => H - OM.b - v * (H - OM.t - OM.b);
   const kind = (k) => (definitional.has(k) ? "definitional today" : "measured");
 
-  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Each audience\u2019s reading of the claim against the expert, per slide, on an ordinal with four rungs" });
-  svg.append(s("g", { class: "grid" }, ...RUNGS.map((r) => s("line", { x1: OM.l, x2: W - OM.r, y1: Y(r.v), y2: Y(r.v) }))));
-  svg.append(...RUNGS.map((r) => s("text", { x: OM.l - 10, y: Y(r.v) + 4, "text-anchor": "end" }, r.label)));
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": coverage ? "Propositions of the expert\u2019s claim that each audience covered, per slide" : "Each audience\u2019s reading of the claim against the expert, per slide, on an ordinal with four rungs" });
+  svg.append(s("g", { class: "grid" }, ...RUNG_SET.map((r) => s("line", { x1: OM.l, x2: W - OM.r, y1: Y(r.v), y2: Y(r.v) }))));
+  svg.append(...RUNG_SET.map((r) => s("text", { x: OM.l - 10, y: Y(r.v) + 4, "text-anchor": "end" }, r.label)));
   svg.append(s("g", { class: "axis" }, s("line", { x1: OM.l, x2: W - OM.r, y1: Y(0), y2: Y(0) })));
-  svg.append(s("text", { x: 4, y: 12, style: "font-size: 11.5px" }, "ordinal: four rungs, not a similarity"));
+  svg.append(s("text", { x: 4, y: 12, style: "font-size: 11.5px" }, coverage ? "propositions covered" : "ordinal: four rungs, not a similarity"));
   const every = Math.ceil(n / 15);
   pts.forEach((p, i) => { if (i % every === 0 || i === n - 1) svg.append(s("text", { x: X(i), y: H - 8, "text-anchor": "middle" }, p.slide)); });
 
@@ -260,7 +269,7 @@ function ordinalArc(rollup, { onPoint, tableNumber }) {
       if (p[k] == null) return;
       svg.append(s("circle", {
         class: "mk", cx: X(i), cy: Y(p[k]), r: 12, fill: "transparent", tabindex: 0, role: "button",
-        "aria-label": `${LABEL[k]}, slide ${p.slide}, ${definitional.has(k) ? "reference (definitional)" : p.states[k]}. Show the text behind it.`,
+        "aria-label": `${LABEL[k]}, slide ${p.slide}, ${definitional.has(k) ? "reference (definitional)" : `${coverage && countOf(p, k) ? countOf(p, k) + ", " : ""}${p.states[k]}`}. Show the text behind it.`,
         on: { click: () => onPoint(p.slide, k), keydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPoint(p.slide, k); } } },
       }));
     });
@@ -278,9 +287,11 @@ function ordinalArc(rollup, { onPoint, tableNumber }) {
       h("div", { class: "h" }, `Slide ${p.slide}`),
       ...PERSONAS.map((k) => h("div", { class: "r" },
         h("span", { class: "k" }, h("i", { style: `border-color:${COLOR[k]}` }), LABEL[k]),
-        h("b", null, p[k] == null ? "no claim to compare" : definitional.has(k) ? "reference" : p.states[k]))),
+        h("b", null, p[k] == null ? "no claim to compare" : definitional.has(k) ? "reference" : coverage && countOf(p, k) ? `${countOf(p, k)} \u00b7 ${p.states[k]}` : p.states[k]))),
       p.thin ? h("div", { class: "foot" }, p.profile, " Thin profile: drawn hollow.") : null,
-      h("div", { class: "foot" }, "Ordinal, four rungs: a rank, not a similarity or a probability. Click a dot for the text behind it."),
+      h("div", { class: "foot" }, coverage
+        ? "Propositions of the expert\u2019s claim that the reader covered, each with a quoted span. A contradicted proposition counts the slide as 0. Click a dot for the text behind it."
+        : "Ordinal, four rungs: a rank, not a similarity or a probability. Click a dot for the text behind it."),
     );
     tip.style.display = "block";
     tip.style.left = `${Math.min((X(i) / W) * box.width + 14, box.width - 230)}px`;
@@ -293,8 +304,10 @@ function ordinalArc(rollup, { onPoint, tableNumber }) {
     h("span", null, h("i", { class: "ref-key" }), "inferred intent (reference)"),
     h("span", null, h("i", { class: "hollow-key" }), "hollow: thin profile"));
   const note = h("p", { class: "caveat", style: "margin-top:8px" },
-    "The four rungs are equivalent (1.0), over-claimed (0.66), under-specified (0.33), and divergent or absent (0.0). The numbers exist only so the chart can be drawn: this axis is ordinal, not continuous. ",
-    definitional.size ? `${[...definitional].map((k) => LABEL[k]).join(" and ")} sits on the top rung because it is the reference: a definition, not a measurement.` : "");
+    coverage
+      ? "Each point is the number of the expert claim\u2019s propositions the reader covered, over the number the claim has. A reader who contradicts a proposition is drawn at 0 however many others they covered. "
+      : "The four rungs are equivalent (1.0), over-claimed (0.66), under-specified (0.33), and divergent or absent (0.0). The numbers exist only so the chart can be drawn: this axis is ordinal, not continuous. ",
+    definitional.size ? `${[...definitional].map((k) => LABEL[k]).join(" and ")} sits at the top because it is the reference: a definition, not a measurement.` : "");
   const table = h("details", { class: "table-view" },
     h("summary", null, "Show as a table"),
     h("div", { class: "scroll" },

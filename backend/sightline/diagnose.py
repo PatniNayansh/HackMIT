@@ -96,7 +96,11 @@ and result (compared against the expert's), and findings computed from that. Tre
 trigger for a concrete edit. "Example-bound" means the viewer attached to the example, not the principle: \
 the edit is to name and state the principle on the slide. "Figure-dependent" means the slide's substance \
 is in a figure the viewer did not engage with: the edit is to label what the figure shows or say what \
-to take from it. A missing concept or result is an edit to state it. The evidence for such an edit is \
+to take from it. A missing concept or result is an edit to state it. A "missed proposition" is a specific assertion \
+in the expert's claim that the viewer's claim did not recover: the edit is to state it on the slide \
+(for example "the slide's argument did not land, only the method did: state the challenge explicitly"). \
+A "contradicts" line means the viewer took away the opposite of a proposition: the edit is to say it \
+plainly and rule out the misreading. The evidence for such an edit is \
 still a quote from that viewer's report or the slide.
 
 Give fewer edits, or none, when that viewer had little trouble. Do not repeat an edit for both.
@@ -158,7 +162,13 @@ def _field_comparison(m: Mapping[str, Any]) -> str:
         for f in m["slide_profile"]["scored"]:
             o = c[f].get("outcome")
             if f == "claim":
-                parts.append(f"claim {o}")
+                cov = c[f].get("coverage")
+                extra = ""
+                if cov and cov["missed"]:
+                    extra += "; missed proposition" + ("s" if len(cov["missed"]) > 1 else "") + ": " + " | ".join(f"\u201c{t}\u201d" for t in cov["missed"])
+                if cov and cov["contradicted"]:
+                    extra += "; contradicts: " + " | ".join(f"\u201c{t}\u201d" for t in cov["contradicted"])
+                parts.append(f"claim {o}{extra}")
             else:
                 parts.append(f"{f} {'reached (' + o + ')' if o in ('match', 'near') else 'not reached' if o == 'absent' else 'differs from the expert'}")
         lines.append(f"{aud.capitalize()}: " + "; ".join(parts))

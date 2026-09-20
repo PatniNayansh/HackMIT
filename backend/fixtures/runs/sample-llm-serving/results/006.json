@@ -58,6 +58,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "The combined optimizations achieved a measured 2.4x throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
     "takeaways": {
       "novice": "Using the same hardware and latency requirements, the new system handled 2.4x more requests per second without slowing down typical response times, tested on real chat data.",
@@ -67,19 +68,19 @@
     "fields": {
       "novice": {
         "concept": null,
-        "claim": "A system can handle substantially more requests per second on the same hardware without slowing typical response times.",
+        "claim": "A new system handled more requests per second than before without slowing down typical response times, under the same hardware and latency requirements, tested on real chat data.",
         "result": "2.4x more requests per second",
         "vehicle": "tested on real chat data"
       },
       "peer": {
         "concept": "optimizations",
-        "claim": "Optimizations can achieve substantially more requests per second on the same hardware without hurting median latency.",
+        "claim": "A set of optimizations achieved more requests per second on the same hardware without hurting median latency, on a real chat workload.",
         "result": "2.4x more requests per second",
         "vehicle": "real chat workload"
       },
       "expert": {
-        "concept": "combined optimizations",
-        "claim": "Combined optimizations can achieve a substantial throughput gain on the same hardware without sacrificing median latency.",
+        "concept": "optimizations",
+        "claim": "A set of combined optimizations achieved a measured throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
         "result": "2.4x throughput gain",
         "vehicle": "real chat workload"
       }
@@ -99,30 +100,67 @@
       "thin": false,
       "text": "This slide names a principle, works through an example and reaches a numeric result."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "Combined optimizations achieved a measured throughput gain on the same hardware"
+      },
+      {
+        "id": "p2",
+        "text": "This was achieved without sacrificing median latency"
+      },
+      {
+        "id": "p3",
+        "text": "This was validated on a real chat workload"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
           "field": "concept",
-          "expert": "combined optimizations",
+          "expert": "optimizations",
           "audience": null,
           "status": "gap",
           "outcome": "absent"
         },
         "claim": {
           "field": "claim",
-          "expert": "Combined optimizations can achieve a substantial throughput gain on the same hardware without sacrificing median latency.",
-          "audience": "A system can handle substantially more requests per second on the same hardware without slowing typical response times.",
+          "expert": "A set of combined optimizations achieved a measured throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
+          "audience": "A new system handled more requests per second than before without slowing down typical response times, under the same hardware and latency requirements, tested on real chat data.",
           "status": "compared",
           "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both claims state the same essential outcome: substantial throughput gain without hurting typical/median latency on same hardware.",
-            "quote": "without sacrificing median latency",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Combined optimizations achieved a measured throughput gain on the same hardware",
+                "status": "covered",
+                "evidence": "A new system handled more requests per second than before"
+              },
+              {
+                "id": "p2",
+                "text": "This was achieved without sacrificing median latency",
+                "status": "covered",
+                "evidence": "without slowing down typical response times"
+              },
+              {
+                "id": "p3",
+                "text": "This was validated on a real chat workload",
+                "status": "covered",
+                "evidence": "tested on real chat data"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers all three propositions in general terms, though attributes gains to 'a new system' rather than optimizations.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
         },
         "result": {
           "field": "result",
@@ -146,32 +184,55 @@
       "peer": {
         "concept": {
           "field": "concept",
-          "expert": "combined optimizations",
+          "expert": "optimizations",
           "audience": "optimizations",
           "status": "compared",
-          "outcome": "near",
-          "comparator": "fuzzy",
+          "outcome": "match",
+          "comparator": "identity",
           "normalised": [
-            "combined optimization",
+            "optimization",
             "optimization"
           ],
-          "how": "one names the other more narrowly (its words are contained in the other's)"
+          "how": "identical after normalisation"
         },
         "claim": {
           "field": "claim",
-          "expert": "Combined optimizations can achieve a substantial throughput gain on the same hardware without sacrificing median latency.",
-          "audience": "Optimizations can achieve substantially more requests per second on the same hardware without hurting median latency.",
+          "expert": "A set of combined optimizations achieved a measured throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
+          "audience": "A set of optimizations achieved more requests per second on the same hardware without hurting median latency, on a real chat workload.",
           "status": "compared",
           "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both claims describe optimizations achieving substantial throughput gain without hurting median latency on same hardware.",
-            "quote": "without hurting median latency",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Combined optimizations achieved a measured throughput gain on the same hardware",
+                "status": "covered",
+                "evidence": "A set of optimizations achieved more requests per second on the same hardware"
+              },
+              {
+                "id": "p2",
+                "text": "This was achieved without sacrificing median latency",
+                "status": "covered",
+                "evidence": "without hurting median latency"
+              },
+              {
+                "id": "p3",
+                "text": "This was validated on a real chat workload",
+                "status": "covered",
+                "evidence": "on a real chat workload"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer's claim closely mirrors the expert's claim, covering all propositions.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
         },
         "result": {
           "field": "result",
@@ -193,22 +254,25 @@
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
         "thin": false
       },
       "peer": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
         "thin": false
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
         "thin": false,
         "definitional": true
@@ -227,16 +291,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 4.061,
       "dropped": [],
-      "retried_because": []
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 5.687
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 3.047,
-    "structuring_s": 4.063
+    "structuring_s": 5.687
   },
   "image_content": null
 }

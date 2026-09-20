@@ -2,33 +2,33 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Add a one-line definition of copy-on-write and why it helps performance",
-      "evidence": "How does copy-on-write help performance?"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Explain what 'prefix caching hit rate' means and what a hit represents",
+      "bullet": "Add a one-line explanation of what 'prefix caching hit rate' measures and why it matters",
       "evidence": "What does prefix caching hit rate mean exactly?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "State the baseline the 61% hit rate is measured against",
+      "bullet": "State the baseline the 61% hit rate is compared against (e.g., no caching or naive caching)",
       "evidence": "What baseline is the 61% hit rate compared to?"
     },
     {
       "audience": "peer",
-      "bullet": "Add a sentence connecting the 61% hit rate to the overall throughput/speedup result",
+      "bullet": "Add a sentence linking the 61% hit rate to the earlier 2.4x speedup claim to show causal connection",
       "evidence": "How does this connect to the 2.4x speedup claim?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Explicitly name the mechanism as 'PagedAttention' so the concept is identified, not just described generically",
+      "evidence": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T02:57:35+00:00",
-    "latency_s": 4.0,
+    "generated_at": "2026-09-20T03:47:15+00:00",
+    "latency_s": 7.39,
     "intent": "The slide explains PagedAttention's block table mechanism (fixed-size KV-cache blocks, copy-on-write sharing) and reports a 61% prefix cache hit rate on a chat workload.",
-    "dropped_without_evidence": 1
+    "dropped_without_evidence": 2
   }
 }

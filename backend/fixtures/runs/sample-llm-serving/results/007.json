@@ -57,6 +57,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
     "takeaways": {
       "novice": "The presenter wants us to remember that their new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
@@ -71,13 +72,13 @@
         "vehicle": null
       },
       "peer": {
-        "concept": "efficiency improvements",
+        "concept": null,
         "claim": "Efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
         "result": null,
         "vehicle": null
       },
       "expert": {
-        "concept": "optimizations",
+        "concept": null,
         "claim": "Optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
         "result": null,
         "vehicle": null
@@ -85,24 +86,35 @@
     },
     "slide_profile": {
       "fields": [
-        "concept",
         "claim"
       ],
       "scored": [
-        "concept",
         "claim"
       ],
-      "thin": false,
-      "text": "This slide names a principle; no example, no worked result."
+      "thin": true,
+      "text": "This slide states a claim; no example, no worked result."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The optimizations increase serving capacity"
+      },
+      {
+        "id": "p2",
+        "text": "This is achieved without altering model outputs"
+      },
+      {
+        "id": "p3",
+        "text": "The work will be open-sourced this quarter"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
           "field": "concept",
-          "expert": "optimizations",
+          "expert": null,
           "audience": null,
-          "status": "gap",
-          "outcome": "absent"
+          "status": "excluded"
         },
         "claim": {
           "field": "claim",
@@ -110,15 +122,38 @@
           "audience": "A new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
           "status": "compared",
           "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both state the same points: more capacity/users served on same hardware without output changes, plus open-sourcing this quarter.",
-            "quote": "open-sourced this quarter",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The optimizations increase serving capacity",
+                "status": "covered",
+                "evidence": "serves more users on existing hardware"
+              },
+              {
+                "id": "p2",
+                "text": "This is achieved without altering model outputs",
+                "status": "covered",
+                "evidence": "without changing model outputs"
+              },
+              {
+                "id": "p3",
+                "text": "The work will be open-sourced this quarter",
+                "status": "covered",
+                "evidence": "will be released as open source this quarter"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers all three propositions in different phrasing.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
         },
         "result": {
           "field": "result",
@@ -136,16 +171,9 @@
       "peer": {
         "concept": {
           "field": "concept",
-          "expert": "optimizations",
-          "audience": "efficiency improvements",
-          "status": "compared",
-          "outcome": "mismatch",
-          "comparator": "fuzzy",
-          "normalised": [
-            "optimization",
-            "efficiency improvement"
-          ],
-          "how": "edit similarity 0.18"
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
         },
         "claim": {
           "field": "claim",
@@ -153,15 +181,38 @@
           "audience": "Efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
           "status": "compared",
           "outcome": "equivalent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": true,
-            "rationale": "Both claims describe increased serving capacity without altering outputs and open-sourcing this quarter.",
-            "quote": "open-sourced this quarter",
-            "quote_verified": true
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The optimizations increase serving capacity",
+                "status": "covered",
+                "evidence": "let more users be served on the same hardware"
+              },
+              {
+                "id": "p2",
+                "text": "This is achieved without altering model outputs",
+                "status": "covered",
+                "evidence": "without altering model outputs"
+              },
+              {
+                "id": "p3",
+                "text": "The work will be open-sourced this quarter",
+                "status": "covered",
+                "evidence": "the work will be open-sourced this quarter"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer covers all three propositions closely tracking expert's wording.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Same understanding."
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
         },
         "result": {
           "field": "result",
@@ -177,30 +228,33 @@
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
-        "thin": false
+        "thin": true
       },
       "peer": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
-        "thin": false
+        "thin": true
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 3,
+        "total": 3,
         "state": "equivalent",
-        "thin": false,
+        "thin": true,
         "definitional": true
       }
     },
     "reach": {
-      "novice": "partial",
-      "peer": "partial"
+      "novice": "ok",
+      "peer": "ok"
     },
     "findings": [],
     "term_gap": {
@@ -211,16 +265,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 3.885,
       "dropped": [],
-      "retried_because": []
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 4.744
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 2.968,
-    "structuring_s": 3.887
+    "structuring_s": 4.744
   },
   "image_content": null
 }

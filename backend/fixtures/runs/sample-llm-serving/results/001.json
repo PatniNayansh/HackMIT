@@ -67,6 +67,7 @@
   },
   "metrics": {
     "comparator": "fieldwise",
+    "claim_comparison": "coverage",
     "intent": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow.",
     "takeaways": {
       "novice": "This is a title slide introducing a talk about making LLM serving 2.4x faster in some measured way, presented by Alex Rivera from Systems Group.",
@@ -76,20 +77,20 @@
     "fields": {
       "novice": {
         "concept": null,
-        "claim": "LLM serving can be made 2.4x faster in some measured way",
-        "result": "2.4x",
-        "vehicle": null
+        "claim": "LLM serving can be made faster.",
+        "result": "2.4x faster",
+        "vehicle": "a talk about making LLM serving faster, presented by Alex Rivera from Systems Group"
       },
       "peer": {
         "concept": "p99 latency",
-        "claim": "Some throughput metric for LLM serving is improved by a factor at the p99 latency percentile",
-        "result": "2.4x",
+        "claim": "LLM serving can achieve an improvement in throughput at the p99 latency percentile.",
+        "result": "2.4x improvement",
         "vehicle": null
       },
       "expert": {
         "concept": "p99 goodput",
-        "claim": "LLM serving goodput is improved by a factor at the p99 percentile",
-        "result": "2.4x",
+        "claim": "LLM serving can achieve an improvement in p99 goodput.",
+        "result": "2.4x improvement",
         "vehicle": null
       }
     },
@@ -107,6 +108,16 @@
       "thin": false,
       "text": "This slide names a principle and reaches a numeric result; no example."
     },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "There is a 2.4x improvement in p99 goodput for LLM serving"
+      },
+      {
+        "id": "p2",
+        "text": "Details will follow"
+      }
+    ],
     "comparisons": {
       "novice": {
         "concept": {
@@ -118,24 +129,44 @@
         },
         "claim": {
           "field": "claim",
-          "expert": "LLM serving goodput is improved by a factor at the p99 percentile",
-          "audience": "LLM serving can be made 2.4x faster in some measured way",
+          "expert": "LLM serving can achieve an improvement in p99 goodput.",
+          "audience": "LLM serving can be made faster.",
           "status": "compared",
-          "outcome": "under-specified",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": true,
-            "audience_entails_expert": false,
-            "rationale": "Improving p99 goodput by 2.4x implies LLM serving is made 2.4x faster in some way, but the vaguer novice claim does not specify goodput or p99.",
-            "quote": "2.4x",
-            "quote_verified": true
+          "outcome": "absent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "There is a 2.4x improvement in p99 goodput for LLM serving",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p2",
+                "text": "Details will follow",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice states a general speed improvement without the specific goodput metric.",
+            "covered": 0,
+            "total": 2,
+            "missed": [
+              "There is a 2.4x improvement in p99 goodput for LLM serving",
+              "Details will follow"
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "The reading got a weaker version of the point."
+          "meaning": "None of the expert's propositions is covered (or no general claim was stated)."
         },
         "result": {
           "field": "result",
-          "expert": "2.4x",
-          "audience": "2.4x",
+          "expert": "2.4x improvement",
+          "audience": "2.4x faster",
           "status": "compared",
           "outcome": "match",
           "comparator": "exact",
@@ -147,7 +178,7 @@
         "vehicle": {
           "field": "vehicle",
           "expert": null,
-          "audience": null,
+          "audience": "a talk about making LLM serving faster, presented by Alex Rivera from Systems Group",
           "status": "not_scored"
         }
       },
@@ -167,24 +198,44 @@
         },
         "claim": {
           "field": "claim",
-          "expert": "LLM serving goodput is improved by a factor at the p99 percentile",
-          "audience": "Some throughput metric for LLM serving is improved by a factor at the p99 latency percentile",
+          "expert": "LLM serving can achieve an improvement in p99 goodput.",
+          "audience": "LLM serving can achieve an improvement in throughput at the p99 latency percentile.",
           "status": "compared",
-          "outcome": "divergent",
-          "comparator": "entailment",
-          "verdict": {
-            "expert_entails_audience": false,
-            "audience_entails_expert": false,
-            "rationale": "Goodput and throughput are distinct metrics, so neither claim strictly implies the other despite both citing 2.4x at p99.",
-            "quote": "p99",
-            "quote_verified": true
+          "outcome": "absent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "There is a 2.4x improvement in p99 goodput for LLM serving",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p2",
+                "text": "Details will follow",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer names throughput at p99 latency, a different specific metric than goodput.",
+            "covered": 0,
+            "total": 2,
+            "missed": [
+              "There is a 2.4x improvement in p99 goodput for LLM serving",
+              "Details will follow"
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
           },
-          "meaning": "Neither implies the other: likely a misconception."
+          "meaning": "None of the expert's propositions is covered (or no general claim was stated)."
         },
         "result": {
           "field": "result",
-          "expert": "2.4x",
-          "audience": "2.4x",
+          "expert": "2.4x improvement",
+          "audience": "2.4x improvement",
           "status": "compared",
           "outcome": "match",
           "comparator": "exact",
@@ -201,22 +252,25 @@
         }
       }
     },
-    "ordinal": {
+    "chart": {
       "novice": {
-        "value": 0.33,
-        "basis": "claim",
-        "state": "under-specified",
+        "value": 0.0,
+        "covered": 0,
+        "total": 2,
+        "state": "absent",
         "thin": false
       },
       "peer": {
         "value": 0.0,
-        "basis": "claim",
-        "state": "divergent",
+        "covered": 0,
+        "total": 2,
+        "state": "absent",
         "thin": false
       },
       "expert": {
         "value": 1.0,
-        "basis": "claim",
+        "covered": 2,
+        "total": 2,
         "state": "equivalent",
         "thin": false,
         "definitional": true
@@ -243,16 +297,19 @@
     "structuring": {
       "model": "claude-sonnet-5",
       "attempts": 1,
-      "latency_s": 14.857,
       "dropped": [],
-      "retried_because": []
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 6.597
     }
   },
   "metrics_error": null,
   "scored_by": "claude-sonnet-5",
   "timing": {
     "personas_s": 3.069,
-    "structuring_s": 14.858
+    "structuring_s": 6.597
   },
   "image_content": null
 }

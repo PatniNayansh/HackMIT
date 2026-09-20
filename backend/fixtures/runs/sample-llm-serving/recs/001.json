@@ -2,38 +2,28 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Define goodput on first use (e.g., 'goodput: throughput of requests meeting latency SLOs')",
-      "evidence": "What does 'goodput' measure here?"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Explain what p99 means (e.g., 'p99: 99th percentile latency')",
+      "bullet": "Explain 'p99' as the 99th percentile latency (slowest 1% of requests)",
       "evidence": "What is p99 referring to?"
     },
     {
       "audience": "novice",
-      "bullet": "Add a subtitle naming the method or approach used to achieve the 2.4x improvement",
+      "bullet": "Add a subtitle stating the baseline comparison, e.g. 'vs. baseline serving system X'",
       "evidence": "What method achieves the 2.4x improvement?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "State the baseline the 2.4x improvement is measured against",
+      "bullet": "State the baseline the 2.4x improvement is measured against directly on the slide",
       "evidence": "What baseline is the 2.4x improvement compared against?"
-    },
-    {
-      "audience": "peer",
-      "bullet": "Define goodput explicitly as SLO-attaining throughput, not generic throughput",
-      "evidence": "What exactly does 'goodput' measure here?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T02:57:24+00:00",
-    "latency_s": 3.56,
+    "generated_at": "2026-09-20T03:46:42+00:00",
+    "latency_s": 4.14,
     "intent": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow.",
-    "dropped_without_evidence": 0
+    "dropped_without_evidence": 2
   }
 }

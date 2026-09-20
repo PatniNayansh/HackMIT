@@ -99,7 +99,7 @@ async function screen(name, view, ...args) {
 const ov = await screen("overview", overview);
 out.overview_buttons = ov.root.querySelectorAll("button").length;
 // Hover the narrative arc: record what its tooltip says at a few positions, and count hollow markers.
-const arcSvg = ov.root.querySelectorAll("svg").find((v) => /across slide order|four rungs/.test(v.attrs["aria-label"] ?? ""));
+const arcSvg = ov.root.querySelectorAll("svg").find((v) => /across slide order|four rungs|propositions of the expert/i.test(v.attrs["aria-label"] ?? ""));
 if (arcSvg) {
   out.arc_tooltips = [];
   for (const x of [120, 500, 900]) {
