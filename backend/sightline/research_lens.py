@@ -21,7 +21,7 @@ published fMRI research about a specific, named population. The result is a sent
 what published research says a group of people's default-mode-network response is
 IMPLICATED IN, not a claim about what this audience's brains are doing. Those are different
 claims and get different labels:
-  * "Predicted -- simulated, not measured" (sightline.neural.OVERLAY_LABEL): something was
+  * Predicted, never measured: something was
     estimated for an average brain.
   * RESEARCH_LENS_LABEL (this module): a possible reading of a signal you already have,
     grounded in someone else's published data, about someone else's brains -- narrower and

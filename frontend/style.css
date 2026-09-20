@@ -209,9 +209,36 @@ main:has(.detail) { max-width: 1240px; }
 .drop:hover, .drop.over { background: var(--wash); border-color: var(--ink-2); }
 .drop strong { font-size: 15px; }
 .drop input { display: none; }
-.spinner { width: 16px; height: 16px; border-radius: 1px; border: 2px solid var(--grid); border-top-color: var(--ink); animation: spin .8s linear infinite; display: inline-block; vertical-align: -3px; }
+/* A loading indicator is not a content card: it is the one place a full round is correct,
+   and it only reads as motion when the arc is a circle. Square it and it looks broken. */
+.spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--grid); border-top-color: var(--ink); animation: spin .8s linear infinite; display: inline-block; vertical-align: -3px; flex: none; box-sizing: border-box; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+
+/* -------------------------------------------------------------- upload and its loading screen */
+/* Every step of an upload is something the person waits on, so every step is on screen: what is
+   done, what is running, what is queued. Steps hold their height from the start, so the panel
+   never reflows as it advances -- the only thing that changes is the mark and the sub-line. */
+.upload-stage:empty { display: none; }
+.progress-panel { display: grid; gap: 2px; margin-top: 16px; border-top: 1px solid var(--grid); padding-top: 14px; }
+.pstep { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; padding: 7px 0; }
+.pstep-mark { width: 16px; height: 16px; display: inline-grid; place-items: center; font-size: 13px; color: var(--accent); margin-top: 1px; }
+.pstep-title { font-weight: 600; font-size: 14px; }
+.pstep-sub { font-size: 12.5px; color: var(--muted); }
+.pstep.queued .pstep-title, .pstep.queued .pstep-sub { color: var(--muted); }
+.pstep.queued .pstep-mark::before { content: ""; width: 7px; height: 7px; border: 1px solid var(--stroke); border-radius: 1px; }
+.pstep.skipped .pstep-title { color: var(--muted); text-decoration: line-through; }
+.pstep.skipped .pstep-mark::before { content: "3"; color: var(--muted); }
+.pstep.now .pstep-title { color: var(--ink); }
+
+.drop.has-file { cursor: default; border-style: solid; border-color: var(--border); padding: 20px; gap: 12px; }
+.file-chip { display: inline-flex; align-items: baseline; gap: 2px; max-width: 100%; font-size: 14px; }
+.file-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.audio-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.audio-row input[type="file"] { display: none; }
+.go-row { display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--grid); }
+.go-row .btn { min-width: 168px; justify-content: center; display: inline-flex; gap: 8px; align-items: center; }
+.audio-card { align-self: start; }
 
 table { border-collapse: collapse; width: 100%; }
 th { text-align: left; font-weight: 500; color: var(--ink-2); font-size: 12.5px; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }

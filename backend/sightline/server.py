@@ -36,7 +36,7 @@ from .diagnose import RecommendationsUnavailable, recommend
 from .deck import rollup
 from .divergence import Embedder, default_embedder
 from .llm import LLMClient, OpenAIClient
-from .neural import OVERLAY_LABEL, SURFACE_VIEWS, CachedNeural, NeuralNotCached
+from .neural import SURFACE_VIEWS, CachedNeural, NeuralNotCached
 from .runner import TolerantEngine, run_deck
 from .store import (
     BACKEND,
@@ -364,7 +364,6 @@ def create_app(
         m = neural_cache.metrics(run_id, index)
         return {
             "slide": index,
-            "overlay_label": OVERLAY_LABEL,
             "language_drive": m.language_drive,
             "visual_drive": m.visual_drive,
             "processing_ratio": m.processing_ratio,

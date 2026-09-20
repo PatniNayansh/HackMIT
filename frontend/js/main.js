@@ -3,12 +3,14 @@ import { initTheme } from "./theme.js";
 import { home, setup } from "./views-home.js";
 import { overview } from "./views-overview.js";
 import { detail } from "./views-detail.js";
+import { audioRun } from "./views-audio.js";
 
 const root = document.getElementById("app");
 let cleanup = null;
 
 const ROUTES = [
   [/^#\/?$/, () => home(root)],
+  [/^#\/audio$/, () => audioRun(root)],
   [/^#\/run\/([\w-]+)\/setup$/, (id) => setup(root, id)],
   [/^#\/run\/([\w-]+)\/slide\/(\d+)$/, (id, n) => detail(root, id, Number(n))],
   [/^#\/run\/([\w-]+)$/, (id) => overview(root, id)],

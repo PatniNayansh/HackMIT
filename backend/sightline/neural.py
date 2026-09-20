@@ -27,8 +27,9 @@ Hard constraints this module enforces structurally, not just documents:
     numpy==2.2.6 and torch<2.7, which would collide with this package's own dependencies).
     It is not importable from here at all. `assert_may_run_tribe()` is the guard the CLI
     calls before doing so; the FastAPI process never calls it.
-  * TRIBE was trained on movie-watching fMRI; narrated slides are out of distribution.
-    State this wherever neural output is shown (spec 10).
+  * TRIBE was trained on movie-watching fMRI; narrated slides are out of distribution. These
+    are predicted values, never measured ones -- true of every number this module returns, and
+    the reason the UI names the panel a prediction rather than a reading.
 
 This module is everything the FastAPI process is allowed to touch: the output contract
 (`NeuralModel`, as documentation of what the CLI must produce), the pure arithmetic
@@ -52,8 +53,6 @@ TR_SECONDS = 1.0
 # Rendered surface views a precomputed slide must have, per spec 9 (screen 5): lateral and
 # medial, both hemispheres.
 SURFACE_VIEWS: tuple[str, ...] = ("lateral_left", "medial_left", "lateral_right", "medial_right")
-
-OVERLAY_LABEL = "Predicted response — simulated, not measured."
 
 
 class NeuralModel(Protocol):

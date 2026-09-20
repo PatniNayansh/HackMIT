@@ -225,12 +225,27 @@ def test_depth_is_a_rule_never_an_elevation_layer():
     assert "filter: blur" not in CSS
 
 
+SPINNERS = (".spinner",)  # loading indicators: round on purpose, and not content
+
+
 def test_nothing_is_pill_shaped_and_no_corner_is_rounder_than_4px():
-    for radius in re.findall(r"border-radius:\s*([^;}]+)", CSS):
-        radius = radius.strip()
-        assert "%" not in radius and "999" not in radius, radius
-        for px in re.findall(r"(\d+(?:\.\d+)?)px", radius):
-            assert float(px) <= 4, radius
+    for m in re.finditer(r"([^{}]+)\{([^}]*)\}", CSS):
+        selector, body = m.group(1).strip(), m.group(2)
+        if any(sp in selector for sp in SPINNERS):
+            continue
+        for radius in re.findall(r"border-radius:\s*([^;}]+)", body):
+            radius = radius.strip()
+            assert "%" not in radius and "999" not in radius, (selector, radius)
+            for px in re.findall(r"(\d+(?:\.\d+)?)px", radius):
+                assert float(px) <= 4, (selector, radius)
+
+
+def test_the_spinner_is_a_circle_and_fits_its_box():
+    """It regressed to a square once already, when a blanket radius sweep caught it."""
+    rule = CSS[CSS.index(".spinner {") : CSS.index("}", CSS.index(".spinner {"))]
+    assert "border-radius: 50%" in rule
+    assert re.search(r"width:\s*(\d+)px", rule).group(1) == re.search(r"height:\s*(\d+)px", rule).group(1)
+    assert "box-sizing: border-box" in rule  # the 2px border cannot push it past its own size
 
 
 def test_slide_images_are_never_filtered_inverted_dimmed_or_blended():

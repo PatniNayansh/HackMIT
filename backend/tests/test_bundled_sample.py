@@ -149,7 +149,6 @@ def test_the_gfp_null_result_is_stored_but_never_served(client):
     assert "gfp_negative_baseline" in on_disk
     body = client.get(f"/api/runs/{RUN}/slides/1/neural").json()
     assert "gfp_negative_baseline" not in body
-    assert body["overlay_label"] == "Predicted response — simulated, not measured."
 
 
 def test_the_sample_cannot_be_run_again_or_modified(client):
