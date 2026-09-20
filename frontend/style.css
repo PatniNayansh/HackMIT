@@ -130,16 +130,6 @@ a { color: inherit; }
 .brand { text-decoration: none; display: flex; align-items: center; }
 /* Height-constrained, width auto: the wordmark is 3.65:1 and is never stretched. */
 .brand-logo { height: 26px; width: auto; display: block; }
-.topbar nav { display: flex; gap: 56px; margin: 0; }  /* one plain link, beside the wordmark; the theme toggle keeps the right edge */
-.topbar nav a {
-  text-decoration: none; color: var(--ink-2); font-size: 14px; transition: color .15s ease-out;
-  display: inline-flex; align-items: center; gap: 9px;
-}
-.topbar nav a:hover, .topbar nav a[aria-current="page"] { color: var(--ink); }
-/* Icons are currentColor, not a fixed white: white would vanish on the light theme. They follow
-   the link's own colour, so they are near-white in the dark room and near-black on paper. */
-.topbar nav svg { width: 17px; height: 17px; flex: none; stroke: currentColor; fill: none;
-  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .topbar .icon-btn { margin-left: auto; }
 
 main { max-width: 960px; margin: 0 auto; padding: 32px 48px 96px; }
