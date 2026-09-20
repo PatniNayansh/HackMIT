@@ -385,28 +385,48 @@ def create_app(
             raise HTTPException(404, str(e)) from e
         return FileResponse(path, media_type="image/png", headers={"Cache-Control": "max-age=3600"})
 
-    # ------------------------------------------------------------------------- lecture
-    # One real recorded lecture, run through TRIBE with no synthesis (see
-    # scripts/make_lecture_timecourse.py). Static: read once from the fixture, never computed.
+    # --------------------------------------------------------------------------- audio
+    # Recordings run through TRIBE with no synthesis (see scripts/make_audio_run.py). Static:
+    # read from fixtures, never computed here. One directory per run, so a second recording is
+    # another directory rather than another endpoint.
 
-    LECTURE = BACKEND / "fixtures" / "lecture_timecourse.json"
+    AUDIO_RUNS = BACKEND / "fixtures" / "audio"
 
-    LECTURE_SURFACES = BACKEND / "fixtures" / "lecture_surfaces"
+    def _audio_ids() -> list[str]:
+        if not AUDIO_RUNS.is_dir():
+            return []
+        return sorted(d.name for d in AUDIO_RUNS.iterdir() if (d / "timecourse.json").is_file())
 
-    @app.get("/api/lecture")
-    def lecture():
-        if not LECTURE.is_file():
-            raise HTTPException(404, "no lecture timecourse has been generated")
-        body = json.loads(LECTURE.read_text(encoding="utf-8"))
+    def _audio_body(run_id: str) -> dict:
+        path = AUDIO_RUNS / run_id / "timecourse.json"
+        if not path.is_file():
+            raise HTTPException(404, f"no audio run {run_id!r}")
+        body = json.loads(path.read_text(encoding="utf-8"))
+        body.setdefault("id", run_id)
         for v in body.get("surfaces", []):
-            v["url"] = f"/api/lecture/surfaces/{v['chunk']}.png"
+            v["url"] = f"/api/audio/{run_id}/surfaces/{v['chunk']}.png"
         return body
 
-    @app.get("/api/lecture/surfaces/{chunk}.png")
-    def lecture_surface(chunk: str):
-        path = (LECTURE_SURFACES / f"{chunk}.png").resolve()
-        if not path.is_file() or LECTURE_SURFACES.resolve() not in path.parents:
-            raise HTTPException(404, f"no cortical render for {chunk}")
+    @app.get("/api/audio")
+    def audio_runs():
+        """Enough of each run to list it, without shipping every time course to draw a menu."""
+        out = []
+        for run_id in _audio_ids():
+            b = _audio_body(run_id)
+            out.append({k: b.get(k) for k in
+                        ("id", "title", "course", "venue", "duration_s", "chunks_run", "chunks_total", "n_segments")})
+        return out
+
+    @app.get("/api/audio/{run_id}")
+    def audio_run(run_id: str):
+        return _audio_body(run_id)
+
+    @app.get("/api/audio/{run_id}/surfaces/{chunk}.png")
+    def audio_surface(run_id: str, chunk: str):
+        root = (AUDIO_RUNS / run_id / "surfaces").resolve()
+        path = (root / f"{chunk}.png").resolve()
+        if not path.is_file() or root not in path.parents:
+            raise HTTPException(404, f"no cortical render for {run_id}/{chunk}")
         return FileResponse(path, media_type="image/png", headers={"Cache-Control": "max-age=3600"})
 
     # -------------------------------------------------------------------------- pages

@@ -342,10 +342,17 @@ pill-shaped or rounder than 4px. The slide page is the one screen allowed a wide
 
 ## A real lecture, read by the model
 
-The front page carries one artefact that is not a deck at all: 16 minutes of a real recorded
-lecture (CEE 260 / MIE 273, UMass Amherst) run straight through TRIBE with no synthesis —
-the language-drive timecourse with its peak marked, and the left lateral cortex for each
-four-minute chunk beneath it.
+History carries artefacts that are not decks at all: recorded lecture audio (CEE 260 / MIE 273,
+UMass Amherst) run straight through TRIBE with no synthesis — the language-drive timecourse
+with its peak marked, and the left lateral cortex for each two-minute chunk beneath it. Each
+recording is its own run under `backend/fixtures/audio/<id>/`; add another with
+`make_audio_run.py` and it appears in History without touching any code.
+
+> **A duration bug worth knowing about.** TRIBE returns roughly two rows per second, and the
+> runner writes a row *index* into `t_s`, not a timestamp. Reading that as seconds put every
+> duration out by a factor of two — the 8-minute run was labelled 16. `make_audio_run.py` now
+> derives the real rate from a chunk of known length (120 s of audio comes back as 240 rows)
+> rather than trusting the field.
 
 Only language drive is plotted. That run had no visual input, so visual drive in it is model
 noise around zero and `processing_ratio` divides by it; the chart the data cannot support is

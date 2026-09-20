@@ -323,7 +323,7 @@ function ordinalArc(rollup, { onPoint, tableNumber }, coverage = false) {
 // ------------------------------------------------------- the real lecture, over time
 // One recorded lecture (not a deck, not synthesized narration) run straight through TRIBE.
 // Language-region drive only: that run had no visual input, so visual drive there is noise
-// around zero and the processing ratio divides by it. See scripts/make_lecture_timecourse.py.
+// around zero and the processing ratio divides by it. See scripts/make_audio_run.py.
 
 const LW = 1000, LH = 260, LM = { l: 52, r: 16, t: 20, b: 34 };
 
@@ -339,8 +339,8 @@ export function lectureChart(data) {
   const peak = pts.reduce((a, b) => (b.v > a.v ? b : a));
   const svg = s("svg", {
     viewBox: `0 0 ${LW} ${LH}`, role: "img",
-    "aria-label": `Predicted language-region drive across ${Math.round(data.duration_s / 60)} minutes of a recorded lecture. `
-      + `It rises through the first twelve minutes and peaks at minute ${Math.round(peak.t / 60)}, then falls back.`,
+    "aria-label": `Predicted language-region drive across ${Math.round(data.duration_s / 60)} minutes of a recorded lecture, `
+      + `peaking at minute ${Math.round(peak.t / 60)}.`,
   });
 
   // zero line: the model's own baseline, so above and below it are meaningfully different
