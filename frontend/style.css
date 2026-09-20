@@ -331,14 +331,12 @@ mark.hl { background: rgba(250, 178, 25, .38); color: inherit; border-radius: 3p
 .surface-grid img { width: 100%; border-radius: 8px; background: var(--wash); display: block; }
 .surface-grid figcaption { font-size: 11.5px; text-align: center; margin-top: 4px; text-transform: capitalize; }
 
-.neural-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 28px 20px; color: var(--muted); }
-.neural-empty-brain { width: 140px; opacity: 0.55; filter: grayscale(1); }
+.neural-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 28px 20px; color: var(--muted); }
+/* Rendered on a solid white background (TRIBE v2's own render always is -- see
+   render_unlit_placeholder.py), same as every real cortical-surface image in
+   .surface-grid, so it's framed the same way here rather than floated transparently. */
+.neural-empty-brain { width: 160px; border-radius: 10px; background: var(--wash); display: block; opacity: 0.75; }
 .neural-empty .empty { max-width: 46ch; padding: 0; }
-@media (prefers-color-scheme: dark) {
-  /* the rendered mesh is mid-grey on transparent; inverted, it reads against a dark page
-     the same way the light-mode original reads against a light one */
-  .neural-empty-brain { filter: grayscale(1) invert(1); opacity: 0.45; }
-}
 
 .empty { color: var(--ink-2); padding: 20px 0; }
 @media (max-width: 1100px) {
