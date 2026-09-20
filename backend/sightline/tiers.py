@@ -43,6 +43,15 @@ CONFIG: dict[str, Any] = {
     },
 }
 
+# Field-wise comparator (compare.py). The claim's entailment state and the concept/result checks are
+# categorical, so they are read directly; only the novice's unresolved-term count is a level, and it
+# keeps the deck-relative reading (percentile among the deck's scored slides) with an absolute fallback.
+CONFIG["fieldwise"] = {
+    "min_slides_for_relative": 5,
+    "relative": {"novice_terms_low_max_pct": 0.50},
+    "absolute": {"novice_terms_low_max": 2},
+}
+
 TIERS: dict[str, dict[str, str]] = {
     "self_contained": {
         "label": "Self-contained",
@@ -129,5 +138,70 @@ def assign_tiers(
             "n_slides": len(inputs),
             "min_slides_for_relative": config["min_slides_for_relative"],
             "checks": checks,
+        }
+    return out
+
+
+_REACH_WORDS = {"ok": "reached it", "partial": "reached part of it", "fail": "did not reach it"}
+
+
+def _field_line(persona: str, field: str, comp: Mapping[str, Any]) -> tuple[bool, str]:
+    """(counts as reached, plain-words line) for one scored field of one audience."""
+    who = persona.capitalize()
+    exp, aud = comp.get("expert"), comp.get("audience")
+    o = comp.get("outcome")
+    if field == "claim":
+        line = {
+            "equivalent": f"{who} claim is equivalent to the expert's.",
+            "over-claimed": f"{who} claim over-generalises the expert's (it implies the expert's).",
+            "under-specified": f"{who} claim is a weaker version of the expert's (under-specified).",
+            "divergent": f"{who} claim and the expert's do not imply each other (divergent).",
+            "absent": f"{who} takeaway stated no general claim (absent).",
+        }[o]
+        return o in ("equivalent", "over-claimed"), line
+    if o == "absent":
+        return False, f"{who} takeaway did not reach the {field}; the expert reached \u201c{exp}\u201d."
+    return o in ("match", "near"), (
+        f"{who} {field} \u201c{aud}\u201d {'matches' if o in ('match', 'near') else 'does not match'} the expert\u2019s \u201c{exp}\u201d."
+    )
+
+
+def assign_tiers_fieldwise(
+    inputs: Mapping[int, Mapping[str, Any]], config: Mapping[str, Any] = CONFIG
+) -> dict[int, dict[str, Any]]:
+    """`inputs[slide]` = {profile, comparisons (novice, peer), reach (novice, peer), novice_unresolved}.
+    A slide whose profile has no scored field has no structure to judge by and gets no tier.
+    Everything runs only over the fields the expert populated (the slide profile)."""
+    cfg = config["fieldwise"]
+    relative = len(inputs) >= cfg["min_slides_for_relative"]
+    counts = [v["novice_unresolved"] for v in inputs.values()]
+    out: dict[int, dict[str, Any]] = {}
+    for slide, v in inputs.items():
+        profile = v["profile"]
+        if not profile["scored"]:
+            continue
+        checks: list[dict[str, Any]] = []
+        for persona in ("novice", "peer"):
+            for f in profile["scored"]:
+                ok, line = _field_line(persona, f, v["comparisons"][persona][f])
+                checks.append({"name": f"{persona}_{f}", "persona": persona, "field": f, "passed": ok, "text": line})
+        n_ok = v["reach"]["novice"] == "ok"
+        p_ok = v["reach"]["peer"] in ("ok", "partial")
+        checks.insert(0, {"name": "novice_reached", "passed": n_ok, "text": f"Over this slide's scored fields ({', '.join(profile['scored'])}), the novice {_REACH_WORDS[v['reach']['novice']]}." + (" A novice counts as aligned only if all were reached." if not n_ok else "")})
+        checks.insert(1, {"name": "peer_reached", "passed": p_ok, "text": f"The peer {_REACH_WORDS[v['reach']['peer']]}. A peer counts as aligned unless none were reached."})
+        n = v["novice_unresolved"]
+        if relative:
+            pct = percentile(n, counts)
+            t_ok = pct <= cfg["relative"]["novice_terms_low_max_pct"]
+            checks.append({"name": "novice_terms_low", "passed": t_ok, "value": n, "percentile": pct, "threshold": cfg["relative"]["novice_terms_low_max_pct"],
+                           "text": f"The novice\u2019s unresolved-term count is at the {_ordinal(pct)} percentile of these {len(inputs)} slides; it counts as low at the {_ordinal(cfg['relative']['novice_terms_low_max_pct'])} or below."})
+        else:
+            t_ok = n <= cfg["absolute"]["novice_terms_low_max"]
+            checks.append({"name": "novice_terms_low", "passed": t_ok, "value": n, "threshold": cfg["absolute"]["novice_terms_low_max"],
+                           "text": f"The novice\u2019s unresolved-term count counts as low at {cfg['absolute']['novice_terms_low_max']} or fewer."})
+        key = _decide(n_ok, p_ok, t_ok)
+        out[slide] = {
+            "tier": key, **TIERS[key], "basis": "relative" if relative else "absolute",
+            "comparator": "fieldwise", "n_slides": len(inputs), "min_slides_for_relative": cfg["min_slides_for_relative"], "checks": checks,
         }
     return out

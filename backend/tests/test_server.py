@@ -69,8 +69,9 @@ def env(tmp_path):
     store = RunStore(tmp_path / "history")
     factory = Fake()
 
-    def make_app(client_factory=factory):
+    def make_app(client_factory=factory, comparator="cosine"):
         return create_app(
+            comparator=comparator,
             store=store,
             cache=FileCache(tmp_path / "cache"),
             client_factory=client_factory,

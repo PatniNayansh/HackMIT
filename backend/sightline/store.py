@@ -125,7 +125,10 @@ class RunStore:
         for s in slides:
             (d / "slides").mkdir(parents=True, exist_ok=True)
             (d / "slides" / f"{s.index:03d}.png").write_bytes(s.image_png)
-        _write_json(d / "input.json", [{"index": s.index, "text": s.text} for s in slides])
+        _write_json(
+            d / "input.json",
+            [{"index": s.index, "text": s.text, "image_content": s.image_content, "figure_signals": s.figure_signals} for s in slides],
+        )
         meta = {
             "run_id": run_id,
             "title": title,
@@ -146,6 +149,8 @@ class RunStore:
             "profile_inference_error": inference_error,
             "model": None,
             "embedding_model": None,
+            "comparator": None,  # "cosine" | "fieldwise": which path produced this run's numbers
+            "structuring_model": None,
             "prompt_version": PROMPT_VERSION,
             "error": None,
             "sample": False,
@@ -194,7 +199,8 @@ class RunStore:
     def load_slides(self, run_id: str) -> list[Slide]:
         d, _ = self._dir(run_id)
         return [
-            Slide(rec["index"], rec["text"], (d / "slides" / f"{rec['index']:03d}.png").read_bytes())
+            Slide(rec["index"], rec["text"], (d / "slides" / f"{rec['index']:03d}.png").read_bytes(),
+                  rec.get("image_content"), rec.get("figure_signals"))
             for rec in json.loads((d / "input.json").read_text())
         ]
 

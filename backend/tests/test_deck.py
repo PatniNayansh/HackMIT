@@ -182,7 +182,7 @@ def test_build_metrics_measures_novice_and_peer_and_declares_the_expert_definiti
     assert expert["value"] == 1.0 and expert["definitional"] is True
     assert "definitional" not in m["intent_alignment"]["novice"]
     # the retired step 1 outputs are not carried
-    assert set(m) == {"intent", "takeaways", "intent_alignment", "term_gap"}
+    assert set(m) == {"comparator", "intent", "takeaways", "intent_alignment", "term_gap"} and m["comparator"] == "cosine"
 
 
 def test_measured_alignment_keeps_the_texts_it_was_computed_from():

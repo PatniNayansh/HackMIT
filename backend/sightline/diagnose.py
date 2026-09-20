@@ -91,6 +91,14 @@ takeaway, the claim it inferred, one of its questions, or one of the terms it co
 or from the slide text, showing why the edit is needed. If you cannot quote something real, \
 leave the edit out.
 
+You may also be given <field_comparison>: per viewer, whether it reached the slide's principle, claim \
+and result (compared against the expert's), and findings computed from that. Treat each finding as a \
+trigger for a concrete edit. "Example-bound" means the viewer attached to the example, not the principle: \
+the edit is to name and state the principle on the slide. "Figure-dependent" means the slide's substance \
+is in a figure the viewer did not engage with: the edit is to label what the figure shows or say what \
+to take from it. A missing concept or result is an edit to state it. The evidence for such an edit is \
+still a quote from that viewer's report or the slide.
+
 Give fewer edits, or none, when that viewer had little trouble. Do not repeat an edit for both.
 
 expert_flagged: only if the EXPERT's own report lists an unresolved term, or says the slide \
@@ -141,11 +149,30 @@ def _intent_text(intent: Mapping[str, Any] | SlideIntent) -> str:
     return intent.text if isinstance(intent, SlideIntent) else str(intent["text"])
 
 
+def _field_comparison(m: Mapping[str, Any]) -> str:
+    """The field-wise comparator's verdicts and findings, as plain lines for the model to act on."""
+    lines = [f"Slide profile: {m['slide_profile']['text']}"]
+    for aud in ("novice", "peer"):
+        c = m["comparisons"][aud]
+        parts = []
+        for f in m["slide_profile"]["scored"]:
+            o = c[f].get("outcome")
+            if f == "claim":
+                parts.append(f"claim {o}")
+            else:
+                parts.append(f"{f} {'reached (' + o + ')' if o in ('match', 'near') else 'not reached' if o == 'absent' else 'differs from the expert'}")
+        lines.append(f"{aud.capitalize()}: " + "; ".join(parts))
+    lines += [f"Finding ({f['audience']}): {f['text']}" for f in m["findings"]]
+    return "<field_comparison>\n" + "\n".join(lines) + "\n</field_comparison>\n\n"
+
+
 def build_user_text(slide_result: SlideResult, intent_text: str) -> str:
     r = slide_result["readings"]
+    m = slide_result.get("metrics") or {}
+    comparison = _field_comparison(m) if m.get("comparator") == "fieldwise" else ""
     return (
         f"<slide_text>\n{slide_result['text'] or '(no extractable text; the viewers also saw the slide image)'}\n</slide_text>\n\n"
-        f"<slide_intent>\n{intent_text}\n</slide_intent>\n\n"
+        f"<slide_intent>\n{intent_text}\n</slide_intent>\n\n{comparison}"
         + "\n\n".join(_report(p, r[p]) for p in ("novice", "peer", "expert"))
         + "\n\nGive the edits as JSON."
     )

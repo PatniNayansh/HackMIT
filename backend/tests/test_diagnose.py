@@ -147,3 +147,24 @@ def test_quotes_ignore_case_spacing_and_accept_ellipses():
     assert quoted_in("presenter combines ... speed something up", src)
     assert not quoted_in("presenter combines ... slow something down", src)
     assert not quoted_in("", src) and not quoted_in("...", src)
+
+
+# --------------------------------------------------- field-wise findings become triggers
+
+
+def test_the_field_wise_findings_and_states_are_handed_to_the_recommender_as_triggers():
+    from builders import fw_slide_result
+
+    novice = {"concept": None, "claim": None, "result": None, "vehicle": "carbon-12 and carbon-14"}
+    r = fw_slide_result(1, novice=novice, image="Two lines cross on axes labelled Price and Quantity, meeting at a marked point.")
+    r["metrics"]["findings"] += [{"id": "figure_dependent", "audience": "novice", "text": "The substance of this slide is in the figure, and the novice reading does not engage with it: the figure is carrying meaning it does not label.", "evidence": [], "facts": {}}]
+    text = diagnose.build_user_text(r, r["slide_intent"]["text"])
+    assert "<field_comparison>" in text and "This slide names a principle" in text
+    assert "Novice: concept not reached" in text and "claim absent" in text and "result not reached" in text
+    assert "Finding (novice): Novice takeaway is example-bound" in text and "carrying meaning it does not label" in text
+    assert "Peer: concept reached (match); claim equivalent; result reached (match)" in text
+    assert "Example-bound" in diagnose._SYSTEM and "Figure-dependent" in diagnose._SYSTEM  # the prompt says what each trigger asks for
+
+
+def test_a_cosine_run_gets_no_field_comparison_block():
+    assert "<field_comparison>" not in diagnose.build_user_text(slide(), INTENT["text"])

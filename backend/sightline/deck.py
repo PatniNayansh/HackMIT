@@ -33,7 +33,7 @@ import numpy as np
 from .audiences import PERSONAS, AudienceReading, AudienceResponse, AudienceResponseError, CacheMiss, Persona
 from .divergence import Embedder, normalize_term, score_slide
 from .intent import EXPERT_IS_DEFINITIONAL
-from .tiers import assign_tiers
+from .tiers import assign_tiers, assign_tiers_fieldwise
 
 # Comparing one slide to "the rest of the deck" needs a rest. Below this the UI says so
 # instead of ranking three slides against each other.
@@ -61,7 +61,10 @@ class SlideResult(TypedDict):
     metrics: dict[str, Any] | None
     metrics_error: str | None
     scored_by: str | None  # name of the embedding model behind the metrics
-    timing: dict[str, float]  # seconds the personas took (older runs also have intent_s)
+    timing: dict[str, float]  # seconds: personas, and structuring under the field-wise comparator
+    # The figure/chart/diagram on the slide, described neutrally at ingest (machine-generated,
+    # deliberately non-interpretive), or None. Slide-level: never compared across personas.
+    image_content: dict[str, Any] | None
 
 
 def plain(obj: Any) -> Any:
@@ -126,6 +129,7 @@ def build_metrics(
         }
     return plain(
         {
+            "comparator": "cosine",
             "intent": intent,
             "takeaways": dict(sd.takeaways),
             "intent_alignment": alignment,
@@ -138,6 +142,7 @@ def build_metrics(
 
 
 class DeckRollup(TypedDict):
+    comparator: str  # "cosine" | "fieldwise": which comparator produced the metrics being rolled up
     n_slides: int
     n_scored: int
     unscored: list[int]  # slide indices with no metrics (a persona failed)
@@ -174,7 +179,14 @@ def _ranks(values: Mapping[int, float]) -> dict[int, int]:
     return {i: 1 + sum(1 for w in values.values() if w > v) for i, v in values.items()}
 
 
+def _mode(m: Mapping[str, Any] | None) -> str:
+    """Which comparator produced a slide's metrics. Runs saved before the flag existed are cosine."""
+    return (m or {}).get("comparator", "cosine")
+
+
 def _definitional(m: Mapping[str, Any], persona: str) -> bool:
+    if _mode(m) == "fieldwise":
+        return bool(m["ordinal"][persona].get("definitional"))
     return bool(m["intent_alignment"][persona].get("definitional"))
 
 
@@ -189,9 +201,10 @@ def _slide_values(r: SlideResult) -> dict[str, float]:
     m = r["metrics"]
     if m:
         out["term_gap_count"] = float(len(m["term_gap"]["terms"]))
-        for p in PERSONAS:
-            if not _definitional(m, p):
-                out[f"intent_alignment.{p}"] = float(m["intent_alignment"][p]["value"])
+        if _mode(m) == "cosine":  # the field-wise comparator has no scalar alignment to compare
+            for p in PERSONAS:
+                if not _definitional(m, p):
+                    out[f"intent_alignment.{p}"] = float(m["intent_alignment"][p]["value"])
     return out
 
 
@@ -271,6 +284,28 @@ def _notes(
     return notes
 
 
+def _fieldwise_hardest(scored: Sequence[SlideResult], values: Mapping[int, Mapping[str, float]]) -> list[dict[str, Any]]:
+    """Hardest for a newcomer, from the novice's rung on the four-rung ordinal (claim state, else
+    concept, else result): lowest first; ties by more missing fields, then more unresolved terms.
+    The rung orders slides; it is never shown as a score."""
+    rows = []
+    for r in scored:
+        m = r["metrics"]
+        comps = m["comparisons"]["novice"]
+        rung = m["ordinal"]["novice"]
+        if rung["value"] is None:  # the slide has no scored field: nothing to rank it by
+            continue
+        gaps = sum(1 for f in m["slide_profile"]["scored"] if comps[f].get("outcome") in ("absent", "mismatch", "divergent"))
+        rows.append(
+            {
+                "slide": r["index"], "novice_state": rung["state"], "novice_rung": rung["value"], "novice_gaps": gaps,
+                "novice_unresolved": int(values[r["index"]]["unresolved_count.novice"]),
+            }
+        )
+    rows.sort(key=lambda h: (h["novice_rung"], -h["novice_gaps"], -h["novice_unresolved"], h["slide"]))
+    return rows
+
+
 def rollup(results: Sequence[SlideResult]) -> DeckRollup:
     results = sorted(results, key=lambda r: r["index"])
     values = {r["index"]: _slide_values(r) for r in results}
@@ -285,19 +320,31 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
 
     scored = [r for r in results if r["metrics"]]
     comparable = len(scored) >= MIN_SLIDES_FOR_COMPARISON
+    mode = _mode(scored[0]["metrics"]) if scored else "cosine"
 
     # Tiers are read from the deck first (percentiles among these slides), so they can move as
     # more slides land during a run. They are not stored per slide for that reason.
-    tiers = assign_tiers(
-        {
-            r["index"]: {
-                "novice_alignment": values[r["index"]]["intent_alignment.novice"],
-                "peer_alignment": values[r["index"]]["intent_alignment.peer"],
-                "novice_unresolved": values[r["index"]]["unresolved_count.novice"],
+    if mode == "fieldwise":
+        tiers = assign_tiers_fieldwise(
+            {
+                r["index"]: {
+                    "profile": r["metrics"]["slide_profile"], "comparisons": r["metrics"]["comparisons"], "reach": r["metrics"]["reach"],
+                    "novice_unresolved": values[r["index"]]["unresolved_count.novice"],
+                }
+                for r in scored
             }
-            for r in scored
-        }
-    )
+        )
+    else:
+        tiers = assign_tiers(
+            {
+                r["index"]: {
+                    "novice_alignment": values[r["index"]]["intent_alignment.novice"],
+                    "peer_alignment": values[r["index"]]["intent_alignment.peer"],
+                    "novice_unresolved": values[r["index"]]["unresolved_count.novice"],
+                }
+                for r in scored
+            }
+        )
 
     per_slide = [
         {
@@ -313,21 +360,24 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
         for r in results
     ]
 
-    # Hardest for a newcomer: lowest novice alignment to the slide's inferred intent first, ties
-    # broken by more novice-unresolved terms. Alignment is not shown in the row: the order is the
-    # finding, and the level on one slide is not trustworthy.
-    hardest = sorted(
-        (
-            {
-                "slide": i,
-                "novice_alignment": v["intent_alignment.novice"],
-                "novice_unresolved": int(v["unresolved_count.novice"]),
-            }
-            for i, v in values.items()
-            if "intent_alignment.novice" in v
-        ),
-        key=lambda h: (h["novice_alignment"], -h["novice_unresolved"], h["slide"]),
-    )
+    # Hardest for a newcomer. Cosine: lowest novice alignment first, ties by more unresolved terms.
+    # Field-wise: lowest novice rung first. Either way the order is the finding: the level on one
+    # slide is not trustworthy, so no row shows a score.
+    if mode == "fieldwise":
+        hardest = _fieldwise_hardest(scored, values)
+    else:
+        hardest = sorted(
+            (
+                {
+                    "slide": i,
+                    "novice_alignment": v["intent_alignment.novice"],
+                    "novice_unresolved": int(v["unresolved_count.novice"]),
+                }
+                for i, v in values.items()
+                if "intent_alignment.novice" in v
+            ),
+            key=lambda h: (h["novice_alignment"], -h["novice_unresolved"], h["slide"]),
+        )
     for n, h in enumerate(hardest, start=1):
         h["rank"] = n
 
@@ -336,10 +386,21 @@ def rollup(results: Sequence[SlideResult]) -> DeckRollup:
     arc = []
     for r in results:
         m = r["metrics"]
-        arc.append({"slide": r["index"], **{p: (float(m["intent_alignment"][p]["value"]) if m else None) for p in PERSONAS}})
+        if m and _mode(m) == "fieldwise":
+            # An ordinal with four rungs, drawn only so the chart can be drawn. `thin` marks a slide
+            # whose profile has at most one scored field: not a low-comprehension slide, so the
+            # chart hollows its points and the tooltip names the profile.
+            arc.append({
+                "slide": r["index"], **{p: m["ordinal"][p]["value"] for p in PERSONAS},
+                "thin": m["slide_profile"]["thin"], "profile": m["slide_profile"]["text"],
+                "states": {p: m["ordinal"][p]["state"] for p in PERSONAS},
+            })
+        else:
+            arc.append({"slide": r["index"], **{p: (float(m["intent_alignment"][p]["value"]) if m else None) for p in PERSONAS}})
     definitional = [p for p in PERSONAS if scored and all(_definitional(r["metrics"], p) for r in scored)]
 
     return {
+        "comparator": mode,
         "n_slides": len(results),
         "n_scored": len(scored),
         "unscored": [r["index"] for r in results if not r["metrics"]],

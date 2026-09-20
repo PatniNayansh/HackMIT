@@ -26,6 +26,7 @@ from pydantic import BaseModel
 
 from . import ingest
 from .audiences import DeckProfile, FileCache
+from .compare import FileStructureCache
 from .diagnose import RecommendationsUnavailable, recommend
 from .deck import rollup
 from .divergence import Embedder, default_embedder
@@ -43,6 +44,22 @@ from .store import (
 )
 
 FRONTEND_DIR = REPO_ROOT / "frontend"
+
+# THE FLAG. Which comparator produces a run's numbers: "fieldwise" (compare.py) or "cosine" (the
+# original whole-takeaway cosine, divergence.py, left intact). Flip it with no code change:
+#     SIGHTLINE_COMPARATOR=cosine make dev
+# It applies to runs STARTED after it changes; a saved run keeps and shows the comparator that made it.
+COMPARATORS = ("cosine", "fieldwise")
+
+
+def default_comparator() -> str:
+    value = os.environ.get("SIGHTLINE_COMPARATOR", "fieldwise").strip().lower()
+    if value not in COMPARATORS:
+        raise ValueError(f"SIGHTLINE_COMPARATOR must be one of {COMPARATORS}, got {value!r}")
+    return value
+
+
+COMPARATOR = default_comparator()
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 
@@ -51,6 +68,26 @@ def default_client_factory() -> LLMClient | None:
     saved runs still open."""
     try:
         return AnthropicClient()
+    except (TypeError, ImportError):
+        return None
+
+
+def default_helper_client_factory() -> LLMClient | None:
+    """The small model for the figure describer (Haiku 4.5): describing marks and labels is
+    extraction, not judgement."""
+    try:
+        return AnthropicClient(model=os.environ.get("SIGHTLINE_HELPER_MODEL", "claude-haiku-4-5"))
+    except (TypeError, ImportError):
+        return None
+
+
+def default_structuring_client_factory() -> LLMClient | None:
+    """The field-wise structuring + entailment call. Sonnet 5, not Haiku: on hand-written
+    directional fixtures Haiku 4.5 called a plain paraphrase "under-specified" (3 of 4 correct)
+    while Sonnet 5 got 4 of 4, and a false gap is exactly what this comparator exists to avoid.
+    Override with SIGHTLINE_STRUCTURING_MODEL=claude-haiku-4-5 to trade accuracy for speed."""
+    try:
+        return AnthropicClient(model=os.environ.get("SIGHTLINE_STRUCTURING_MODEL", "claude-sonnet-5"))
     except (TypeError, ImportError):
         return None
 
@@ -66,11 +103,19 @@ def create_app(
     store: RunStore | None = None,
     cache: FileCache | None = None,
     client_factory: Callable[[], LLMClient | None] = default_client_factory,
+    helper_client_factory: Callable[[], LLMClient | None] = default_helper_client_factory,
+    structuring_client_factory: Callable[[], LLMClient | None] = default_structuring_client_factory,
+    comparator: str | None = None,
     embedder: Embedder | None = None,
     frontend_dir: Path = FRONTEND_DIR,
 ) -> FastAPI:
     store = store or RunStore(data_dir() / "history", bundled=[BUNDLED_RUNS_DIR])
     cache = cache or FileCache(data_dir() / "cache" / "audiences", read_only_dirs=[BACKEND / "bundled_cache"])
+    comparator = comparator or COMPARATOR
+    if comparator not in COMPARATORS:
+        raise ValueError(f"comparator must be one of {COMPARATORS}, got {comparator!r}")
+    figure_cache = ingest.FileFigureCache(cache.write_dir.parent / "figures")
+    structure_cache = FileStructureCache(cache.write_dir.parent / "structured")
     active: dict[str, asyncio.Task] = {}
     in_flight: dict[tuple[str, int], asyncio.Future] = {}
     embedder_ref: dict[str, Embedder] = {}
@@ -117,6 +162,7 @@ def create_app(
         client = client_factory()
         return {
             "can_call_model": client is not None,
+            "comparator": comparator,
             "model": client.model if client else None,
             "offline": os.environ.get("SIGHTLINE_OFFLINE") == "1",
         }
@@ -143,13 +189,26 @@ def create_app(
         inferred: DeckProfile | None = None
         error: str | None = None
         client = client_factory()
-        if client is None:
-            error = "No API key is configured, so the subfield could not be inferred. Enter it yourself."
-        else:
+
+        async def infer() -> None:
+            nonlocal inferred, error
+            if client is None:
+                error = "No API key is configured, so the subfield could not be inferred. Enter it yourself."
+                return
             try:
                 inferred = await ingest.infer_profile(client, slides)
             except Exception as e:  # noqa: BLE001 - shown to the presenter, who can type it in
                 error = f"Could not infer the subfield ({type(e).__name__}). Enter it yourself."
+
+        # Figure descriptions are made ONCE per deck, here, in parallel with the subfield: a
+        # text-only deck sends nothing, and the personas never make this call themselves.
+        described: list[ingest.Slide] = slides
+        async def describe() -> None:
+            nonlocal described
+            described = await ingest.describe_figures(helper_client_factory(), slides, figure_cache)
+
+        await asyncio.gather(infer(), describe())
+        slides = described
 
         meta = store.create_draft(
             title=Path(name).stem or "Untitled deck",
@@ -187,7 +246,13 @@ def create_app(
             finished_at=None,
         )
         engine = TolerantEngine(client_factory(), cache)
-        task = asyncio.create_task(run_deck(store, run_id, engine, get_embedder()))
+        task = asyncio.create_task(
+            run_deck(
+                store, run_id, engine, get_embedder(), comparator=comparator,
+                structuring_client=structuring_client_factory() if comparator == "fieldwise" else None,
+                structure_cache=structure_cache,
+            )
+        )
         active[run_id] = task
         task.add_done_callback(lambda _: active.pop(run_id, None))
         return {"run_id": run_id, "status": "running"}

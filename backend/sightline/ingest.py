@@ -11,9 +11,14 @@ title is a heuristic (see `_extract_text`); when it is not confident it labels e
 
 from __future__ import annotations
 
+import asyncio
+import hashlib
+import json
+import os
 import re
 import statistics
-from dataclasses import dataclass
+import tempfile
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
@@ -36,14 +41,34 @@ class UnsupportedFormat(IngestError):
     pass
 
 
+# --- when does a slide carry a figure worth describing? (a text-only deck must cost nothing extra)
+IMAGE_AREA_RATIO_MIN = 0.08  # raster images cover at least this share of the page
+DRAWING_PATHS_MIN = 8  # or the page has at least this many vector paths (a chart drawn with lines and ticks)
+LOW_TEXT_CHARS = 40  # or almost no text, alongside any image or vector graphics at all
+
+
 @dataclass(frozen=True)
 class Slide:
     index: int  # 1-based, matches what a presenter calls "slide 3"
     text: str  # reading order, "[title] ..." / "[body] ..." lines; "" for an image-only slide
     image_png: bytes
+    # The figure/chart/diagram on the slide, described neutrally at ingest: {"text", "model",
+    # "source", ...}. Slide-level and machine-generated; never compared across personas.
+    image_content: dict | None = None
+    # What the gate saw: {"image_area_ratio", "drawing_paths", "text_chars", "carries_figure"}
+    figure_signals: dict | None = None
+
+    @property
+    def carries_figure(self) -> bool:
+        return bool(self.figure_signals and self.figure_signals.get("carries_figure"))
 
     def to_input(self) -> SlideInput:
-        return SlideInput(self.index, self.text, self.image_png)
+        """What the personas are given: the printed text, then the figure description (if any)
+        under a FIGURE: marker so they know it is a description of the image, not printed words."""
+        text = self.text
+        if self.image_content and self.image_content.get("text"):
+            text += ("\n\n" if text else "") + f"FIGURE: [description of the image, not printed words] {self.image_content['text']}"
+        return SlideInput(self.index, text, self.image_png)
 
 
 Parser = Callable[[Path], "list[Slide]"]
@@ -107,6 +132,26 @@ def _extract_text(page: pymupdf.Page) -> str:
     )
 
 
+def figure_signals(page: pymupdf.Page, text: str) -> dict:
+    """Does this page carry non-text content? Raster image area, vector path count, or (almost) no
+    text alongside any graphics. Cheap and local: no model."""
+    area = max(1.0, page.rect.width * page.rect.height)
+    ratio = 0.0
+    for info in page.get_image_info():
+        r = pymupdf.Rect(info["bbox"]) & page.rect
+        ratio += 0 if r.is_empty else r.width * r.height / area
+    ratio = min(1.0, ratio)
+    paths = 0
+    for d in page.get_drawings():
+        r = d["rect"]
+        if r.width * r.height >= 0.9 * area:  # a page-sized background is not a figure
+            continue
+        paths += 1
+    chars = len(re.sub(r"\[(?:title|body)\]|\s", "", text))
+    carries = ratio >= IMAGE_AREA_RATIO_MIN or paths >= DRAWING_PATHS_MIN or (chars < LOW_TEXT_CHARS and (ratio >= 0.02 or paths >= 3))
+    return {"image_area_ratio": round(ratio, 3), "drawing_paths": paths, "text_chars": chars, "carries_figure": bool(carries)}
+
+
 def _render_png(page: pymupdf.Page) -> bytes:
     zoom = min(3.0, max(0.5, RENDER_WIDTH_PX / page.rect.width))
     return page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False).tobytes("png")
@@ -128,10 +173,11 @@ def parse_pdf(path: Path) -> list[Slide]:
                 f"this PDF has {doc.page_count} pages; the limit is {MAX_SLIDES} "
                 "(every slide costs three model calls, run in sequence)"
             )
-        return [
-            Slide(i, _extract_text(page), _render_png(page))
-            for i, page in enumerate(doc, start=1)
-        ]
+        out = []
+        for i, page in enumerate(doc, start=1):
+            text = _extract_text(page)
+            out.append(Slide(i, text, _render_png(page), None, figure_signals(page, text)))
+        return out
 
 
 # --------------------------------------------------------------------- subfield inference
@@ -186,3 +232,122 @@ async def infer_profile(client: LLMClient, slides: Sequence[Slide]) -> DeckProfi
     if not domain or not adjacent:
         raise LLMError("subfield inference returned an empty field")
     return DeckProfile(domain, adjacent)
+
+
+# ------------------------------------------------------------------ figure description
+# One vision call per figure-bearing slide, at ingest, so it runs once per deck and never per
+# persona. The SAME string is then given to all three personas, which is exactly why it must
+# describe and never interpret: a describer that explains what the figure MEANS has done the
+# expert's job for the novice, the three readings converge, and every figure slide reads as
+# self-contained. Whatever the figure means to someone who already knows the concept is the
+# finding this product exists to surface.
+
+FIGURE_PROMPT_VERSION = "1"
+MAX_FIGURE_WORDS = 90
+# Words that mean the describer has started explaining. A description that keeps using them is dropped.
+_INTERPRETIVE = re.compile(
+    r"\b(shows?|showing|demonstrat\w*|illustrat\w*|represent\w*|indicat\w*|implies|implying|suggest\w*|"
+    r"equilibrium|surplus|therefore|because|meaning|means that|signif\w*)\b", re.I)
+
+FIGURE_SCHEMA = {
+    "type": "object",
+    "properties": {"has_figure": {"type": "boolean"}, "description": {"anyOf": [{"type": "string"}, {"type": "null"}]}},
+    "required": ["has_figure", "description"],
+    "additionalProperties": False,
+}
+_FIGURE_SYSTEM = f"""\
+You describe the non-text content of one presentation slide image (figures, charts, diagrams, \
+photographs, drawings) so that someone who cannot see it knows what is printed on it. You are a \
+describer, not an interpreter.
+
+Describe ONLY marks, labels, axes, values and spatial relationships: which shapes are present, \
+what text is written on or beside them (copy labels exactly as printed), what the axes are \
+labelled, what numbers appear, and how things are arranged (above, crossing, shaded, connected).
+
+Never:
+- name a principle, a concept or the kind of diagram it is in conceptual terms;
+- say what the figure means, shows, demonstrates or implies, or draw any conclusion;
+- expand or explain an acronym or symbol that appears; copy it as printed.
+
+Good: "Two lines on axes labelled Price and Quantity: one slopes downward, one slopes upward. They \
+cross at a point marked P*, Q*. A shaded triangle sits above the crossing point."
+Bad: "A supply and demand diagram showing market equilibrium and consumer surplus."
+
+If the slide has no figure, chart, diagram or image, return has_figure false and description null. \
+At most {MAX_FIGURE_WORDS} words. Respond with the JSON object only."""
+
+
+class FileFigureCache:
+    """One JSON file per (prompt version, slide image). A deck is described once."""
+
+    def __init__(self, directory: str | Path):
+        self.dir = Path(directory)
+
+    @staticmethod
+    def key(image_png: bytes) -> str:
+        return hashlib.sha256(FIGURE_PROMPT_VERSION.encode() + image_png).hexdigest()[:24]
+
+    def get(self, image_png: bytes) -> dict | None:
+        p = self.dir / f"{self.key(image_png)}.json"
+        try:
+            return json.loads(p.read_text()) if p.is_file() else None
+        except (OSError, json.JSONDecodeError):
+            return None
+
+    def put(self, image_png: bytes, record: dict) -> None:
+        self.dir.mkdir(parents=True, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(dir=self.dir, suffix=".tmp")
+        with os.fdopen(fd, "w") as f:
+            json.dump(record, f)
+        os.replace(tmp, self.dir / f"{self.key(image_png)}.json")
+
+
+async def describe_figure(client: LLMClient, slide: Slide, *, max_attempts: int = 2) -> dict | None:
+    """A neutral description of the slide's figure, or None if the model finds no figure (the gate
+    is deliberately generous). A description that will not stop interpreting is not used: its text
+    is None and the reason is recorded, and the personas still have the image itself."""
+    note, last = "", ""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            raw = await client.complete_json(
+                system=_FIGURE_SYSTEM,
+                user_text="Describe the non-text content of this slide image, as JSON." + note,
+                image_png=slide.image_png, schema=FIGURE_SCHEMA, max_tokens=512,
+            )
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:  # noqa: BLE001 - an API error must not fail the upload; the personas still have the image
+            last = f"{type(e).__name__}: {str(e)[:120]}".replace("\n", " ")
+            continue
+        text = (raw.get("description") or "").strip()
+        if not raw.get("has_figure") or not text:
+            return None
+        bad = sorted({m.group(0).lower() for m in _INTERPRETIVE.finditer(text)})
+        if bad:
+            last = f"the description interpreted the figure ({', '.join(bad)})"
+            note = f"\n\nYour previous description interpreted the figure (words: {', '.join(bad)}). Describe marks, labels, axes, values and arrangement only."
+            continue
+        return {"text": text, "model": getattr(client, "model", None), "source": "vision", "machine_generated": True, "attempts": attempt}
+    return {"text": None, "model": getattr(client, "model", None), "source": "failed", "machine_generated": True, "error": last or "no usable description", "attempts": max_attempts}
+
+
+async def describe_figures(
+    client: LLMClient | None, slides: Sequence[Slide], cache: FileFigureCache | None = None
+) -> list[Slide]:
+    """Fill `image_content` on the slides that carry a figure. Text-only slides are never sent
+    anywhere: a text-only deck costs nothing extra. With no client, nothing is described (the
+    personas still have the image itself)."""
+    todo = [s for s in slides if s.carries_figure]
+    if client is None or not todo:
+        return list(slides)
+
+    async def one(s: Slide) -> tuple[int, dict | None]:
+        if cache and (hit := cache.get(s.image_png)) is not None:
+            return s.index, (hit or None)
+        rec = await describe_figure(client, s)
+        if cache and (rec is None or rec.get("source") == "vision"):
+            cache.put(s.image_png, rec or {})
+        return s.index, rec
+
+    found = dict(await asyncio.gather(*(one(s) for s in todo)))
+    return [replace(s, image_content=found.get(s.index)) if s.index in found else s for s in slides]

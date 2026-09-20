@@ -17,7 +17,7 @@ def deck_inputs(rows):
 def test_every_threshold_lives_in_the_one_config_dict():
     """A cut-off written into the code would be untunable. The only numeric literals allowed in
     the logic are the 0.5 tie weight and the percentile/ordinal arithmetic."""
-    assert set(CONFIG) == {"min_slides_for_relative", "relative", "absolute"}
+    assert set(CONFIG) == {"min_slides_for_relative", "relative", "absolute", "fieldwise"}
     assert set(CONFIG["relative"]) == {"novice_aligned_min_pct", "peer_aligned_min_pct", "novice_terms_low_max_pct"}
     assert set(CONFIG["absolute"]) == {"novice_aligned_min", "peer_aligned_min", "novice_terms_low_max"}
 

@@ -6,13 +6,19 @@ import pytest
 from sightline.audiences import PERSONAS, AudienceEngine, DeckProfile, FileCache
 from sightline.deck import rollup
 from sightline.ingest import Slide
-from sightline.runner import TolerantEngine, run_deck
+from sightline.runner import TolerantEngine, run_deck as _run_deck
 from sightline.store import RunStore
 
 from builders import HashEmbedder
 from conftest import FakeLLM, sentinel_payload
 
 PROFILE = DeckProfile("LLM serving", "distributed systems")
+
+
+async def run_deck(*args, **kwargs):
+    """These tests cover the ORIGINAL cosine path, which the COMPARATOR flag keeps reachable
+    (tests/test_fieldwise_runner.py covers the field-wise path)."""
+    return await _run_deck(*args, comparator="cosine", **kwargs)
 
 
 def start(store, n=3, intent=None):
