@@ -9,8 +9,14 @@ from sightline.research_lens import (
     ADHD_DMN_CITATIONS,
     ADHD_DMN_Z_THRESHOLD,
     AUTISM_ISC_CITATIONS,
+    DEPRESSION_DMN_CITATIONS,
+    DEPRESSION_DMN_Z_THRESHOLD,
+    DYSLEXIA_LANGUAGE_CITATIONS,
+    DYSLEXIA_LANGUAGE_Z_THRESHOLD,
     ResearchLens,
     adhd_dmn_lens,
+    depression_dmn_lens,
+    dyslexia_language_lens,
 )
 
 
@@ -73,3 +79,74 @@ def test_result_is_immutable():
         assert False, "ResearchLens should be frozen"
     except AttributeError:
         pass
+
+
+# ------------------------------------------------------------------------ depression lens
+
+
+def test_elevated_dmn_drive_yields_the_depression_hypothesis_with_its_own_citations():
+    lens = depression_dmn_lens(dmn_drive_z=1.8, slide_index=4)
+    assert lens.population == "depression"
+    assert "Slide 4" in lens.finding
+    assert "research-grounded hypothesis" in lens.finding
+    assert lens.citations == DEPRESSION_DMN_CITATIONS
+    assert lens.citations != ADHD_DMN_CITATIONS  # distinct, independently-cited population
+
+
+def test_depression_low_dmn_drive_makes_no_claim():
+    lens = depression_dmn_lens(dmn_drive_z=0.1, slide_index=2)
+    assert "no elevated" in lens.finding
+    assert lens.citations == DEPRESSION_DMN_CITATIONS
+
+
+def test_depression_threshold_boundary_is_exclusive():
+    at_threshold = depression_dmn_lens(dmn_drive_z=DEPRESSION_DMN_Z_THRESHOLD, slide_index=1)
+    just_above = depression_dmn_lens(dmn_drive_z=DEPRESSION_DMN_Z_THRESHOLD + 0.01, slide_index=1)
+    assert "no elevated" in at_threshold.finding
+    assert "research-grounded hypothesis" in just_above.finding
+
+
+def test_adhd_and_depression_agree_on_the_same_slide_since_they_share_a_signal():
+    """Not a coincidence to hide: both lenses read the same dmn_drive_z, by design (see the
+    module docstring). A slide that trips one trips the other, with separate citations."""
+    z = 2.5
+    adhd = adhd_dmn_lens(z, slide_index=1)
+    depression = depression_dmn_lens(z, slide_index=1)
+    assert "research-grounded hypothesis" in adhd.finding
+    assert "research-grounded hypothesis" in depression.finding
+    assert adhd.population != depression.population
+    assert set(adhd.citations).isdisjoint(depression.citations)
+
+
+# --------------------------------------------------------------------------- dyslexia lens
+
+
+def test_low_language_drive_yields_the_dyslexia_hypothesis():
+    lens = dyslexia_language_lens(language_drive_z=-1.8, slide_index=6)
+    assert lens.population == "dyslexia"
+    assert "Slide 6" in lens.finding
+    assert "-1.80" in lens.finding
+    assert "underactivation" in lens.finding
+    assert lens.citations == DYSLEXIA_LANGUAGE_CITATIONS
+
+
+def test_dyslexia_runs_the_opposite_direction_from_the_dmn_lenses():
+    """High language drive is NOT the citable direction for dyslexia -- underactivation is
+    the published finding, so a high Z-score must make no claim, same discipline as the
+    "no signal" branch of the DMN lenses but on the opposite side of zero."""
+    high = dyslexia_language_lens(language_drive_z=2.0, slide_index=1)
+    assert "no unusually low" in high.finding
+    assert "research-grounded hypothesis" not in high.finding
+
+
+def test_dyslexia_threshold_boundary_is_exclusive():
+    at_threshold = dyslexia_language_lens(language_drive_z=DYSLEXIA_LANGUAGE_Z_THRESHOLD, slide_index=1)
+    just_below = dyslexia_language_lens(language_drive_z=DYSLEXIA_LANGUAGE_Z_THRESHOLD - 0.01, slide_index=1)
+    assert "no unusually low" in at_threshold.finding
+    assert "underactivation" in just_below.finding
+
+
+def test_dyslexia_label_names_the_population_and_disclaims_simulation():
+    lens = dyslexia_language_lens(language_drive_z=-2.0, slide_index=1)
+    assert "dyslexia" in lens.label
+    assert "not a simulation" in lens.label
