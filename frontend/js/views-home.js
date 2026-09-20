@@ -2,7 +2,7 @@ import { h, mount, when, warnIcon, infoIcon, slideImage } from "./dom.js";
 import { api, getJSON, postJSON } from "./api.js";
 import { forget } from "./run.js";
 import { AUDIO_RUN_HREF } from "./views-audio.js";
-import { AUDIO_CHUNK_S, sendAudioChunk } from "./audio-upload.js";
+import { AUDIO_CHUNK_S, sendAudio, pollAudio, discardAudio } from "./audio-upload.js";
 
 function statusPill(status) {
   if (status === "complete") return h("span", { class: "pill" }, "complete");
@@ -50,15 +50,33 @@ const fmtDuration = (s) => {
   return `${m}:${String(Math.round(s - m * 60)).padStart(2, "0")}`;
 };
 
-/** Audio duration, read in the browser so the person sees it before anything is sent. */
-function readDuration(file) {
+/** Audio duration, read in the browser so the person sees it before anything is sent.
+ *
+ *  Always resolves, and never later than the timeout. The duration is decoration -- the backend
+ *  measures the file itself before chunking it -- so a codec the browser will not report on must
+ *  cost a missing label, never a stalled upload. It did exactly that once: onloadedmetadata
+ *  simply never fired, and the whole audio step sat waiting forever with no error anywhere. */
+function readDuration(file, { timeoutMs = 4000 } = {}) {
   return new Promise((resolve) => {
-    const el = document.createElement("audio");
-    if (!el || !URL.createObjectURL) return resolve(0);
+    let settled = false;
+    const done = (v) => { if (!settled) { settled = true; resolve(v); } };
+    const timer = setTimeout(() => done(0), timeoutMs);
+    let el;
+    try {
+      el = document.createElement("audio");
+    } catch (_) {
+      clearTimeout(timer);
+      return done(0);
+    }
+    if (!el || typeof URL === "undefined" || !URL.createObjectURL) {
+      clearTimeout(timer);
+      return done(0);
+    }
     const url = URL.createObjectURL(file);
+    const finish = (v) => { clearTimeout(timer); try { URL.revokeObjectURL(url); } catch (_) {} done(v); };
     el.preload = "metadata";
-    el.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(el.duration || 0); };
-    el.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
+    el.onloadedmetadata = () => finish(isFinite(el.duration) ? el.duration : 0);
+    el.onerror = () => finish(0);
     el.src = url;
   });
 }
@@ -170,6 +188,7 @@ export function home(root) {
   const audioInput = h("input", { type: "file", accept: "audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac" });
   const drop = h("div", { class: "drop", tabindex: 0, role: "button", "aria-label": "Choose a PDF to review" });
   const audioRow = h("div", { class: "audio-row" });
+  const audioNote = h("div", { class: "audio-note" });
   const stage = h("div", { class: "upload-stage" });
   const go = h("button", { class: "btn primary", disabled: true }, "Proceed");
 
@@ -177,7 +196,18 @@ export function home(root) {
   let deck = null;      // { file, run_id, slide_count }
   let audio = null;     // { file, duration_s, chunks, state }
   let busy = false;
-  let busyAudio = false;
+  let stopPolling = null;
+
+  const AUDIO_WORD = {
+    waiting: "waiting for the deck",
+    chunking: "splitting",
+    uploading: "sending",
+    queued: "starting on the GX10",
+    running: "running on the GX10",
+    complete: "done",
+    failed: "failed",
+    unavailable: "GX10 unavailable",
+  };
 
   function audioLine() {
     if (!audio) {
@@ -187,23 +217,49 @@ export function home(root) {
         audioInput);
     }
     const d = fmtDuration(audio.duration_s);
+    const word = AUDIO_WORD[audio.state] || audio.state;
+    const bad = audio.state === "failed" || audio.state === "unavailable";
     audioRow.replaceChildren(
       h("span", { class: "file-chip" },
         h("span", { class: "file-name" }, audio.file.name),
         d && h("span", { class: "muted" }, " \u00b7 ", d),
-        audio.chunks ? h("span", { class: "muted" }, ` \u00b7 ${audio.chunks} chunks`) : null),
+        audio.chunks_total ? h("span", { class: "muted" }, ` \u00b7 ${audio.chunks_total} chunks`) : null),
+      h("span", { class: bad ? "err small" : "hint" }, word),
       h("button", {
-        class: "btn small", disabled: busy,
-        on: { click: () => { audio = null; audioInput.value = ""; paint(); } },
+        class: "btn small",
+        on: { click: () => { removeAudio(); } },
       }, "Remove"),
       audioInput);
+    // The deck is never held up by the audio half failing; say so where it failed.
+    audioNote.replaceChildren(...(bad
+      ? [h("span", { class: "hint" },
+          audio.error || audio.detail || "The audio did not run.",
+          " The deck is analysed regardless.")]
+      : []));
+  }
+
+  function removeAudio() {
+    if (stopPolling) { stopPolling(); stopPolling = null; }
+    if (deck && audio && audio.sent) discardAudio(deck.run_id);
+    audio = null;
+    audioInput.value = "";
+    paint();
   }
 
   function paint() {
     audioLine();
-    go.disabled = busy || !deck;
-    go.replaceChildren(busy
-      ? h("span", null, h("span", { class: "spinner" }), " Working\u2026")
+    // Proceed waits while the audio is still being cut or sent from here -- starting then would
+    // begin a run whose audio half is half-delivered. Once it is on the GX10 it takes minutes on
+    // a GPU, and the deck must not wait for that.
+    const audioBusy = !!audio && (audio.state === "chunking" || audio.state === "uploading");
+    stage.replaceChildren(...(audio && audioBusy
+      ? [progressPanel({ deck: deck ? "done" : "queued", audio: "now", review: "queued" },
+                       audio.detail || "Preparing the recording")]
+      : []));
+    go.disabled = busy || audioBusy || !deck;
+    go.replaceChildren(
+      busy ? h("span", null, h("span", { class: "spinner" }), " Working\u2026")
+      : audioBusy ? h("span", null, h("span", { class: "spinner" }), " Preparing audio\u2026")
       : h("span", null, deck ? "Proceed" : "Add a deck to continue", deck ? " \u2192" : ""));
   }
 
@@ -237,8 +293,7 @@ export function home(root) {
     busy = true; paint();
     drop.replaceChildren(h("strong", null, h("span", { class: "spinner" }), ` Reading ${file.name}\u2026`));
     drop.style.pointerEvents = "none";
-    const audioState = () => (!audio ? "skipped" : audio.chunks && !busyAudio ? "done" : "queued");
-    stage.replaceChildren(progressPanel({ deck: "now", audio: audioState(), review: "queued" }, `Reading ${file.name}`));
+    stage.replaceChildren(progressPanel({ deck: "now", audio: audio ? "queued" : "skipped", review: "queued" }, `Reading ${file.name}`));
     try {
       const form = new FormData();
       form.append("file", file);
@@ -248,6 +303,7 @@ export function home(root) {
       busy = false;
       drop.style.pointerEvents = "";
       deckChosen();
+      sendAudioIfReady();
     } catch (e) {
       busy = false;
       uploadErr.textContent = e.message;
@@ -257,25 +313,39 @@ export function home(root) {
   }
 
   // ---- the audio: measured and chunked in the browser, then handed to the GX10 ---------
+  // The recording is held here until there is a run to attach it to: the run id comes from the
+  // deck upload, and audio may well be picked first. As soon as both exist it goes to our own
+  // backend, which chunks it and ships it to the GX10 -- see audio-upload.js.
   async function takeAudio(file) {
     uploadErr.textContent = "";
     if (!file) return;
-    busy = true;
-    audio = { file, duration_s: 0, chunks: 0 };
+    audio = { file, duration_s: await readDuration(file), state: "waiting", detail: "", chunks_total: 0, chunks_done: 0 };
+    audio.chunks_total = Math.max(1, Math.ceil(audio.duration_s / AUDIO_CHUNK_S));
     paint();
-    busyAudio = true;
-    const deckState = () => (deck ? "done" : "queued");
-    stage.replaceChildren(progressPanel({ deck: deckState(), audio: "now", review: "queued" }, `Measuring ${file.name}\u2026`));
-    audio.duration_s = await readDuration(file);
-    audio.chunks = Math.max(1, Math.ceil(audio.duration_s / AUDIO_CHUNK_S));
-    for (let i = 1; i <= audio.chunks; i++) {
-      stage.replaceChildren(progressPanel({ deck: deckState(), audio: "now", review: "queued" }, `Chunk ${i} of ${audio.chunks}`));
-      await sendAudioChunk(file, i, audio.chunks);
-    }
-    busyAudio = false;
-    busy = false;
-    stage.replaceChildren();
+    sendAudioIfReady();
+  }
+
+  function sendAudioIfReady() {
+    if (!deck || !audio || audio.sent) return;
+    audio.sent = true;
+    audio.state = "chunking";
+    audio.detail = "Splitting the recording";
     paint();
+    sendAudio(deck.run_id, audio.file).then(() => {
+      stopPolling = pollAudio(deck.run_id, (s) => {
+        if (!audio) return;             // removed while in flight
+        Object.assign(audio, s);
+        paint();
+      });
+    }).catch((e) => {
+      // The audio half failing must never take the slides with it (acceptance: a failed audio
+      // upload does not block the slides-only path), so this lands on the audio row alone.
+      if (!audio) return;
+      audio.state = "failed";
+      audio.error = e.message;
+      audio.detail = "";
+      paint();
+    });
   }
 
   const chooseDeck = () => slideInput.click();
@@ -300,7 +370,7 @@ export function home(root) {
     h("p", { class: "home-lede" }, "See how a novice, a peer and an expert would each read your slides, and where they part ways."),
     banner,
     h("section", { class: "card upload-card" },
-      drop, audioRow, stage, uploadErr,
+      drop, audioRow, audioNote, stage, uploadErr,
       h("div", { class: "go-row" }, go)),
     historySection(),
     demoDoor());

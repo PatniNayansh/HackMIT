@@ -321,6 +321,8 @@ main:has(.detail) { max-width: 1240px; }
 .file-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .audio-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
 .audio-row input[type="file"] { display: none; }
+.audio-note:empty { display: none; }
+.audio-note { margin-top: 8px; max-width: 60ch; }
 .go-row { display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--grid); }
 .go-row .btn { min-width: 168px; justify-content: center; display: inline-flex; gap: 8px; align-items: center; }
 .audio-card { align-self: start; }

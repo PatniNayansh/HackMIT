@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
@@ -213,3 +214,196 @@ def test_send_ships_each_chunk_and_the_manifest(tmp_path, calls):
     assert sorted(n for n in copied if n.startswith("chunk_")) == ["chunk_00.mp3", "chunk_01.mp3", "chunk_02.mp3"]
     assert "manifest.json" in copied
     assert "mkdir -p" in calls[0][-1]  # the job directory is made before anything is copied
+
+
+# ------------------------------------------------------------------------- the endpoints
+# The chunker runs for real on synthesized audio; the GX10 is replaced, because the point of
+# these is the contract the page sees -- above all that the audio half can fail in every way
+# it likes without touching the deck.
+
+import asyncio  # noqa: E402
+
+from fastapi.testclient import TestClient  # noqa: E402
+
+from profe import audio_jobs  # noqa: E402
+from profe.audiences import FileCache  # noqa: E402
+from profe.server import create_app  # noqa: E402
+from profe.store import BUNDLED_RUNS_DIR, RunStore  # noqa: E402
+
+from builders import HashEmbedder  # noqa: E402
+
+RUN = "sample-llm-serving"
+
+
+@pytest.fixture
+def app_with_fake_gx10(tmp_path, monkeypatch, tone):
+    """A server whose GX10 is a dictionary. `remote` is what the machine would report."""
+    monkeypatch.setenv("PROFE_DATA_DIR", str(tmp_path / "data"))
+    # The GX10 reports the manifest it was sent, so this has to match what the real
+    # chunker produces from the fixture: 300 s at 120 s a chunk.
+    remote = {"state": "running", "done": 0, "total": 3}
+    sent: list[str] = []
+
+    monkeypatch.setattr(audio_jobs.gx10, "config", lambda: gx10.Gx10Config(host="h", user="u"))
+    monkeypatch.setattr(audio_jobs.gx10, "ssh", lambda *a, **k: "")
+    monkeypatch.setattr(audio_jobs.gx10, "scp_to", lambda local, rem, **k: sent.append(Path(local).name))
+    monkeypatch.setattr(audio_jobs.gx10, "launch", lambda job_id, **k: None)
+    monkeypatch.setattr(audio_jobs.gx10, "status", lambda job_id, **k: remote)
+    monkeypatch.setattr(audio_jobs.gx10, "collect", lambda job_id, dest, **k: ["chunk_00", "chunk_01"])
+
+    app = create_app(
+        store=RunStore(tmp_path / "history", bundled=[BUNDLED_RUNS_DIR]),
+        cache=FileCache(tmp_path / "cache"),
+        client_factory=lambda: None,
+        embedder=HashEmbedder(),
+        frontend_dir=tmp_path / "none",
+    )
+    return app, remote, sent, tone
+
+
+def post_audio(client, tone, run=RUN):
+    return client.post(f"/api/runs/{run}/audio",
+                       files={"file": ("lecture.mp3", tone.read_bytes(), "audio/mpeg")})
+
+
+def settle(client, run=RUN, tries=60):
+    """The job is prepared in a background task; wait for it to leave the local phases."""
+    for _ in range(tries):
+        body = client.get(f"/api/runs/{run}/audio").json()
+        if body.get("state") not in ("chunking", "uploading"):
+            return body
+        time.sleep(0.2)
+    return body
+
+
+def test_audio_is_chunked_here_and_every_chunk_is_sent_separately(app_with_fake_gx10):
+    app, _, sent, tone = app_with_fake_gx10
+    with TestClient(app) as c:
+        assert post_audio(c, tone).status_code == 202
+        body = settle(c)
+    assert body["chunks_total"] == 3            # 300s of audio at 120s a chunk
+    assert body["chunks_sent"] == 3
+    # three chunks and one manifest, not one large blob
+    assert sorted(n for n in sent if n.startswith("chunk_")) == ["chunk_00.mp3", "chunk_01.mp3", "chunk_02.mp3"]
+    assert "manifest.json" in sent
+
+
+def test_a_deck_is_never_held_up_by_the_audio_half(app_with_fake_gx10, monkeypatch):
+    """Acceptance: a failed audio upload must not block the slides-only path. The run's own
+    status is untouched, and the failure is reported on the audio job alone."""
+    app, _, _, tone = app_with_fake_gx10
+    monkeypatch.setattr(audio_jobs.gx10, "launch",
+                        lambda *a, **k: (_ for _ in ()).throw(gx10.Gx10Error("GPU on fire")))
+    with TestClient(app) as c:
+        before = c.get(f"/api/runs/{RUN}").json()["meta"]["status"]
+        post_audio(c, tone)
+        body = settle(c)
+        after = c.get(f"/api/runs/{RUN}").json()["meta"]["status"]
+    assert body["state"] == "failed" and "GPU on fire" in body["error"]
+    assert before == after == "complete"        # the deck did not notice
+
+
+def test_an_unreachable_machine_is_unavailable_rather_than_failed(app_with_fake_gx10, monkeypatch):
+    """Nothing went wrong: the machine is asleep or on another network. The page says so
+    differently because the presenter can act on it differently."""
+    app, _, _, tone = app_with_fake_gx10
+    monkeypatch.setattr(audio_jobs.gx10, "launch",
+                        lambda *a, **k: (_ for _ in ()).throw(gx10.Gx10Unavailable("no route to host")))
+    with TestClient(app) as c:
+        post_audio(c, tone)
+        body = settle(c)
+    assert body["state"] == "unavailable"
+    assert "deck is unaffected" in body["detail"]
+
+
+def test_progress_follows_the_gx10_and_finishes_by_collecting_the_output(app_with_fake_gx10):
+    app, remote, _, tone = app_with_fake_gx10
+    with TestClient(app) as c:
+        post_audio(c, tone)
+        settle(c)
+
+        remote.update(state="running", done=1, total=3)
+        mid = c.get(f"/api/runs/{RUN}/audio").json()
+        assert mid["state"] == "running" and mid["chunks_done"] == 1
+
+        remote.update(state="complete", done=3, total=3)
+        end = c.get(f"/api/runs/{RUN}/audio").json()
+    assert end["state"] == "complete"
+    assert end["chunks_collected"] == 2          # pulled back from the GX10
+
+
+def test_a_run_that_failed_on_the_gx10_reports_why(app_with_fake_gx10):
+    app, remote, _, tone = app_with_fake_gx10
+    with TestClient(app) as c:
+        post_audio(c, tone)
+        settle(c)
+        remote.update(state="failed", done=1, total=3, error="RequestException: timed out")
+        body = c.get(f"/api/runs/{RUN}/audio").json()
+    assert body["state"] == "failed" and "timed out" in body["error"]
+
+
+def test_losing_contact_mid_run_is_not_reported_as_a_failed_run(app_with_fake_gx10, monkeypatch):
+    """The work is on another machine and keeps going. A network blip must not be turned into
+    a dead job, or a demo loses a run it still has."""
+    app, _, _, tone = app_with_fake_gx10
+    with TestClient(app) as c:
+        post_audio(c, tone)
+        settle(c)
+        monkeypatch.setattr(audio_jobs.gx10, "status",
+                            lambda *a, **k: (_ for _ in ()).throw(gx10.Gx10Unavailable("timed out")))
+        body = c.get(f"/api/runs/{RUN}/audio").json()
+    assert body["state"] == "running"
+    assert "still polling" in body["detail"]
+
+
+def test_a_file_that_is_not_audio_is_refused_at_the_door(app_with_fake_gx10):
+    app, _, _, _ = app_with_fake_gx10
+    with TestClient(app) as c:
+        r = c.post(f"/api/runs/{RUN}/audio", files={"file": ("deck.pdf", b"%PDF-1.4", "application/pdf")})
+    assert r.status_code == 415
+
+
+def test_audio_for_an_unknown_run_is_a_404_not_a_stray_job(app_with_fake_gx10):
+    app, _, _, tone = app_with_fake_gx10
+    with TestClient(app) as c:
+        assert post_audio(c, tone, run="no-such-run").status_code == 404
+
+
+def test_a_run_with_no_audio_says_none_rather_than_failing(app_with_fake_gx10):
+    app, _, _, _ = app_with_fake_gx10
+    with TestClient(app) as c:
+        assert c.get(f"/api/runs/{RUN}/audio").json() == {"state": "none"}
+
+
+def test_removing_the_audio_forgets_it_locally(app_with_fake_gx10):
+    app, _, _, tone = app_with_fake_gx10
+    with TestClient(app) as c:
+        post_audio(c, tone)
+        settle(c)
+        assert c.delete(f"/api/runs/{RUN}/audio").status_code == 204
+        assert c.get(f"/api/runs/{RUN}/audio").json() == {"state": "none"}
+
+
+def test_the_page_can_ask_whether_audio_is_possible_at_all(app_with_fake_gx10, monkeypatch):
+    """So the page can say the audio half is off before someone picks a file, not after."""
+    app, _, _, _ = app_with_fake_gx10
+    monkeypatch.setattr(gx10, "reachable", lambda **k: True)
+    with TestClient(app) as c:
+        body = c.get("/api/gx10").json()
+    assert body["configured"] is True and body["reachable"] is True
+
+    # the machine is configured but asleep
+    monkeypatch.setattr(gx10, "reachable", lambda **k: False)
+    with TestClient(app) as c:
+        body = c.get("/api/gx10").json()
+    assert body["configured"] is True and body["reachable"] is False and body["reason"]
+
+    # no credentials at all. The fixture patches config() globally -- audio_jobs.gx10 and
+    # profe.gx10 are one module -- so being unconfigured is expressed as config() refusing.
+    def unconfigured():
+        raise gx10.Gx10Unavailable("GX10_HOST and GX10_SSH_USER are not set")
+
+    monkeypatch.setattr(gx10, "config", unconfigured)
+    with TestClient(app) as c:
+        body = c.get("/api/gx10").json()
+    assert body["configured"] is False and body["reachable"] is False and "GX10_HOST" in body["reason"]

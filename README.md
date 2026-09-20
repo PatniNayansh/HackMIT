@@ -372,12 +372,30 @@ chunk lengths -- and the cost bound that is the point -- stop being predictable.
 real and visible: a sentence spanning a boundary is encoded with no lead-in, which reads as a
 brief dip in the first seconds of each chunk.
 
-> **The GX10 upload is not wired up.** `frontend/js/audio-upload.js` has one clearly-marked
-> stub, `sendAudioChunk`, that waits rather than inventing a result. There is no HTTP endpoint
-> on the GX10 yet -- today neural output reaches this app as files on disk, written by
-> `backend/scripts/precompute_neural/run.py` over SSH. Wiring it needs the URL, the auth method,
-> the request shape and whether it answers synchronously or hands back a job to poll. Everything
-> else on that page is real; replace that function's body and nothing else.
+### How it reaches the GPU
+
+There is no HTTP endpoint on the GX10, and there is not meant to be one. It is a DGX Spark on
+the local network reached over SSH with key auth, and neural output has always arrived here as
+files written by a script over that link. So the backend *is* the endpoint:
+
+    POST /api/runs/<id>/audio    the recording lands here
+    profe/audio.py               cuts it into two-minute chunks with ffmpeg
+    profe/gx10.py                scp's each chunk across, starts a detached run
+    run_lecture_audio.py         runs TRIBE chunk by chunk on the GX10, writing status.json
+    GET  /api/runs/<id>/audio    merges that status back into the page
+
+`GET /api/gx10` reports whether the machine is configured and answering, so the page can say
+the audio half is unavailable before someone picks a file rather than after.
+
+The audio half can fail in every way it likes without touching the deck: an unreachable machine
+reads as `unavailable` rather than `failed` (nothing went wrong, it is simply not there), a
+failure reports why on the audio row alone, and the run's own status is never modified. Proceed
+waits only while the audio is still being cut or sent *from here* -- once it is on the GX10 it
+takes minutes on a GPU, and the slides must not wait for that.
+
+Credentials live in the repo-root `.env` (`GX10_HOST`, `GX10_SSH_USER`). `GX10_SSH_PASSWORD` is
+never read by this code: it exists for `sudo`, which none of this does, and a password on a
+remote command line is visible in `ps`.
 
 ## The neural layer
 
@@ -445,8 +463,10 @@ Everything else here was checked against the code. These were not:
   the rule does. Regenerating it costs a full `make sample`, and no saved run has been touched
   without being asked for. This is a fixture that predates a behaviour change, not a bug in the
   behaviour.
-- **The GX10 audio upload does not happen.** `sendAudioChunk` is a stub; see
-  [Lecture audio](#lecture-audio). Chunking, duration and the progress UI are real.
+- **The audio path has been run end to end once**, on a 150-second slice of the UMass lecture:
+  chunked here, shipped, run on the GX10, results collected back. Its first chunk reproduced the
+  previously committed GX10 numbers bit for bit. It has not been run on a full-length lecture
+  through the UI.
 
 ## What these numbers do and do not mean
 

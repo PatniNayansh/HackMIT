@@ -11,3 +11,5 @@ backend/.cache/
 # Server runtime data: audience cache and saved runs (bundled demo runs live in backend/fixtures/ and ARE committed).
 data/cache/
 data/history/
+# Uploaded lecture audio, its chunks, and whatever the GX10 sends back.
+data/audio/
