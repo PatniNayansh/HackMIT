@@ -162,7 +162,9 @@ def main() -> None:
 
         write_status(job, state="loading_model", done=0, total=len(chunks), chunk=None, error=None)
         model = TribeModel.from_pretrained("facebook/tribev2", device="auto")
-        masks = fetch_region_masks()
+        # language and visual only: DMN belongs to the research lens and is a second
+        # network download, which this run must not be able to fail on.
+        masks = fetch_region_masks(include_dmn=False)
 
         done = 0
         for c in chunks:

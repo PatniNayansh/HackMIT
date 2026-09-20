@@ -35,22 +35,31 @@ def _mask_from_substrings(vertex_labels: np.ndarray, label_names: list[str], sub
     return np.isin(vertex_labels, list(matching_ids))
 
 
-def fetch_region_masks() -> dict[str, np.ndarray]:
-    """(left mask, right mask) concatenated to one fsaverage5-length boolean array each,
-    for "visual" and "language". Downloads the Destrieux atlas via nilearn on first call
-    (cached under ~/nilearn_data after that -- consistent with this project's "fully
-    offline after first download" convention for the sentence-transformers model)."""
+def fetch_region_masks(*, include_dmn: bool = True) -> dict[str, np.ndarray]:
+    """(left mask, right mask) concatenated to one fsaverage5-length boolean array each.
+    Downloads the Destrieux atlas via nilearn on first call (cached under ~/nilearn_data
+    after that -- consistent with this project's "fully offline after first download"
+    convention for the sentence-transformers model).
+
+    `include_dmn` is a switch because the DMN mask is a SECOND, separate download: the Yeo
+    2011 atlas, fetched over the network and projected from volume to surface. Only the
+    research lens reads DMN drive. A caller that needs language and visual -- the per-slide
+    and per-chunk runs -- should leave it out rather than make its run depend on a download
+    it will not use. A timeout fetching Yeo took down a whole lecture run once, which is
+    why this is a parameter and not an unconditional line."""
     from nilearn import datasets
 
     atlas = datasets.fetch_atlas_surf_destrieux()
     names = _label_names(atlas["labels"])
     vertex_labels = np.concatenate([atlas["map_left"], atlas["map_right"]])
 
-    return {
+    masks = {
         "visual": _mask_from_substrings(vertex_labels, names, _VISUAL_SUBSTRINGS),
         "language": _mask_from_substrings(vertex_labels, names, _LANGUAGE_SUBSTRINGS),
-        "dmn": fetch_dmn_mask(),
     }
+    if include_dmn:
+        masks["dmn"] = fetch_dmn_mask()
+    return masks
 
 
 # Yeo et al. 2011 (J Neurophysiol), the standard 7-network functional parcellation.

@@ -29,13 +29,13 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import ingest
+from . import audio, audio_jobs, gx10, ingest
 from .audiences import DeckProfile, FileCache
 from .compare import FileStructureCache
 from .diagnose import RecommendationsUnavailable, recommend
 from .deck import rollup
 from .divergence import Embedder, default_embedder
-from .llm import LLMClient, OpenAIClient
+from .llm import LLMClient, OpenAIClient, load_env
 from .neural import SURFACE_VIEWS, CachedNeural, NeuralNotCached
 from .runner import TolerantEngine, run_deck
 from .store import (
@@ -48,6 +48,11 @@ from .store import (
     RunStore,
     data_dir,
 )
+
+# The repo-root .env is read once, here, rather than as a side effect of the first LLM client
+# anyone happens to construct. GX10_HOST is read straight from the environment, so a request
+# that arrives before any model call would otherwise see an unconfigured machine.
+load_env()
 
 FRONTEND_DIR = REPO_ROOT / "frontend"
 
@@ -344,6 +349,77 @@ def create_app(
         except Exception as e:  # noqa: BLE001 - shown next to a retry button
             raise HTTPException(502, f"Could not generate recommendations ({type(e).__name__}).") from e
         return {"available": True, "cached": False, "recommendations": recs}
+
+    # -------------------------------------------------------------------------- audio
+    # Optional, and kept at arm's length from the deck on purpose: it runs on another machine
+    # that may be asleep, takes minutes on a GPU, and must never be able to stop a review of
+    # the slides. Nothing in here raises into the request that started it.
+
+    audio_tasks: dict[str, asyncio.Task] = {}
+    MAX_AUDIO_BYTES = 500 * 1024 * 1024
+
+    @app.get("/api/gx10")
+    async def gx10_health():
+        """Whether the audio half is possible at all, so the page can say so before someone
+        picks a file rather than after."""
+        try:
+            cfg = gx10.config()
+        except gx10.Gx10Unavailable as e:
+            return {"configured": False, "reachable": False, "reason": str(e)}
+        ok = await asyncio.to_thread(gx10.reachable, cfg=cfg)
+        return {"configured": True, "reachable": ok, "host": cfg.host,
+                "reason": None if ok else "The GX10 is not answering."}
+
+    @app.post("/api/runs/{run_id}/audio", status_code=202)
+    async def upload_audio(run_id: str, file: UploadFile = File(...)):
+        store.load_meta(run_id)  # 404 if the run is unknown
+        name = Path(file.filename or "").name
+        suffix = Path(name).suffix.lower()
+        if suffix not in audio.AUDIO_SUFFIXES:
+            raise HTTPException(415, f"unsupported audio type {suffix or '(none)'!r}")
+        if run_id in audio_tasks and not audio_tasks[run_id].done():
+            raise HTTPException(409, "Audio for this run is already being prepared.")
+
+        root = audio_jobs.job_root(data_dir(), run_id)
+        audio_jobs.discard(root)
+        root.mkdir(parents=True, exist_ok=True)
+        source = root / f"source{suffix}"
+
+        size = 0
+        with open(source, "wb") as out:
+            while chunk := await file.read(1 << 20):
+                size += len(chunk)
+                if size > MAX_AUDIO_BYTES:
+                    audio_jobs.discard(root)
+                    raise HTTPException(413, f"audio is larger than {MAX_AUDIO_BYTES // (1 << 20)} MB")
+                out.write(chunk)
+
+        task = asyncio.create_task(audio_jobs.prepare_and_launch(root, run_id, source))
+        audio_tasks[run_id] = task
+        task.add_done_callback(lambda t: t.exception() if not t.cancelled() else None)
+        return {"run_id": run_id, "state": audio_jobs.CHUNKING, "source_name": name}
+
+    @app.get("/api/runs/{run_id}/audio")
+    async def audio_status(run_id: str):
+        root = audio_jobs.job_root(data_dir(), run_id)
+        job = audio_jobs.load(root)
+        if job is None:
+            return {"state": "none"}
+        job = await audio_jobs.refresh(root, job)
+        body = job.as_dict()
+        if job.state == audio_jobs.COMPLETE:
+            body["chunks_collected"] = await audio_jobs.collect(root, job, root / "out")
+        return body
+
+    @app.delete("/api/runs/{run_id}/audio", status_code=204)
+    async def remove_audio(run_id: str):
+        """The presenter changed their mind. Local only: a run already on the GX10 finishes on
+        its own rather than being killed from here."""
+        task = audio_tasks.pop(run_id, None)
+        if task and not task.done():
+            task.cancel()
+        audio_jobs.discard(audio_jobs.job_root(data_dir(), run_id))
+        return JSONResponse(status_code=204, content=None)
 
     # ------------------------------------------------------------------------- neural
     # Precomputed only (spec 5, 9): these never trigger a model call, only ever read what
