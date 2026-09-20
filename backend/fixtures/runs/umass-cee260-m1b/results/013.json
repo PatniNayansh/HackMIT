@@ -1,0 +1,327 @@
+{
+  "index": 13,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Using boxplots\n[body] A boxplot1 displays the distribution of data\n[body] • Useful for identifying outliers • Efficient for comparing multiple datasets • The lines indicating the “maximum/minimum” points (excluding outliers) are called whiskers\n[body] 1Figure source: https://towardsdatascience.com/understanding-boxplots-5e2df7bcbd51\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 13 / 16\n\nFIGURE: [description of the image, not printed words] A horizontal numerical axis runs from −4 to 4. A pink rectangular box spans approximately −0.7 to 0.65, with a yellow vertical line at 0 and black vertical edges at Q1 and Q3. A thin blue horizontal line extends to black vertical marks near −2.7 and 2.7. Two green circular points lie near −3.0 and −2.8; two lie near 2.8 and 3.0. Labels include “Outliers,” “Interquartile Range (IQR),” “Minimum” (Q1 − 1.5*IQR), “Maximum” (Q3 + 1.5*IQR), Q1 (25th Percentile), Median, and Q3 (75th Percentile).",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "A boxplot summarizes a data distribution using quartiles and the median, while whiskers show the non-outlier minimum and maximum and separate outliers can be spotted.",
+      "confidence": 0.9,
+      "unresolved_terms": [
+        "Interquartile Range (IQR)"
+      ],
+      "questions": [
+        "How is the interquartile range calculated?"
+      ],
+      "inferred_claim": "Use boxplots to compare datasets and identify outliers.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.062,
+      "attempts": 1,
+      "slide_hash": "a53512401daa9719a3a78773"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "A boxplot summarizes a distribution with quartiles, median, whiskers, and separately marked outliers, making outlier detection and dataset comparison easier.",
+      "confidence": 0.96,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use boxplots to visualize distribution, compare datasets, and identify outliers.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.817,
+      "attempts": 1,
+      "slide_hash": "a53512401daa9719a3a78773"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "A boxplot summarizes a distribution with quartiles, median, IQR, whiskers extending to the non-outlier extremes, and separately plotted outliers.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use boxplots to compare distributions and identify outliers.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.157,
+      "attempts": 1,
+      "slide_hash": "a53512401daa9719a3a78773"
+    }
+  },
+  "slide_intent": {
+    "text": "A boxplot summarizes a distribution with quartiles, median, IQR, whiskers extending to the non-outlier extremes, and separately plotted outliers.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "A boxplot summarizes a distribution with quartiles, median, IQR, whiskers extending to the non-outlier extremes, and separately plotted outliers.",
+    "takeaways": {
+      "novice": "A boxplot summarizes a data distribution using quartiles and the median, while whiskers show the non-outlier minimum and maximum and separate outliers can be spotted.",
+      "peer": "A boxplot summarizes a distribution with quartiles, median, whiskers, and separately marked outliers, making outlier detection and dataset comparison easier.",
+      "expert": "A boxplot summarizes a distribution with quartiles, median, IQR, whiskers extending to the non-outlier extremes, and separately plotted outliers."
+    },
+    "fields": {
+      "novice": {
+        "concept": "boxplot",
+        "claim": "A boxplot summarizes a data distribution using quartiles and the median, with whiskers showing the non-outlier minimum and maximum and separate outliers.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "boxplot",
+        "claim": "A boxplot summarizes a distribution with quartiles, median, whiskers, and separately marked outliers, making outlier detection and dataset comparison easier.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "boxplot",
+        "claim": "A boxplot summarizes a distribution with quartiles, median, and IQR, with whiskers extending to the non-outlier extremes and separately plotted outliers.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "A boxplot summarizes a distribution using quartiles and the median."
+      },
+      {
+        "id": "p2",
+        "text": "A boxplot includes the IQR."
+      },
+      {
+        "id": "p3",
+        "text": "Its whiskers extend to the non-outlier extremes."
+      },
+      {
+        "id": "p4",
+        "text": "Outliers are plotted separately."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "boxplot",
+          "audience": "boxplot",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "boxplot",
+            "boxplot"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A boxplot summarizes a distribution with quartiles, median, and IQR, with whiskers extending to the non-outlier extremes and separately plotted outliers.",
+          "audience": "A boxplot summarizes a data distribution using quartiles and the median, with whiskers showing the non-outlier minimum and maximum and separate outliers.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A boxplot summarizes a distribution using quartiles and the median.",
+                "status": "covered",
+                "evidence": "summarizes a data distribution using quartiles and the median"
+              },
+              {
+                "id": "p2",
+                "text": "A boxplot includes the IQR.",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p3",
+                "text": "Its whiskers extend to the non-outlier extremes.",
+                "status": "covered",
+                "evidence": "whiskers showing the non-outlier minimum and maximum"
+              },
+              {
+                "id": "p4",
+                "text": "Outliers are plotted separately.",
+                "status": "covered",
+                "evidence": "separate outliers"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice captures the distribution summary, whisker extent, and separate outliers but omits the IQR.",
+            "covered": 3,
+            "total": 4,
+            "missed": [
+              "A boxplot includes the IQR."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "boxplot",
+          "audience": "boxplot",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "boxplot",
+            "boxplot"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A boxplot summarizes a distribution with quartiles, median, and IQR, with whiskers extending to the non-outlier extremes and separately plotted outliers.",
+          "audience": "A boxplot summarizes a distribution with quartiles, median, whiskers, and separately marked outliers, making outlier detection and dataset comparison easier.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A boxplot summarizes a distribution using quartiles and the median.",
+                "status": "covered",
+                "evidence": "summarizes a distribution with quartiles, median"
+              },
+              {
+                "id": "p2",
+                "text": "A boxplot includes the IQR.",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p3",
+                "text": "Its whiskers extend to the non-outlier extremes.",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p4",
+                "text": "Outliers are plotted separately.",
+                "status": "covered",
+                "evidence": "separately marked outliers"
+              }
+            ],
+            "extra_assertions": [
+              "making outlier detection and dataset comparison easier"
+            ],
+            "note": "Peer captures the distribution summary and separate outliers but omits the IQR and the non-outlier extent of the whiskers.",
+            "covered": 2,
+            "total": 4,
+            "missed": [
+              "A boxplot includes the IQR.",
+              "Its whiskers extend to the non-outlier extremes."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.75,
+        "covered": 3,
+        "total": 4,
+        "state": "under-specified",
+        "thin": false
+      },
+      "peer": {
+        "value": 0.5,
+        "covered": 2,
+        "total": 4,
+        "state": "under-specified",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 4,
+        "total": 4,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "Interquartile Range (IQR)"
+      ],
+      "novice_unresolved": [
+        "Interquartile Range (IQR)"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 9.694
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.825,
+    "structuring_s": 9.696
+  },
+  "image_content": {
+    "text": "A horizontal numerical axis runs from −4 to 4. A pink rectangular box spans approximately −0.7 to 0.65, with a yellow vertical line at 0 and black vertical edges at Q1 and Q3. A thin blue horizontal line extends to black vertical marks near −2.7 and 2.7. Two green circular points lie near −3.0 and −2.8; two lie near 2.8 and 3.0. Labels include “Outliers,” “Interquartile Range (IQR),” “Minimum” (Q1 − 1.5*IQR), “Maximum” (Q3 + 1.5*IQR), Q1 (25th Percentile), Median, and Q3 (75th Percentile).",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

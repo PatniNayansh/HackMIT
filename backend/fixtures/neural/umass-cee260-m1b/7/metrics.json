@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.14277051389217377,
+  "visual_drive": 0.022355128079652786,
+  "processing_ratio": 6.386477115383686,
+  "gfp_negative_baseline": 0.161919504404068,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 7: Ultimate shear strength of steel fillet welds The ultimate shear strength of a material is its maximum allowable force per unit area prior to sliding failure. This is measured for a sample of fillet welds: The sample size is 41. The sample mean is 56.4 ksi. The standard deviation is 6.2 ksi. Note: the mean and standard deviation have the same units Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 7 / 16"
+}

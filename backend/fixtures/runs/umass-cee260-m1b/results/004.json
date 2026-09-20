@@ -1,0 +1,307 @@
+{
+  "index": 4,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Objectives of today’s lecture\n[body] • Understand quantiles and boxplots • Learn how to use Python to generate descriptive statistics and graphical summaries of datasets (using Colab)\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 4 / 16",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "Today’s lecture aims to explain quantiles and boxplots and show how Python with Colab can create statistical and graphical summaries of datasets.",
+      "confidence": 0.9,
+      "unresolved_terms": [
+        "quantiles",
+        "boxplots",
+        "descriptive statistics",
+        "Colab"
+      ],
+      "questions": [
+        "What are quantiles and boxplots?",
+        "What is Colab?"
+      ],
+      "inferred_claim": "You will learn data-summary concepts and use Python to produce summaries.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 3.907,
+      "attempts": 1,
+      "slide_hash": "38662884dee7eb2862973caf"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "Today’s lecture will introduce quantiles and boxplots, then use Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+      "confidence": 0.97,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "You will learn distribution-summary tools and apply them using Python and Colab.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.922,
+      "attempts": 1,
+      "slide_hash": "38662884dee7eb2862973caf"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "Today’s lecture will cover quantiles and boxplots and use Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Students will be able to summarize datasets with quantiles, boxplots, and Python.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.704,
+      "attempts": 1,
+      "slide_hash": "38662884dee7eb2862973caf"
+    }
+  },
+  "slide_intent": {
+    "text": "Today’s lecture will cover quantiles and boxplots and use Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "Today’s lecture will cover quantiles and boxplots and use Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+    "takeaways": {
+      "novice": "Today’s lecture aims to explain quantiles and boxplots and show how Python with Colab can create statistical and graphical summaries of datasets.",
+      "peer": "Today’s lecture will introduce quantiles and boxplots, then use Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+      "expert": "Today’s lecture will cover quantiles and boxplots and use Python in Colab to produce descriptive statistics and graphical dataset summaries."
+    },
+    "fields": {
+      "novice": {
+        "concept": "quantiles and boxplots",
+        "claim": "The lecture covers quantiles and boxplots and uses Python with Colab to create statistical and graphical summaries of datasets.",
+        "result": "statistical and graphical summaries of datasets",
+        "vehicle": "Python with Colab"
+      },
+      "peer": {
+        "concept": "quantiles and boxplots",
+        "claim": "The lecture introduces quantiles and boxplots and uses Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+        "result": "descriptive statistics and graphical dataset summaries",
+        "vehicle": "Python in Colab"
+      },
+      "expert": {
+        "concept": "quantiles and boxplots",
+        "claim": "The lecture covers quantiles and boxplots and uses Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+        "result": "descriptive statistics and graphical dataset summaries",
+        "vehicle": "Python in Colab"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result",
+        "vehicle"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle, works through an example and reaches a stated result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The lecture covers quantiles and boxplots."
+      },
+      {
+        "id": "p2",
+        "text": "The lecture uses Python in Colab to produce descriptive statistics and graphical dataset summaries."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "quantiles and boxplots",
+          "audience": "quantiles and boxplots",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "quantile",
+            "quantile"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The lecture covers quantiles and boxplots and uses Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+          "audience": "The lecture covers quantiles and boxplots and uses Python with Colab to create statistical and graphical summaries of datasets.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The lecture covers quantiles and boxplots.",
+                "status": "covered",
+                "evidence": "The lecture covers quantiles and boxplots"
+              },
+              {
+                "id": "p2",
+                "text": "The lecture uses Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+                "status": "covered",
+                "evidence": "uses Python with Colab to create statistical and graphical summaries of datasets"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The novice covers both the topics and the use of Python with Colab to produce dataset summaries.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": "descriptive statistics and graphical dataset summaries",
+          "audience": "statistical and graphical summaries of datasets",
+          "status": "compared",
+          "outcome": "mismatch",
+          "comparator": "exact",
+          "normalised": [
+            "descriptivestatisticsandgraphicaldatasetsummaries",
+            "statisticalandgraphicalsummariesofdatasets"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "Python in Colab",
+          "audience": "Python with Colab",
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "quantiles and boxplots",
+          "audience": "quantiles and boxplots",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "quantile",
+            "quantile"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The lecture covers quantiles and boxplots and uses Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+          "audience": "The lecture introduces quantiles and boxplots and uses Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The lecture covers quantiles and boxplots.",
+                "status": "covered",
+                "evidence": "The lecture introduces quantiles and boxplots"
+              },
+              {
+                "id": "p2",
+                "text": "The lecture uses Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+                "status": "covered",
+                "evidence": "uses Python in Colab to produce descriptive statistics and graphical dataset summaries"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The peer covers both expert propositions with equivalent wording.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": "descriptive statistics and graphical dataset summaries",
+          "audience": "descriptive statistics and graphical dataset summaries",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "descriptivestatisticsandgraphicaldatasetsummaries",
+            "descriptivestatisticsandgraphicaldatasetsummaries"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "Python in Colab",
+          "audience": "Python in Colab",
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "quantiles",
+        "boxplots",
+        "descriptive statistics",
+        "Colab"
+      ],
+      "novice_unresolved": [
+        "quantiles",
+        "boxplots",
+        "descriptive statistics",
+        "Colab"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 7.023
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 3.913,
+    "structuring_s": 7.026
+  },
+  "image_content": null
+}

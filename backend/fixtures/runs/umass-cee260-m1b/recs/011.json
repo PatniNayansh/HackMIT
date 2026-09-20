@@ -1,0 +1,24 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Add a rule directly below the definition: “To create k equal-sized groups, use k − 1 quantile cutoffs.”",
+      "evidence": "“Quantiles provide several ways to divide ordered data into equal groups.”"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Add a rule directly below the definition: “To create k equal-sized groups, use k − 1 quantile cutoffs.”",
+      "evidence": "“Use quantiles to describe an ordered dataset by equally sized partitions.”"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:42+00:00",
+    "latency_s": 2.11,
+    "intent": "Quantiles are ordered-data cutoffs that create equal-sized groups, with median, terciles, quartiles, quintiles, and percentiles requiring one fewer cutoff than groups.",
+    "dropped_without_evidence": 0
+  }
+}

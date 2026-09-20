@@ -1,0 +1,29 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Add a note immediately below the cadence values: \"19 cadence measurements are shown; the reason one participant's measurement is absent is not reported.\"",
+      "evidence": "\"Why are there 19 observations for 20 men?\""
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a sentence after the experiment description: \"Cadence is analyzed here as one descriptive measurement from the straight-walking experiment; this slide does not assess whether participants walked straight.\"",
+      "evidence": "\"What does walking straight have to do with cadence?\""
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Add a note immediately below the cadence values: \"19 cadence measurements are shown; the reason one participant's measurement is absent is not reported.\"",
+      "evidence": "\"Why does the text say 20 men but list 19 observations?\""
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:50+00:00",
+    "latency_s": 2.72,
+    "intent": "The slide asks us to summarize and interpret 19 reported walking-cadence measurements, in strides per second, from an experiment involving 20 healthy men walking toward a 60 m target.",
+    "dropped_without_evidence": 0
+  }
+}

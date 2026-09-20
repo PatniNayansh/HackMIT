@@ -1,0 +1,286 @@
+{
+  "index": 1,
+  "text": "[body] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook\n[body] CEE 260/MIE 273: Probability and Statistics in Civil Engineering\n[title] M1b: Summarizing Data\n[body] Prof. Oke\n[body] September 10, 2026\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 1 / 16",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "This begins a UMass Amherst civil-engineering probability and statistics lesson about summarizing data, taught by Prof. Oke on September 10, 2026.",
+      "confidence": 0.98,
+      "unresolved_terms": [
+        "CEE 260/MIE 273",
+        "M1b"
+      ],
+      "questions": [],
+      "inferred_claim": "This session will introduce ways to summarize data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.96,
+      "attempts": 1,
+      "slide_hash": "0e150635a6b77c11557fccf1"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "This begins a civil-engineering probability and statistics module on summarizing data, covering survey results, summary statistics, quantiles and boxplots, and Python/Colab.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "The module will introduce methods and tools for summarizing engineering data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.037,
+      "attempts": 1,
+      "slide_hash": "0e150635a6b77c11557fccf1"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "This is the opening slide for a civil-engineering probability and statistics lecture module on summarizing data, covering survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "The session will introduce standard descriptive methods for summarizing engineering data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.865,
+      "attempts": 1,
+      "slide_hash": "0e150635a6b77c11557fccf1"
+    }
+  },
+  "slide_intent": {
+    "text": "This is the opening slide for a civil-engineering probability and statistics lecture module on summarizing data, covering survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "This is the opening slide for a civil-engineering probability and statistics lecture module on summarizing data, covering survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+    "takeaways": {
+      "novice": "This begins a UMass Amherst civil-engineering probability and statistics lesson about summarizing data, taught by Prof. Oke on September 10, 2026.",
+      "peer": "This begins a civil-engineering probability and statistics module on summarizing data, covering survey results, summary statistics, quantiles and boxplots, and Python/Colab.",
+      "expert": "This is the opening slide for a civil-engineering probability and statistics lecture module on summarizing data, covering survey results, summary statistics, quantiles, boxplots, and Python/Colab."
+    },
+    "fields": {
+      "novice": {
+        "concept": "probability and statistics; summarizing data",
+        "claim": "The lesson concerns summarizing data in civil-engineering probability and statistics.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "probability and statistics; summary statistics; quantiles; boxplots",
+        "claim": "The module covers survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "probability and statistics; summary statistics; quantiles; boxplots",
+        "claim": "The module covers survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The module covers survey results, summary statistics, quantiles, and boxplots."
+      },
+      {
+        "id": "p2",
+        "text": "The module covers Python/Colab."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "probability and statistics; summary statistics; quantiles; boxplots",
+          "audience": "probability and statistics; summarizing data",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "probability",
+            "probability"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The module covers survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+          "audience": "The lesson concerns summarizing data in civil-engineering probability and statistics.",
+          "status": "compared",
+          "outcome": "absent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The module covers survey results, summary statistics, quantiles, and boxplots.",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p2",
+                "text": "The module covers Python/Colab.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The novice identifies the general subject but does not name the specific covered topics.",
+            "covered": 0,
+            "total": 2,
+            "missed": [
+              "The module covers survey results, summary statistics, quantiles, and boxplots.",
+              "The module covers Python/Colab."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "None of the expert's propositions is covered (or no general claim was stated)."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "probability and statistics; summary statistics; quantiles; boxplots",
+          "audience": "probability and statistics; summary statistics; quantiles; boxplots",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "probability",
+            "probability"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The module covers survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+          "audience": "The module covers survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The module covers survey results, summary statistics, quantiles, and boxplots.",
+                "status": "covered",
+                "evidence": "The module covers survey results, summary statistics, quantiles, boxplots"
+              },
+              {
+                "id": "p2",
+                "text": "The module covers Python/Colab.",
+                "status": "covered",
+                "evidence": "and Python/Colab"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The peer covers all propositions in the expert's claim.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.0,
+        "covered": 0,
+        "total": 2,
+        "state": "absent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "CEE 260/MIE 273",
+        "M1b"
+      ],
+      "novice_unresolved": [
+        "CEE 260/MIE 273",
+        "M1b"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 47.449
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.042,
+    "structuring_s": 47.451
+  },
+  "image_content": null
+}

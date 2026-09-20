@@ -1,0 +1,18 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Add a definition next to the figure: \"IQR (interquartile range) = Q3 − Q1; it contains the middle 50% of the data.\"",
+      "evidence": "\"How is the interquartile range calculated?\""
+    }
+  ],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:46+00:00",
+    "latency_s": 3.11,
+    "intent": "A boxplot summarizes a distribution with quartiles, median, IQR, whiskers extending to the non-outlier extremes, and separately plotted outliers.",
+    "dropped_without_evidence": 3
+  }
+}

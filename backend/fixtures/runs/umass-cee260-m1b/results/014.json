@@ -1,0 +1,271 @@
+{
+  "index": 14,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Python\n[body] We will begin our introduction to Python via basic statistical analyses. The platform will be Google Colab.\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 14 / 16",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "The course will start teaching Python through basic statistical analysis, using Google Colab as the platform.",
+      "confidence": 0.97,
+      "unresolved_terms": [
+        "Google Colab",
+        "CEE 260/MIE 273 M1b"
+      ],
+      "questions": [],
+      "inferred_claim": "We will learn introductory Python in Google Colab through basic statistics.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.238,
+      "attempts": 1,
+      "slide_hash": "35f756cd78df13b5aaedda08"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "The course will start its Python introduction by performing basic statistical analyses in Google Colab.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use Google Colab to begin learning Python through basic statistical analysis.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.238,
+      "attempts": 1,
+      "slide_hash": "35f756cd78df13b5aaedda08"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The course will introduce Python through basic statistical analyses, using Google Colab as the working platform.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "We will begin applying descriptive statistics in Python using Google Colab.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.681,
+      "attempts": 1,
+      "slide_hash": "35f756cd78df13b5aaedda08"
+    }
+  },
+  "slide_intent": {
+    "text": "The course will introduce Python through basic statistical analyses, using Google Colab as the working platform.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "The course will introduce Python through basic statistical analyses, using Google Colab as the working platform.",
+    "takeaways": {
+      "novice": "The course will start teaching Python through basic statistical analysis, using Google Colab as the platform.",
+      "peer": "The course will start its Python introduction by performing basic statistical analyses in Google Colab.",
+      "expert": "The course will introduce Python through basic statistical analyses, using Google Colab as the working platform."
+    },
+    "fields": {
+      "novice": {
+        "concept": null,
+        "claim": "The course introduces Python through basic statistical analysis.",
+        "result": null,
+        "vehicle": "using Google Colab as the platform"
+      },
+      "peer": {
+        "concept": null,
+        "claim": "The course introduces Python through basic statistical analyses.",
+        "result": null,
+        "vehicle": "in Google Colab"
+      },
+      "expert": {
+        "concept": null,
+        "claim": "The course introduces Python through basic statistical analyses.",
+        "result": null,
+        "vehicle": "using Google Colab as the working platform"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "claim",
+        "vehicle"
+      ],
+      "scored": [
+        "claim"
+      ],
+      "thin": true,
+      "text": "This slide states a claim and works through an example; no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The course introduces Python through basic statistical analyses."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The course introduces Python through basic statistical analyses.",
+          "audience": "The course introduces Python through basic statistical analysis.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The course introduces Python through basic statistical analyses.",
+                "status": "covered",
+                "evidence": "The course introduces Python through basic statistical analysis."
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice recovered the expert's claim.",
+            "covered": 1,
+            "total": 1,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "using Google Colab as the working platform",
+          "audience": "using Google Colab as the platform",
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The course introduces Python through basic statistical analyses.",
+          "audience": "The course introduces Python through basic statistical analyses.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The course introduces Python through basic statistical analyses.",
+                "status": "covered",
+                "evidence": "The course introduces Python through basic statistical analyses."
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer recovered the expert's claim.",
+            "covered": 1,
+            "total": 1,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "using Google Colab as the working platform",
+          "audience": "in Google Colab",
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 1,
+        "total": 1,
+        "state": "equivalent",
+        "thin": true
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 1,
+        "total": 1,
+        "state": "equivalent",
+        "thin": true
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 1,
+        "total": 1,
+        "state": "equivalent",
+        "thin": true,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "ok",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "Google Colab",
+        "CEE 260/MIE 273 M1b"
+      ],
+      "novice_unresolved": [
+        "Google Colab",
+        "CEE 260/MIE 273 M1b"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [
+        {
+          "persona": "novice",
+          "field": "concept",
+          "value": "Python and basic statistical analysis",
+          "reason": "the takeaway does not name this concept"
+        },
+        {
+          "persona": "peer",
+          "field": "concept",
+          "value": "Python and basic statistical analysis",
+          "reason": "the takeaway does not name this concept"
+        },
+        {
+          "persona": "expert",
+          "field": "concept",
+          "value": "Python and basic statistical analyses",
+          "reason": "the takeaway does not name this concept"
+        }
+      ],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 8.2
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.246,
+    "structuring_s": 8.203
+  },
+  "image_content": null
+}

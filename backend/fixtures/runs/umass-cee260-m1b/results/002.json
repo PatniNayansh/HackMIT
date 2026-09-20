@@ -1,0 +1,311 @@
+{
+  "index": 2,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Outline\n[body] 1 Survey Results\n[body] 2 Summary statistics\n[body] 3 Quantiles and boxplots\n[body] 4 Python/Colab\n[body] 5 Outlook\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 2 / 16\n\nFIGURE: [description of the image, not printed words] Five numbered blue circular markers are arranged vertically down the left side, each followed by blue text: “Survey Results,” “Summary statistics,” “Quantiles and boxplots,” “Python/Colab,” and “Outlook.” A lavender navigation bar spans the top, and a lavender footer bar spans the bottom.",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "The lesson will cover survey results, ways to summarize data, quantiles and boxplots, Python/Colab, and an outlook.",
+      "confidence": 0.94,
+      "unresolved_terms": [
+        "Quantiles",
+        "boxplots",
+        "Colab",
+        "CEE 260/MIE 273 M1b"
+      ],
+      "questions": [],
+      "inferred_claim": "The presentation will introduce several methods and tools for summarizing data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.09,
+      "attempts": 1,
+      "slide_hash": "292c0533994fe9f5487d326b"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "The session will cover survey results, summary statistics, quantiles and boxplots, Python/Colab, and conclude with an outlook.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "The presentation will introduce several ways to summarize and analyze data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.755,
+      "attempts": 1,
+      "slide_hash": "292c0533994fe9f5487d326b"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The module will progress from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "The session will cover core methods for summarizing engineering data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.62,
+      "attempts": 1,
+      "slide_hash": "292c0533994fe9f5487d326b"
+    }
+  },
+  "slide_intent": {
+    "text": "The module will progress from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "The module will progress from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook.",
+    "takeaways": {
+      "novice": "The lesson will cover survey results, ways to summarize data, quantiles and boxplots, Python/Colab, and an outlook.",
+      "peer": "The session will cover survey results, summary statistics, quantiles and boxplots, Python/Colab, and conclude with an outlook.",
+      "expert": "The module will progress from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook."
+    },
+    "fields": {
+      "novice": {
+        "concept": "quantiles, boxplots, and Python/Colab",
+        "claim": "The lesson covers survey results, ways to summarize data, quantiles and boxplots, Python/Colab, and an outlook.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "summary statistics, quantiles, boxplots, and Python/Colab",
+        "claim": "The session covers survey results, summary statistics, quantiles and boxplots, Python/Colab, and an outlook.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "descriptive summaries, quantiles, boxplots, and Python/Colab",
+        "claim": "The module progresses from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The module covers survey results and descriptive summaries."
+      },
+      {
+        "id": "p2",
+        "text": "The module covers quantiles and boxplots."
+      },
+      {
+        "id": "p3",
+        "text": "The module covers Python/Colab work and an outlook."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "descriptive summaries, quantiles, boxplots, and Python/Colab",
+          "audience": "quantiles, boxplots, and Python/Colab",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "quantile",
+            "quantile"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The module progresses from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook.",
+          "audience": "The lesson covers survey results, ways to summarize data, quantiles and boxplots, Python/Colab, and an outlook.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The module covers survey results and descriptive summaries.",
+                "status": "covered",
+                "evidence": "survey results, ways to summarize data"
+              },
+              {
+                "id": "p2",
+                "text": "The module covers quantiles and boxplots.",
+                "status": "covered",
+                "evidence": "quantiles and boxplots"
+              },
+              {
+                "id": "p3",
+                "text": "The module covers Python/Colab work and an outlook.",
+                "status": "covered",
+                "evidence": "Python/Colab, and an outlook"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers all of the expert's listed topics using equivalent wording.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "descriptive summaries, quantiles, boxplots, and Python/Colab",
+          "audience": "summary statistics, quantiles, boxplots, and Python/Colab",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "quantile",
+            "quantile"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The module progresses from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook.",
+          "audience": "The session covers survey results, summary statistics, quantiles and boxplots, Python/Colab, and an outlook.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The module covers survey results and descriptive summaries.",
+                "status": "covered",
+                "evidence": "survey results, summary statistics"
+              },
+              {
+                "id": "p2",
+                "text": "The module covers quantiles and boxplots.",
+                "status": "covered",
+                "evidence": "quantiles and boxplots"
+              },
+              {
+                "id": "p3",
+                "text": "The module covers Python/Colab work and an outlook.",
+                "status": "covered",
+                "evidence": "Python/Colab, and an outlook"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer covers all of the expert's listed topics using equivalent wording.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "ok",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "Quantiles",
+        "boxplots",
+        "Colab",
+        "CEE 260/MIE 273 M1b"
+      ],
+      "novice_unresolved": [
+        "Quantiles",
+        "boxplots",
+        "Colab",
+        "CEE 260/MIE 273 M1b"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 7.208
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.095,
+    "structuring_s": 7.21
+  },
+  "image_content": {
+    "text": "Five numbered blue circular markers are arranged vertically down the left side, each followed by blue text: “Survey Results,” “Summary statistics,” “Quantiles and boxplots,” “Python/Colab,” and “Outlook.” A lavender navigation bar spans the top, and a lavender footer bar spans the bottom.",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

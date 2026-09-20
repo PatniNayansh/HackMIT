@@ -1,0 +1,274 @@
+{
+  "index": 5,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Sample mean\n[body] A sample is a finite set of n observations:\n[body] (x1, x2, . . . , xn) (1)\n[body] Sample mean\n[body] This is the average of a sample:\n[body] n X\n[body] ¯x = 1\n[body] xi (2)\n[body] n\n[body] i=1\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 5 / 16",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "A sample is a finite collection of n observations, and its mean is the average found by adding the observations and dividing by n.",
+      "confidence": 0.96,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use the sample mean to describe a sample’s average.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.806,
+      "attempts": 1,
+      "slide_hash": "bf82b9473f33fc1fefb61ccc"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "A sample contains n observations, and its mean x̄ is their average: the sum of all xi values divided by n.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use x̄ to denote the arithmetic average of a sample.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.799,
+      "attempts": 1,
+      "slide_hash": "bf82b9473f33fc1fefb61ccc"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The slide defines a sample as n observations and defines its sample mean as the arithmetic average, \\(\\bar{x}=n^{-1}\\sum_{i=1}^{n}x_i\\).",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use the sample mean as the standard average of observed data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.958,
+      "attempts": 1,
+      "slide_hash": "bf82b9473f33fc1fefb61ccc"
+    }
+  },
+  "slide_intent": {
+    "text": "The slide defines a sample as n observations and defines its sample mean as the arithmetic average, \\(\\bar{x}=n^{-1}\\sum_{i=1}^{n}x_i\\).",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "The slide defines a sample as n observations and defines its sample mean as the arithmetic average, \\(\\bar{x}=n^{-1}\\sum_{i=1}^{n}x_i\\).",
+    "takeaways": {
+      "novice": "A sample is a finite collection of n observations, and its mean is the average found by adding the observations and dividing by n.",
+      "peer": "A sample contains n observations, and its mean x̄ is their average: the sum of all xi values divided by n.",
+      "expert": "The slide defines a sample as n observations and defines its sample mean as the arithmetic average, \\(\\bar{x}=n^{-1}\\sum_{i=1}^{n}x_i\\)."
+    },
+    "fields": {
+      "novice": {
+        "concept": "sample and mean",
+        "claim": "A sample is a finite collection of n observations, and its mean is their arithmetic average.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "sample mean",
+        "claim": "A sample contains n observations, and its sample mean is their arithmetic average.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "sample and sample mean",
+        "claim": "A sample consists of n observations, and its sample mean is their arithmetic average.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "A sample consists of n observations."
+      },
+      {
+        "id": "p2",
+        "text": "The sample mean is the arithmetic average of the observations."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "sample and sample mean",
+          "audience": "sample and mean",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "sample",
+            "sample"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A sample consists of n observations, and its sample mean is their arithmetic average.",
+          "audience": "A sample is a finite collection of n observations, and its mean is their arithmetic average.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A sample consists of n observations.",
+                "status": "covered",
+                "evidence": "A sample is a finite collection of n observations"
+              },
+              {
+                "id": "p2",
+                "text": "The sample mean is the arithmetic average of the observations.",
+                "status": "covered",
+                "evidence": "its mean is their arithmetic average"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice covers both the composition of a sample and the definition of its mean.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "sample and sample mean",
+          "audience": "sample mean",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "sample mean",
+            "sample mean"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A sample consists of n observations, and its sample mean is their arithmetic average.",
+          "audience": "A sample contains n observations, and its sample mean is their arithmetic average.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A sample consists of n observations.",
+                "status": "covered",
+                "evidence": "A sample contains n observations"
+              },
+              {
+                "id": "p2",
+                "text": "The sample mean is the arithmetic average of the observations.",
+                "status": "covered",
+                "evidence": "its sample mean is their arithmetic average"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer covers both the composition of a sample and the definition of its sample mean.",
+            "covered": 2,
+            "total": 2,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "ok",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [],
+      "novice_unresolved": [],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 7.913
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 1.967,
+    "structuring_s": 7.915
+  },
+  "image_content": null
+}

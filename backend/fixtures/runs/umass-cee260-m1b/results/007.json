@@ -1,0 +1,340 @@
+{
+  "index": 7,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 7: Ultimate shear strength of steel fillet welds\n[body] The ultimate shear strength of a material is its maximum allowable force per unit area prior to sliding failure. This is measured for a sample of fillet welds:\n[body] The sample size is 41. The sample mean is 56.4 ksi. The standard deviation is 6.2 ksi. Note: the mean and standard deviation have the same units\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 7 / 16\n\nFIGURE: [description of the image, not printed words] A histogram has a horizontal axis labelled “Ultimate shear strength, ksi” with ticks at 10, 50, 60, and 70, and a vertical axis labelled “Frequency, percent” with ticks at 0, 10, 20, and 30. Outlined bars span roughly 42–75 ksi, with the tallest near 54–57 ksi; a small isolated bar appears near 72–75 ksi. Beside it: “n = 41”, “x̄ = 56.4”, and “s = 6.2”. At upper right, a small labelled “Fillet Welds” drawing has four weld cross-sections labelled “mitre”, “multiple”, “convex”, and “concave”.",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "For 41 fillet welds, ultimate shear strength averages 56.4 ksi and has a standard deviation of 6.2 ksi, showing how center and spread summarize the sample.",
+      "confidence": 0.9,
+      "unresolved_terms": [
+        "ksi",
+        "fillet welds"
+      ],
+      "questions": [
+        "What does ksi stand for?",
+        "What are fillet welds?"
+      ],
+      "inferred_claim": "Mean and standard deviation summarize this weld-strength sample.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.652,
+      "attempts": 1,
+      "slide_hash": "6157ae2ae9d3d11d7deee5df"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "For 41 steel fillet welds, ultimate shear strength averages 56.4 ksi with a 6.2 ksi standard deviation, and both summaries retain the measurement unit.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Report sample size, mean, and standard deviation with their units.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.255,
+      "attempts": 1,
+      "slide_hash": "6157ae2ae9d3d11d7deee5df"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "For 41 steel fillet-weld measurements, ultimate shear strength averages 56.4 ksi with a sample standard deviation of 6.2 ksi, and both statistics retain the strength unit.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Summary statistics describe this weld-strength sample’s center and spread.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.941,
+      "attempts": 1,
+      "slide_hash": "6157ae2ae9d3d11d7deee5df"
+    }
+  },
+  "slide_intent": {
+    "text": "For 41 steel fillet-weld measurements, ultimate shear strength averages 56.4 ksi with a sample standard deviation of 6.2 ksi, and both statistics retain the strength unit.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "For 41 steel fillet-weld measurements, ultimate shear strength averages 56.4 ksi with a sample standard deviation of 6.2 ksi, and both statistics retain the strength unit.",
+    "takeaways": {
+      "novice": "For 41 fillet welds, ultimate shear strength averages 56.4 ksi and has a standard deviation of 6.2 ksi, showing how center and spread summarize the sample.",
+      "peer": "For 41 steel fillet welds, ultimate shear strength averages 56.4 ksi with a 6.2 ksi standard deviation, and both summaries retain the measurement unit.",
+      "expert": "For 41 steel fillet-weld measurements, ultimate shear strength averages 56.4 ksi with a sample standard deviation of 6.2 ksi, and both statistics retain the strength unit."
+    },
+    "fields": {
+      "novice": {
+        "concept": "center and spread",
+        "claim": "Center and spread summarize a sample.",
+        "result": "56.4 ksi and 6.2 ksi",
+        "vehicle": "41 fillet welds"
+      },
+      "peer": {
+        "concept": "standard deviation",
+        "claim": "An average and standard deviation for a measurement retain the measurement unit.",
+        "result": "56.4 ksi and 6.2 ksi",
+        "vehicle": "41 steel fillet welds"
+      },
+      "expert": {
+        "concept": "sample standard deviation",
+        "claim": "A sample's average and standard deviation both retain the unit of the measured strength.",
+        "result": "56.4 ksi and 6.2 ksi",
+        "vehicle": "41 steel fillet-weld measurements"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result",
+        "vehicle"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle, works through an example and reaches a numeric result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "A sample's average and standard deviation both retain the unit of the measured strength."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "sample standard deviation",
+          "audience": "center and spread",
+          "status": "compared",
+          "outcome": "mismatch",
+          "comparator": "fuzzy",
+          "normalised": [
+            "sample standard deviation",
+            "center"
+          ],
+          "how": "edit similarity 0.19"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A sample's average and standard deviation both retain the unit of the measured strength.",
+          "audience": "Center and spread summarize a sample.",
+          "status": "compared",
+          "outcome": "absent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A sample's average and standard deviation both retain the unit of the measured strength.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [
+              "Center and spread summarize a sample."
+            ],
+            "note": "The novice reports sample summaries but omits that the statistics retain the strength unit.",
+            "covered": 0,
+            "total": 1,
+            "missed": [
+              "A sample's average and standard deviation both retain the unit of the measured strength."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "None of the expert's propositions is covered (or no general claim was stated)."
+        },
+        "result": {
+          "field": "result",
+          "expert": "56.4 ksi and 6.2 ksi",
+          "audience": "56.4 ksi and 6.2 ksi",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "56.4, 6.2",
+            "56.4, 6.2"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "41 steel fillet-weld measurements",
+          "audience": "41 fillet welds",
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "sample standard deviation",
+          "audience": "standard deviation",
+          "status": "compared",
+          "outcome": "near",
+          "comparator": "fuzzy",
+          "normalised": [
+            "sample standard deviation",
+            "standard deviation"
+          ],
+          "how": "one names the other more narrowly (its words are contained in the other's)"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A sample's average and standard deviation both retain the unit of the measured strength.",
+          "audience": "An average and standard deviation for a measurement retain the measurement unit.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A sample's average and standard deviation both retain the unit of the measured strength.",
+                "status": "covered",
+                "evidence": "An average and standard deviation for a measurement retain the measurement unit."
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The peer captures the unit-retention claim without the expert's explicit sample framing.",
+            "covered": 1,
+            "total": 1,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": "56.4 ksi and 6.2 ksi",
+          "audience": "56.4 ksi and 6.2 ksi",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "56.4, 6.2",
+            "56.4, 6.2"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "41 steel fillet-weld measurements",
+          "audience": "41 steel fillet welds",
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.0,
+        "covered": 0,
+        "total": 1,
+        "state": "absent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 1,
+        "total": 1,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 1,
+        "total": 1,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "ok"
+    },
+    "findings": [
+      {
+        "id": "figure_dependent",
+        "audience": "novice",
+        "text": "The substance of this slide is in the figure, and the novice reading does not engage with it: the figure is carrying meaning it does not label.",
+        "evidence": [
+          {
+            "persona": "novice",
+            "label": "Novice claim",
+            "text": "Center and spread summarize a sample."
+          },
+          {
+            "persona": "expert",
+            "label": "Expert claim",
+            "text": "A sample's average and standard deviation both retain the unit of the measured strength."
+          }
+        ],
+        "facts": {
+          "figure_terms": [
+            "strength"
+          ]
+        }
+      },
+      {
+        "id": "figure_dependent",
+        "audience": "peer",
+        "text": "The substance of this slide is in the figure, and the peer reading does not engage with it: the figure is carrying meaning it does not label.",
+        "evidence": [
+          {
+            "persona": "peer",
+            "label": "Peer claim",
+            "text": "An average and standard deviation for a measurement retain the measurement unit."
+          },
+          {
+            "persona": "expert",
+            "label": "Expert claim",
+            "text": "A sample's average and standard deviation both retain the unit of the measured strength."
+          }
+        ],
+        "facts": {
+          "figure_terms": [
+            "strength"
+          ]
+        }
+      }
+    ],
+    "term_gap": {
+      "terms": [
+        "ksi",
+        "fillet welds"
+      ],
+      "novice_unresolved": [
+        "ksi",
+        "fillet welds"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 8.044
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.951,
+    "structuring_s": 8.046
+  },
+  "image_content": {
+    "text": "A histogram has a horizontal axis labelled “Ultimate shear strength, ksi” with ticks at 10, 50, 60, and 70, and a vertical axis labelled “Frequency, percent” with ticks at 0, 10, 20, and 30. Outlined bars span roughly 42–75 ksi, with the tallest near 54–57 ksi; a small isolated bar appears near 72–75 ksi. Beside it: “n = 41”, “x̄ = 56.4”, and “s = 6.2”. At upper right, a small labelled “Fillet Welds” drawing has four weld cross-sections labelled “mitre”, “multiple”, “convex”, and “concave”.",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "novice": [],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:18+00:00",
+    "latency_s": 1.87,
+    "intent": "The module will progress from survey results through descriptive summaries, quantiles and boxplots, Python/Colab work, and an outlook.",
+    "dropped_without_evidence": 1
+  }
+}

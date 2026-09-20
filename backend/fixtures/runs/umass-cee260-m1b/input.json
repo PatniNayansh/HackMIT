@@ -1,0 +1,226 @@
+[
+  {
+    "index": 1,
+    "text": "[body] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook\n[body] CEE 260/MIE 273: Probability and Statistics in Civil Engineering\n[title] M1b: Summarizing Data\n[body] Prof. Oke\n[body] September 10, 2026\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 1 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.08,
+      "drawing_paths": 20,
+      "text_chars": 242,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 2,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Outline\n[body] 1 Survey Results\n[body] 2 Summary statistics\n[body] 3 Quantiles and boxplots\n[body] 4 Python/Colab\n[body] 5 Outlook\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 2 / 16",
+    "image_content": {
+      "text": "Five numbered blue circular markers are arranged vertically down the left side, each followed by blue text: “Survey Results,” “Summary statistics,” “Quantiles and boxplots,” “Python/Colab,” and “Outlook.” A lavender navigation bar spans the top, and a lavender footer bar spans the bottom.",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 22,
+      "text_chars": 224,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 3,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Recap from Lecture 1a\n[body] • Two categories of uncertainty: aleatory and epistemic • Visualize distributions via histograms and scattegrams • Measures of location: mean, median, mode • Measures of dispersion: range, variance, standard deviation, coefficient of variation\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 3 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 17,
+      "text_chars": 372,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 4,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Objectives of today’s lecture\n[body] • Understand quantiles and boxplots • Learn how to use Python to generate descriptive statistics and graphical summaries of datasets (using Colab)\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 4 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 17,
+      "text_chars": 294,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 5,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Sample mean\n[body] A sample is a finite set of n observations:\n[body] (x1, x2, . . . , xn) (1)\n[body] Sample mean\n[body] This is the average of a sample:\n[body] n X\n[body] ¯x = 1\n[body] xi (2)\n[body] n\n[body] i=1\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 5 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.059,
+      "drawing_paths": 22,
+      "text_chars": 256,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 6,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Standard deviation and variance\n[body] The sample variance and standard deviation are measures of dispersion.\n[body] Sample variance\n[body] n X\n[body] s2\n[body] (xi −¯x)2 (3)\n[body] X = 1\n[body] n\n[body] i=1\n[body] Sample standard deviation\n[body] This is the square root of the variance:\n[body] n X\n[body] (xi −¯x)2 (4)\n[body] sX =\n[body] v u u t1\n[body] n\n[body] i=1\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 6 / 16",
+    "image_content": {
+      "text": "Two large rounded rectangular panels are stacked vertically. The upper panel has the heading “Sample variance” and the equation sₓ² = 1/n ∑ᵢ₌₁ⁿ (xᵢ − x̄)², with “(3)” at the right. The lower panel has the heading “Sample standard deviation,” the sentence “This is the square root of the variance:”, and the equation sₓ = √(1/n ∑ᵢ₌₁ⁿ (xᵢ − x̄)²), with “(4)” at the right.",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.113,
+      "drawing_paths": 28,
+      "text_chars": 349,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 7,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 7: Ultimate shear strength of steel fillet welds\n[body] The ultimate shear strength of a material is its maximum allowable force per unit area prior to sliding failure. This is measured for a sample of fillet welds:\n[body] The sample size is 41. The sample mean is 56.4 ksi. The standard deviation is 6.2 ksi. Note: the mean and standard deviation have the same units\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 7 / 16",
+    "image_content": {
+      "text": "A histogram has a horizontal axis labelled “Ultimate shear strength, ksi” with ticks at 10, 50, 60, and 70, and a vertical axis labelled “Frequency, percent” with ticks at 0, 10, 20, and 30. Outlined bars span roughly 42–75 ksi, with the tallest near 54–57 ksi; a small isolated bar appears near 72–75 ksi. Beside it: “n = 41”, “x̄ = 56.4”, and “s = 6.2”. At upper right, a small labelled “Fillet Welds” drawing has four weld cross-sections labelled “mitre”, “multiple”, “convex”, and “concave”.",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.232,
+      "drawing_paths": 17,
+      "text_chars": 441,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 8,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 8: Comparing two distributions\n[body] Recall the surface roughness distributions from two samples:\n[body] Questions\n[body] • Which sample has the larger standard deviation? • What are the implications?\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 8 / 16",
+    "image_content": {
+      "text": "A plot has horizontal axis labelled “RMS (mm/m²)” with values 0, 50, 100, 150, 200, 250, and vertical axis labelled “Occurrence (%)” with values 0, 5, 10, 15, 20, 25. Light and dark vertical bars extend across the range. A black curve rises from near 0, peaks near 50 at about 15%, then declines toward 250. Text beside the plot reads “Typical smooth road” with σₐ RMS = 20, μₐ RMS = 40, Mₐ RMS = 30, Rₐ RMS = 0:100, and “Typical rough road” with σₐ RMS = 60, μₐ RMS = 110, Mₐ RMS = 70, Rₐ RMS = 20:250.",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.278,
+      "drawing_paths": 21,
+      "text_chars": 305,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 9,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Sampling error and coefficient of variation\n[body] The sample variance and standard deviation measure the aleatory uncertainty in the data.\n[body] Sampling error\n[body] Defined as the standard deviation of the sample mean:\n[body] sx = sX √n (5)\n[body] Measures how well the sample mean x estimates the population mean. Also known as standard error.\n[body] Coefficient of variation\n[body] Measures dispersion relative to the mean.\n[body] δX = sX\n[body] x (6)\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 9 / 16",
+    "image_content": {
+      "text": "The slide has two large rounded rectangular panels with dark blue header bars and light lavender bodies. The upper panel is labelled “Sampling error” and contains the centered fraction formula s_x = s_x/√n, with equation number (5) at the right. The lower panel is labelled “Coefficient of variation” and contains the centered formula δ_x = s_x/x̄, with equation number (6) at the right. A pale lavender navigation strip spans the top and a footer strip spans the bottom.",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.115,
+      "drawing_paths": 31,
+      "text_chars": 473,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 10,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 9: Rainfall intensities summary statistics\n[body] Recall rainfall intensities:\n[body] ¯x = 1\n[body] 29 (43.30 + · · · + 43.11) = 50.70 in.\n[body] s2\n[body] (43.30 −50.70)2 + · · · + (43.11 −50.70)2\u0003\n[body] = 57.34\n[body] X = 1\n[body] 29 \u0002\n[body] sX = 7.57 in.\n[body] s¯x = 7.57 √\n[body] 29 = 1.41 in.\n[body] The sampling error sx measures the epistemic uncertainty in estimating the average annual rainfall intensity.\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 10 / 16",
+    "image_content": {
+      "text": "A table titled “TABLE 1.1 Rainfall Intensity Data Recorded over a Period of 29 Years” has three paired columns labelled “Year No.” and “Rainfall Intensity, in.”, listing years 1–29 with numerical values. Beneath it are four centered equations: x̄ = 1/29 (43.30 + ⋯ + 43.11) = 50.70 in.; s²ₓ = 1/29 [(43.30 − 50.70)² + ⋯ + (43.11 − 50.70)²] = 57.34; sₓ = 7.57 in.; and sₓ̄ = 7.57/√29 = 1.41 in.",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.101,
+      "drawing_paths": 22,
+      "text_chars": 419,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 11,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Quantiles\n[body] Quantiles are cutoff points that partition an ordered sample or dataset into equal-sized groups.\n[body] • A median splits a sample into two: m • Two terciles split a sample into 3 groups: T1, T2 • Three quartiles split a sample into 4 groups: Q1, Q2, Q3 • Four quintiles split a sample into 5 groups: QU1, QU2, QU3, QU4 • . . . • Ninety-nine [per]centiles split a sample into 100 groups: P1, . . . , P99\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 11 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 17,
+      "text_chars": 472,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 12,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Quantiles (cont.)\n[body] Certain quantiles are equivalent to others:\n[body] m = Q2 Q1 Q3\n[body] • The median is the second quartile Q2 • The 25th percentile is equivalent to the first quartile Q1\n[body] Questions\n[body] 1 Quintiles (QU1, QU2, . . .) partition a distribution into 5 equal groups.How many quintiles are there?\n[body] 2 The second quartile Q2 can be expressed as which percentile?a\n[body] Answers: Q1: There are 4 quintiles; Q2: Q2 = P50 (fiftieth percentile)\n[body] aRecall that a quartile splits a sample into 4 equal groups.\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 12 / 16",
+    "image_content": {
+      "text": "A horizontal row of ten evenly spaced dots. The third dot is red and has a downward red arrow labelled “Q₁”; the sixth dot is blue and has a downward blue arrow labelled “m = Q₂”; the eighth dot is red and has a downward red arrow labelled “Q₃”. The remaining dots are black.",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.061,
+      "drawing_paths": 44,
+      "text_chars": 545,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 13,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Using boxplots\n[body] A boxplot1 displays the distribution of data\n[body] • Useful for identifying outliers • Efficient for comparing multiple datasets • The lines indicating the “maximum/minimum” points (excluding outliers) are called whiskers\n[body] 1Figure source: https://towardsdatascience.com/understanding-boxplots-5e2df7bcbd51\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 13 / 16",
+    "image_content": {
+      "text": "A horizontal numerical axis runs from −4 to 4. A pink rectangular box spans approximately −0.7 to 0.65, with a yellow vertical line at 0 and black vertical edges at Q1 and Q3. A thin blue horizontal line extends to black vertical marks near −2.7 and 2.7. Two green circular points lie near −3.0 and −2.8; two lie near 2.8 and 3.0. Labels include “Outliers,” “Interquartile Range (IQR),” “Minimum” (Q1 − 1.5*IQR), “Maximum” (Q3 + 1.5*IQR), Q1 (25th Percentile), Median, and Q3 (75th Percentile).",
+      "model": "gpt-5.6-luna",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.381,
+      "drawing_paths": 18,
+      "text_chars": 423,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 14,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Python\n[body] We will begin our introduction to Python via basic statistical analyses. The platform will be Google Colab.\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 14 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 17,
+      "text_chars": 241,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 15,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Summarizing data\n[body] Example 10: Walking cadence\n[body] In the article “Can We Really Walk Straight?” (Amer. J. of Physical Anthropology, 1992: 19–27) reported on an experiment in which each of 20 healthy men was asked to walk as straight as possible to a target 60m away at normal speed.\n[body] Consider the following observations on cadence (number of strides per second):\n[body] .95 .85 .92 .95 .93 .86 1.00 .92 .85 .81 .78 .93 .93 1.05 .93 1.06 .96 .81 .96\n[body] Summarize the data; interpret and discuss.\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 15 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.064,
+      "drawing_paths": 21,
+      "text_chars": 539,
+      "carries_figure": true
+    }
+  },
+  {
+    "index": 16,
+    "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Recap\n[body] • Pre-survey review • Python Introduction: • Summarizing data • Visualizing data • Histograms • Boxplots\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 16 / 16",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 17,
+      "text_chars": 238,
+      "carries_figure": true
+    }
+  }
+]

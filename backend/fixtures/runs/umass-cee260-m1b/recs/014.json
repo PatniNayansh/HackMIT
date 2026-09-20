@@ -1,0 +1,12 @@
+{
+  "novice": [],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:48+00:00",
+    "latency_s": 1.76,
+    "intent": "The course will introduce Python through basic statistical analyses, using Google Colab as the working platform.",
+    "dropped_without_evidence": 1
+  }
+}

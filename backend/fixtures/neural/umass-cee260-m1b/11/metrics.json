@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.19940327107906342,
+  "visual_drive": 0.06842754036188126,
+  "processing_ratio": 2.9140791854348818,
+  "gfp_negative_baseline": 0.16722790896892548,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Quantiles Quantiles are cutoff points that partition an ordered sample or dataset into equal-sized groups. \u2022 A median splits a sample into two: m \u2022 Two terciles split a sample into 3 groups: T1, T2 \u2022 Three quartiles split a sample into 4 groups: Q1, Q2, Q3 \u2022 Four quintiles split a sample into 5 groups: QU1, QU2, QU3, QU4 \u2022 . . . \u2022 Ninety-nine [per]centiles split a sample into 100 groups: P1, . . . , P99 Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 11 / 16"
+}

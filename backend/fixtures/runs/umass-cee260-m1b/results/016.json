@@ -1,0 +1,291 @@
+{
+  "index": 16,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Recap\n[body] • Pre-survey review • Python Introduction: • Summarizing data • Visualizing data • Histograms • Boxplots\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 16 / 16",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "The session reviewed a pre-survey and introduced using Python to summarize and visualize data with histograms and boxplots.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "We have covered the basic data-summary and visualization topics in this session.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.848,
+      "attempts": 1,
+      "slide_hash": "032a63bc05541ebd83cd7b00"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "This recap says the session covered the pre-survey plus Python-based data summarization and visualization, including histograms and boxplots.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "The session has introduced core tools for summarizing and visualizing data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.293,
+      "attempts": 1,
+      "slide_hash": "032a63bc05541ebd83cd7b00"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The session recaps the pre-survey and introductory Python work on data summaries, visualization, histograms, and boxplots.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "We have completed the introductory material on summarizing and visualizing data in Python.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.824,
+      "attempts": 1,
+      "slide_hash": "032a63bc05541ebd83cd7b00"
+    }
+  },
+  "slide_intent": {
+    "text": "The session recaps the pre-survey and introductory Python work on data summaries, visualization, histograms, and boxplots.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "The session recaps the pre-survey and introductory Python work on data summaries, visualization, histograms, and boxplots.",
+    "takeaways": {
+      "novice": "The session reviewed a pre-survey and introduced using Python to summarize and visualize data with histograms and boxplots.",
+      "peer": "This recap says the session covered the pre-survey plus Python-based data summarization and visualization, including histograms and boxplots.",
+      "expert": "The session recaps the pre-survey and introductory Python work on data summaries, visualization, histograms, and boxplots."
+    },
+    "fields": {
+      "novice": {
+        "concept": "Python, histograms, and boxplots",
+        "claim": "The session reviewed a pre-survey and introduced Python for summarizing and visualizing data, using histograms and boxplots.",
+        "result": null,
+        "vehicle": "histograms and boxplots"
+      },
+      "peer": {
+        "concept": "Python, histograms, and boxplots",
+        "claim": "The session covered a pre-survey and Python-based data summarization and visualization, including histograms and boxplots.",
+        "result": null,
+        "vehicle": "histograms and boxplots"
+      },
+      "expert": {
+        "concept": "Python, histograms, and boxplots",
+        "claim": "The session recapped a pre-survey and introductory Python work on data summaries and visualization, including histograms and boxplots.",
+        "result": null,
+        "vehicle": "histograms and boxplots"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "vehicle"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle and works through an example; no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The session recapped the pre-survey."
+      },
+      {
+        "id": "p2",
+        "text": "The session covered introductory Python work on data summaries and visualization."
+      },
+      {
+        "id": "p3",
+        "text": "The work included histograms and boxplots."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "Python, histograms, and boxplots",
+          "audience": "Python, histograms, and boxplots",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "python",
+            "python"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The session recapped a pre-survey and introductory Python work on data summaries and visualization, including histograms and boxplots.",
+          "audience": "The session reviewed a pre-survey and introduced Python for summarizing and visualizing data, using histograms and boxplots.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The session recapped the pre-survey.",
+                "status": "covered",
+                "evidence": "The session reviewed a pre-survey"
+              },
+              {
+                "id": "p2",
+                "text": "The session covered introductory Python work on data summaries and visualization.",
+                "status": "covered",
+                "evidence": "introduced Python for summarizing and visualizing data"
+              },
+              {
+                "id": "p3",
+                "text": "The work included histograms and boxplots.",
+                "status": "covered",
+                "evidence": "using histograms and boxplots"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The novice covered all parts of the expert's claim.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "histograms and boxplots",
+          "audience": "histograms and boxplots",
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "Python, histograms, and boxplots",
+          "audience": "Python, histograms, and boxplots",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "python",
+            "python"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The session recapped a pre-survey and introductory Python work on data summaries and visualization, including histograms and boxplots.",
+          "audience": "The session covered a pre-survey and Python-based data summarization and visualization, including histograms and boxplots.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The session recapped the pre-survey.",
+                "status": "covered",
+                "evidence": "The session covered a pre-survey"
+              },
+              {
+                "id": "p2",
+                "text": "The session covered introductory Python work on data summaries and visualization.",
+                "status": "covered",
+                "evidence": "Python-based data summarization and visualization"
+              },
+              {
+                "id": "p3",
+                "text": "The work included histograms and boxplots.",
+                "status": "covered",
+                "evidence": "including histograms and boxplots"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The peer covered all parts of the expert's claim.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "histograms and boxplots",
+          "audience": "histograms and boxplots",
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "ok",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [],
+      "novice_unresolved": [],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 7.455
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.834,
+    "structuring_s": 7.457
+  },
+  "image_content": null
+}

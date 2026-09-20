@@ -1,0 +1,308 @@
+{
+  "index": 9,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Sampling error and coefficient of variation\n[body] The sample variance and standard deviation measure the aleatory uncertainty in the data.\n[body] Sampling error\n[body] Defined as the standard deviation of the sample mean:\n[body] sx = sX √n (5)\n[body] Measures how well the sample mean x estimates the population mean. Also known as standard error.\n[body] Coefficient of variation\n[body] Measures dispersion relative to the mean.\n[body] δX = sX\n[body] x (6)\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 9 / 16\n\nFIGURE: [description of the image, not printed words] The slide has two large rounded rectangular panels with dark blue header bars and light lavender bodies. The upper panel is labelled “Sampling error” and contains the centered fraction formula s_x = s_x/√n, with equation number (5) at the right. The lower panel is labelled “Coefficient of variation” and contains the centered formula δ_x = s_x/x̄, with equation number (6) at the right. A pale lavender navigation strip spans the top and a footer strip spans the bottom.",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "Sampling error, or standard error, shows how well a sample average estimates the population average, while the coefficient of variation compares spread with the average.",
+      "confidence": 0.72,
+      "unresolved_terms": [
+        "aleatory uncertainty",
+        "s_x",
+        "\\bar{x}",
+        "δ_X"
+      ],
+      "questions": [
+        "What does aleatory uncertainty mean?",
+        "Why do both formulas use s_x differently?"
+      ],
+      "inferred_claim": "Use standard error for mean estimates and coefficient of variation for relative spread.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.565,
+      "attempts": 1,
+      "slide_hash": "c0f301a912337b467ea8ec7d"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "Sampling error (standard error) is the standard deviation of the sample mean and decreases with sample size, while the coefficient of variation expresses standard deviation relative to the mean.",
+      "confidence": 0.94,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use standard error for mean-estimate uncertainty and coefficient of variation for relative dispersion.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 3.104,
+      "attempts": 1,
+      "slide_hash": "c0f301a912337b467ea8ec7d"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "Sampling error (standard error) is presented as the sample standard deviation divided by \u001b[?25lthe square root of sample size, while coefficient of variation is standard deviation relative to the sample mean.",
+      "confidence": 0.9,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use standard error for mean-estimation precision and coefficient of variation for relative dispersion.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.489,
+      "attempts": 1,
+      "slide_hash": "c0f301a912337b467ea8ec7d"
+    }
+  },
+  "slide_intent": {
+    "text": "Sampling error (standard error) is presented as the sample standard deviation divided by \u001b[?25lthe square root of sample size, while coefficient of variation is standard deviation relative to the sample mean.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "Sampling error (standard error) is presented as the sample standard deviation divided by \u001b[?25lthe square root of sample size, while coefficient of variation is standard deviation relative to the sample mean.",
+    "takeaways": {
+      "novice": "Sampling error, or standard error, shows how well a sample average estimates the population average, while the coefficient of variation compares spread with the average.",
+      "peer": "Sampling error (standard error) is the standard deviation of the sample mean and decreases with sample size, while the coefficient of variation expresses standard deviation relative to the mean.",
+      "expert": "Sampling error (standard error) is presented as the sample standard deviation divided by \u001b[?25lthe square root of sample size, while coefficient of variation is standard deviation relative to the sample mean."
+    },
+    "fields": {
+      "novice": {
+        "concept": "Sampling error (standard error); coefficient of variation",
+        "claim": "Sampling error indicates how well a sample average estimates the population average, and the coefficient of variation compares spread with the average.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "Sampling error (standard error); coefficient of variation",
+        "claim": "Sampling error is the standard deviation of the sample mean and decreases with sample size, while the coefficient of variation expresses standard deviation relative to the mean.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "Sampling error (standard error); coefficient of variation",
+        "claim": "Sampling error is the sample standard deviation divided by the square root of sample size, while the coefficient of variation is standard deviation relative to the sample mean.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "Sampling error (standard error) is the sample standard deviation divided by the square root of sample size."
+      },
+      {
+        "id": "p2",
+        "text": "The coefficient of variation is standard deviation relative to the sample mean."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "Sampling error (standard error); coefficient of variation",
+          "audience": "Sampling error (standard error); coefficient of variation",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "sampling error standard error",
+            "sampling error standard error"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Sampling error is the sample standard deviation divided by the square root of sample size, while the coefficient of variation is standard deviation relative to the sample mean.",
+          "audience": "Sampling error indicates how well a sample average estimates the population average, and the coefficient of variation compares spread with the average.",
+          "status": "compared",
+          "outcome": "absent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Sampling error (standard error) is the sample standard deviation divided by the square root of sample size.",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p2",
+                "text": "The coefficient of variation is standard deviation relative to the sample mean.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [
+              "Sampling error indicates how well a sample average estimates the population average",
+              "the coefficient of variation compares spread with the average"
+            ],
+            "note": "Novice describes the measures' purposes but does not state either of the expert's specific formulas.",
+            "covered": 0,
+            "total": 2,
+            "missed": [
+              "Sampling error (standard error) is the sample standard deviation divided by the square root of sample size.",
+              "The coefficient of variation is standard deviation relative to the sample mean."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "None of the expert's propositions is covered (or no general claim was stated)."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "Sampling error (standard error); coefficient of variation",
+          "audience": "Sampling error (standard error); coefficient of variation",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "sampling error standard error",
+            "sampling error standard error"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Sampling error is the sample standard deviation divided by the square root of sample size, while the coefficient of variation is standard deviation relative to the sample mean.",
+          "audience": "Sampling error is the standard deviation of the sample mean and decreases with sample size, while the coefficient of variation expresses standard deviation relative to the mean.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Sampling error (standard error) is the sample standard deviation divided by the square root of sample size.",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p2",
+                "text": "The coefficient of variation is standard deviation relative to the sample mean.",
+                "status": "covered",
+                "evidence": "the coefficient of variation expresses standard deviation relative to the mean"
+              }
+            ],
+            "extra_assertions": [
+              "decreases with sample size"
+            ],
+            "note": "Peer captures the coefficient-of-variation relationship but gives no formula for sampling error.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "Sampling error (standard error) is the sample standard deviation divided by the square root of sample size."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.0,
+        "covered": 0,
+        "total": 2,
+        "state": "absent",
+        "thin": false
+      },
+      "peer": {
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "aleatory uncertainty",
+        "s_x",
+        "\\bar{x}",
+        "δ_X"
+      ],
+      "novice_unresolved": [
+        "aleatory uncertainty",
+        "s_x",
+        "\\bar{x}",
+        "δ_X"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 12.525
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 3.115,
+    "structuring_s": 12.528
+  },
+  "image_content": {
+    "text": "The slide has two large rounded rectangular panels with dark blue header bars and light lavender bodies. The upper panel is labelled “Sampling error” and contains the centered fraction formula s_x = s_x/√n, with equation number (5) at the right. The lower panel is labelled “Coefficient of variation” and contains the centered formula δ_x = s_x/x̄, with equation number (6) at the right. A pale lavender navigation strip spans the top and a footer strip spans the bottom.",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

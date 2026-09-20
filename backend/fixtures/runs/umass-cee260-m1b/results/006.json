@@ -1,0 +1,319 @@
+{
+  "index": 6,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Standard deviation and variance\n[body] The sample variance and standard deviation are measures of dispersion.\n[body] Sample variance\n[body] n X\n[body] s2\n[body] (xi −¯x)2 (3)\n[body] X = 1\n[body] n\n[body] i=1\n[body] Sample standard deviation\n[body] This is the square root of the variance:\n[body] n X\n[body] (xi −¯x)2 (4)\n[body] sX =\n[body] v u u t1\n[body] n\n[body] i=1\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 6 / 16\n\nFIGURE: [description of the image, not printed words] Two large rounded rectangular panels are stacked vertically. The upper panel has the heading “Sample variance” and the equation sₓ² = 1/n ∑ᵢ₌₁ⁿ (xᵢ − x̄)², with “(3)” at the right. The lower panel has the heading “Sample standard deviation,” the sentence “This is the square root of the variance:”, and the equation sₓ = √(1/n ∑ᵢ₌₁ⁿ (xᵢ − x̄)²), with “(4)” at the right.",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "Variance and standard deviation describe how spread out a sample’s observations are, and standard deviation is the square root of variance.",
+      "confidence": 0.78,
+      "unresolved_terms": [
+        "dispersion",
+        "s_X^2",
+        "x_i",
+        "x̄",
+        "s_X"
+      ],
+      "questions": [
+        "What does dispersion mean here?",
+        "What do x_i and x̄ represent?"
+      ],
+      "inferred_claim": "Use variance and standard deviation to describe a sample’s spread.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.469,
+      "attempts": 1,
+      "slide_hash": "c64ed487653108b72d598ca7"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "Variance averages squared deviations of observations from the sample mean, and standard deviation is the square root of that quantity; both describe data dispersion.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use variance and standard deviation to quantify how spread out a sample is.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.328,
+      "attempts": 1,
+      "slide_hash": "c64ed487653108b72d598ca7"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use variance and standard deviation to describe sample spread.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.326,
+      "attempts": 1,
+      "slide_hash": "c64ed487653108b72d598ca7"
+    }
+  },
+  "slide_intent": {
+    "text": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion.",
+    "takeaways": {
+      "novice": "Variance and standard deviation describe how spread out a sample’s observations are, and standard deviation is the square root of variance.",
+      "peer": "Variance averages squared deviations of observations from the sample mean, and standard deviation is the square root of that quantity; both describe data dispersion.",
+      "expert": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion."
+    },
+    "fields": {
+      "novice": {
+        "concept": "variance and standard deviation",
+        "claim": "Variance and standard deviation describe how spread out a sample's observations are, and standard deviation is the square root of variance.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "variance and standard deviation",
+        "claim": "Variance averages squared deviations from the sample mean, and standard deviation is the square root of variance; both describe data dispersion.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "variance and standard deviation",
+        "claim": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "Variance is the mean squared deviation from the sample mean."
+      },
+      {
+        "id": "p2",
+        "text": "Standard deviation is the square root of variance."
+      },
+      {
+        "id": "p3",
+        "text": "Variance and standard deviation quantify dispersion."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "variance and standard deviation",
+          "audience": "variance and standard deviation",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "variance",
+            "variance"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion.",
+          "audience": "Variance and standard deviation describe how spread out a sample's observations are, and standard deviation is the square root of variance.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Variance is the mean squared deviation from the sample mean.",
+                "status": "omitted",
+                "evidence": null
+              },
+              {
+                "id": "p2",
+                "text": "Standard deviation is the square root of variance.",
+                "status": "covered",
+                "evidence": "standard deviation is the square root of variance"
+              },
+              {
+                "id": "p3",
+                "text": "Variance and standard deviation quantify dispersion.",
+                "status": "covered",
+                "evidence": "Variance and standard deviation describe how spread out a sample's observations are"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice captures the dispersion and square-root relationships but omits variance's definition as mean squared deviation from the sample mean.",
+            "covered": 2,
+            "total": 3,
+            "missed": [
+              "Variance is the mean squared deviation from the sample mean."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "variance and standard deviation",
+          "audience": "variance and standard deviation",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "variance",
+            "variance"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion.",
+          "audience": "Variance averages squared deviations from the sample mean, and standard deviation is the square root of variance; both describe data dispersion.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Variance is the mean squared deviation from the sample mean.",
+                "status": "covered",
+                "evidence": "Variance averages squared deviations from the sample mean"
+              },
+              {
+                "id": "p2",
+                "text": "Standard deviation is the square root of variance.",
+                "status": "covered",
+                "evidence": "standard deviation is the square root of variance"
+              },
+              {
+                "id": "p3",
+                "text": "Variance and standard deviation quantify dispersion.",
+                "status": "covered",
+                "evidence": "both describe data dispersion"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer covers all three expert propositions.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.6667,
+        "covered": 2,
+        "total": 3,
+        "state": "under-specified",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "dispersion",
+        "s_X^2",
+        "x_i",
+        "x̄",
+        "s_X"
+      ],
+      "novice_unresolved": [
+        "dispersion",
+        "s_X^2",
+        "x_i",
+        "x̄",
+        "s_X"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 5.095
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.474,
+    "structuring_s": 5.097
+  },
+  "image_content": {
+    "text": "Two large rounded rectangular panels are stacked vertically. The upper panel has the heading “Sample variance” and the equation sₓ² = 1/n ∑ᵢ₌₁ⁿ (xᵢ − x̄)², with “(3)” at the right. The lower panel has the heading “Sample standard deviation,” the sentence “This is the square root of the variance:”, and the equation sₓ = √(1/n ∑ᵢ₌₁ⁿ (xᵢ − x̄)²), with “(4)” at the right.",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

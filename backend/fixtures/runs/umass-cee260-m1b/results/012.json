@@ -1,0 +1,315 @@
+{
+  "index": 12,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Quantiles (cont.)\n[body] Certain quantiles are equivalent to others:\n[body] m = Q2 Q1 Q3\n[body] • The median is the second quartile Q2 • The 25th percentile is equivalent to the first quartile Q1\n[body] Questions\n[body] 1 Quintiles (QU1, QU2, . . .) partition a distribution into 5 equal groups.How many quintiles are there?\n[body] 2 The second quartile Q2 can be expressed as which percentile?a\n[body] Answers: Q1: There are 4 quintiles; Q2: Q2 = P50 (fiftieth percentile)\n[body] aRecall that a quartile splits a sample into 4 equal groups.\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 12 / 16\n\nFIGURE: [description of the image, not printed words] A horizontal row of ten evenly spaced dots. The third dot is red and has a downward red arrow labelled “Q₁”; the sixth dot is blue and has a downward blue arrow labelled “m = Q₂”; the eighth dot is red and has a downward red arrow labelled “Q₃”. The remaining dots are black.",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "The median is the second quartile and the 50th percentile, while the first quartile is the 25th percentile; five equal groups use four quintile cutoffs.",
+      "confidence": 0.93,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Equivalent quantile names help identify standard positions in ordered data.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.006,
+      "attempts": 1,
+      "slide_hash": "c9ac1814205486665d74d61a"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "The slide equates the median with Q2 and the 50th percentile, Q1 with the 25th percentile, and says five equal groups are defined by four quintile cutoffs.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use equivalent names and percentile positions to interpret standard quantile cutoffs.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 3.291,
+      "attempts": 1,
+      "slide_hash": "c9ac1814205486665d74d61a"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The slide equates the median with Q₂ and the 50th percentile, Q₁ with the 25th percentile, and notes that five equal groups require four quintile cutoffs.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Recognize equivalent names and percentile positions for standard quantiles.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.406,
+      "attempts": 1,
+      "slide_hash": "c9ac1814205486665d74d61a"
+    }
+  },
+  "slide_intent": {
+    "text": "The slide equates the median with Q₂ and the 50th percentile, Q₁ with the 25th percentile, and notes that five equal groups require four quintile cutoffs.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "The slide equates the median with Q₂ and the 50th percentile, Q₁ with the 25th percentile, and notes that five equal groups require four quintile cutoffs.",
+    "takeaways": {
+      "novice": "The median is the second quartile and the 50th percentile, while the first quartile is the 25th percentile; five equal groups use four quintile cutoffs.",
+      "peer": "The slide equates the median with Q2 and the 50th percentile, Q1 with the 25th percentile, and says five equal groups are defined by four quintile cutoffs.",
+      "expert": "The slide equates the median with Q₂ and the 50th percentile, Q₁ with the 25th percentile, and notes that five equal groups require four quintile cutoffs."
+    },
+    "fields": {
+      "novice": {
+        "concept": "median, second quartile, percentile, first quartile, quintile cutoffs",
+        "claim": "The median corresponds to the second quartile and 50th percentile, the first quartile corresponds to the 25th percentile, and five equal groups require four quintile cutoffs.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "median, Q2, 50th percentile, Q1, quintile cutoffs",
+        "claim": "The median corresponds to Q2 and the 50th percentile, Q1 corresponds to the 25th percentile, and five equal groups are defined by four quintile cutoffs.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "median, Q₂, 50th percentile, Q₁, quintile cutoffs",
+        "claim": "The median corresponds to Q₂ and the 50th percentile, Q₁ corresponds to the 25th percentile, and five equal groups require four quintile cutoffs.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "The median corresponds to Q₂ and the 50th percentile."
+      },
+      {
+        "id": "p2",
+        "text": "Q₁ corresponds to the 25th percentile."
+      },
+      {
+        "id": "p3",
+        "text": "Five equal groups require four quintile cutoffs."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "median, Q₂, 50th percentile, Q₁, quintile cutoffs",
+          "audience": "median, second quartile, percentile, first quartile, quintile cutoffs",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "median",
+            "median"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The median corresponds to Q₂ and the 50th percentile, Q₁ corresponds to the 25th percentile, and five equal groups require four quintile cutoffs.",
+          "audience": "The median corresponds to the second quartile and 50th percentile, the first quartile corresponds to the 25th percentile, and five equal groups require four quintile cutoffs.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The median corresponds to Q₂ and the 50th percentile.",
+                "status": "covered",
+                "evidence": "The median corresponds to the second quartile and 50th percentile"
+              },
+              {
+                "id": "p2",
+                "text": "Q₁ corresponds to the 25th percentile.",
+                "status": "covered",
+                "evidence": "the first quartile corresponds to the 25th percentile"
+              },
+              {
+                "id": "p3",
+                "text": "Five equal groups require four quintile cutoffs.",
+                "status": "covered",
+                "evidence": "five equal groups require four quintile cutoffs"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The novice covers all three expert propositions using equivalent quartile terminology.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "median, Q₂, 50th percentile, Q₁, quintile cutoffs",
+          "audience": "median, Q2, 50th percentile, Q1, quintile cutoffs",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "median",
+            "median"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "The median corresponds to Q₂ and the 50th percentile, Q₁ corresponds to the 25th percentile, and five equal groups require four quintile cutoffs.",
+          "audience": "The median corresponds to Q2 and the 50th percentile, Q1 corresponds to the 25th percentile, and five equal groups are defined by four quintile cutoffs.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "The median corresponds to Q₂ and the 50th percentile.",
+                "status": "covered",
+                "evidence": "The median corresponds to Q2 and the 50th percentile"
+              },
+              {
+                "id": "p2",
+                "text": "Q₁ corresponds to the 25th percentile.",
+                "status": "covered",
+                "evidence": "Q1 corresponds to the 25th percentile"
+              },
+              {
+                "id": "p3",
+                "text": "Five equal groups require four quintile cutoffs.",
+                "status": "covered",
+                "evidence": "five equal groups are defined by four quintile cutoffs"
+              }
+            ],
+            "extra_assertions": [],
+            "note": "The peer covers all three expert propositions.",
+            "covered": 3,
+            "total": 3,
+            "missed": [],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Every proposition in the expert's claim is covered, and nothing more is asserted."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 3,
+        "total": 3,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "ok",
+      "peer": "ok"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [],
+      "novice_unresolved": [],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [
+        {
+          "persona": "novice",
+          "field": "result",
+          "value": "the second quartile and the 50th percentile; the 25th percentile; four quintile cutoffs",
+          "reason": "the result does not appear in the takeaway"
+        },
+        {
+          "persona": "peer",
+          "field": "result",
+          "value": "Q2 and the 50th percentile; the 25th percentile; four quintile cutoffs",
+          "reason": "the result does not appear in the takeaway"
+        },
+        {
+          "persona": "expert",
+          "field": "result",
+          "value": "Q₂ and the 50th percentile; the 25th percentile; four quintile cutoffs",
+          "reason": "the result does not appear in the takeaway"
+        }
+      ],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 7.409
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 3.301,
+    "structuring_s": 7.412
+  },
+  "image_content": {
+    "text": "A horizontal row of ten evenly spaced dots. The third dot is red and has a downward red arrow labelled “Q₁”; the sixth dot is blue and has a downward blue arrow labelled “m = Q₂”; the eighth dot is red and has a downward red arrow labelled “Q₃”. The remaining dots are black.",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

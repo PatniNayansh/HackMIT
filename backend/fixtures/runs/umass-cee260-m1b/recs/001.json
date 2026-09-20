@@ -1,0 +1,12 @@
+{
+  "novice": [],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:16+00:00",
+    "latency_s": 2.15,
+    "intent": "This is the opening slide for a civil-engineering probability and statistics lecture module on summarizing data, covering survey results, summary statistics, quantiles, boxplots, and Python/Colab.",
+    "dropped_without_evidence": 2
+  }
+}

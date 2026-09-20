@@ -1,0 +1,7 @@
+{
+  "language_drive": 0.16157130897045135,
+  "visual_drive": 0.03979984298348427,
+  "processing_ratio": 4.059596643069637,
+  "gfp_negative_baseline": 0.15044410526752472,
+  "narration_transcript": "Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 9: Rainfall intensities summary statistics Recall rainfall intensities: \u00afx = 1 29 (43.30 + \u00b7 \u00b7 \u00b7 + 43.11) = 50.70 in. s2 (43.30 \u221250.70)2 + \u00b7 \u00b7 \u00b7 + (43.11 \u221250.70)2\u0003 = 57.34 X = 1 29 \u0002 sX = 7.57 in. s\u00afx = 7.57 \u221a 29 = 1.41 in. The sampling error sx measures the epistemic uncertainty in estimating the average annual rainfall intensity. Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 10 / 16"
+}

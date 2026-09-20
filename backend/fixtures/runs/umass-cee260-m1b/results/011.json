@@ -1,0 +1,283 @@
+{
+  "index": 11,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Quantiles\n[body] Quantiles are cutoff points that partition an ordered sample or dataset into equal-sized groups.\n[body] • A median splits a sample into two: m • Two terciles split a sample into 3 groups: T1, T2 • Three quartiles split a sample into 4 groups: Q1, Q2, Q3 • Four quintiles split a sample into 5 groups: QU1, QU2, QU3, QU4 • . . . • Ninety-nine [per]centiles split a sample into 100 groups: P1, . . . , P99\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 11 / 16",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "Quantiles are cutoff values in ordered data that divide it into equal-sized groups, from two groups using the median up to 100 using percentiles.",
+      "confidence": 0.93,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Quantiles provide several ways to divide ordered data into equal groups.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.563,
+      "attempts": 1,
+      "slide_hash": "992022f20384d7add2e17a98"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "Quantiles are ordered-data cutoff values that create equal-sized groups, with named versions including the median, terciles, quartiles, quintiles, and percentiles.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use quantiles to describe an ordered dataset by equally sized partitions.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.264,
+      "attempts": 1,
+      "slide_hash": "992022f20384d7add2e17a98"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "Quantiles are ordered-data cutoffs that create equal-sized groups, with median, terciles, quartiles, quintiles, and percentiles requiring one fewer cutoff than groups.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Use quantiles to summarize an ordered dataset by equal-probability partitions.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.308,
+      "attempts": 1,
+      "slide_hash": "992022f20384d7add2e17a98"
+    }
+  },
+  "slide_intent": {
+    "text": "Quantiles are ordered-data cutoffs that create equal-sized groups, with median, terciles, quartiles, quintiles, and percentiles requiring one fewer cutoff than groups.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "Quantiles are ordered-data cutoffs that create equal-sized groups, with median, terciles, quartiles, quintiles, and percentiles requiring one fewer cutoff than groups.",
+    "takeaways": {
+      "novice": "Quantiles are cutoff values in ordered data that divide it into equal-sized groups, from two groups using the median up to 100 using percentiles.",
+      "peer": "Quantiles are ordered-data cutoff values that create equal-sized groups, with named versions including the median, terciles, quartiles, quintiles, and percentiles.",
+      "expert": "Quantiles are ordered-data cutoffs that create equal-sized groups, with median, terciles, quartiles, quintiles, and percentiles requiring one fewer cutoff than groups."
+    },
+    "fields": {
+      "novice": {
+        "concept": "Quantiles",
+        "claim": "Quantiles are cutoff values in ordered data that divide it into equal-sized groups.",
+        "result": null,
+        "vehicle": "the median and percentiles"
+      },
+      "peer": {
+        "concept": "Quantiles",
+        "claim": "Quantiles are ordered-data cutoff values that create equal-sized groups.",
+        "result": null,
+        "vehicle": "the median, terciles, quartiles, quintiles, and percentiles"
+      },
+      "expert": {
+        "concept": "Quantiles",
+        "claim": "Quantiles are ordered-data cutoffs that create equal-sized groups and require one fewer cutoff than groups.",
+        "result": "one fewer cutoff than groups",
+        "vehicle": "median, terciles, quartiles, quintiles, and percentiles"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result",
+        "vehicle"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle, works through an example and reaches a stated result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "Quantiles are ordered-data cutoffs that create equal-sized groups."
+      },
+      {
+        "id": "p2",
+        "text": "Quantiles require one fewer cutoff than groups."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "Quantiles",
+          "audience": "Quantiles",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "quantile",
+            "quantile"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Quantiles are ordered-data cutoffs that create equal-sized groups and require one fewer cutoff than groups.",
+          "audience": "Quantiles are cutoff values in ordered data that divide it into equal-sized groups.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Quantiles are ordered-data cutoffs that create equal-sized groups.",
+                "status": "covered",
+                "evidence": "cutoff values in ordered data that divide it into equal-sized groups"
+              },
+              {
+                "id": "p2",
+                "text": "Quantiles require one fewer cutoff than groups.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice captures the grouping function but omits the cutoff-to-group relationship.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "Quantiles require one fewer cutoff than groups."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": "one fewer cutoff than groups",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "median, terciles, quartiles, quintiles, and percentiles",
+          "audience": "the median and percentiles",
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "Quantiles",
+          "audience": "Quantiles",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "quantile",
+            "quantile"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Quantiles are ordered-data cutoffs that create equal-sized groups and require one fewer cutoff than groups.",
+          "audience": "Quantiles are ordered-data cutoff values that create equal-sized groups.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Quantiles are ordered-data cutoffs that create equal-sized groups.",
+                "status": "covered",
+                "evidence": "ordered-data cutoff values that create equal-sized groups"
+              },
+              {
+                "id": "p2",
+                "text": "Quantiles require one fewer cutoff than groups.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer captures the grouping function but omits the cutoff-to-group relationship.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "Quantiles require one fewer cutoff than groups."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": "one fewer cutoff than groups",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "median, terciles, quartiles, quintiles, and percentiles",
+          "audience": "the median, terciles, quartiles, quintiles, and percentiles",
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
+        "thin": false
+      },
+      "peer": {
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [],
+      "novice_unresolved": [],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 7.278
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.568,
+    "structuring_s": 7.28
+  },
+  "image_content": null
+}

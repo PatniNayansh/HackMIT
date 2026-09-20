@@ -1,0 +1,18 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Replace “The sampling error sx measures the epistemic uncertainty in estimating the average annual rainfall intensity” with “The standard error of the mean, s_x̄ = 1.41 in., is the uncertainty from having only 29 years of data when estimating the long-run average annual rainfall.”",
+      "evidence": "What does epistemic uncertainty mean here?"
+    }
+  ],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:40+00:00",
+    "latency_s": 2.5,
+    "intent": "For 29 annual rainfall intensities, the mean is 50.70 in., standard deviation 7.57 in., and standard error of the mean 1.41 in., representing epistemic uncertainty in the estimated average.",
+    "dropped_without_evidence": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Replace “measures of dispersion” with “measures of dispersion (how spread out the observations are).”",
+      "evidence": "“What does dispersion mean here?”"
+    }
+  ],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:27+00:00",
+    "latency_s": 2.61,
+    "intent": "Variance is the mean squared deviation from the sample mean, and standard deviation is its square root; both quantify dispersion.",
+    "dropped_without_evidence": 2
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Define “ksi” on first use as “kips per square inch, a unit of stress” in the sentence reporting the mean and standard deviation.",
+      "evidence": "What does ksi stand for?"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Add a brief parenthetical definition after “fillet welds,” such as “(welds joining two pieces at an angle),” or label the weld sketch with that definition.",
+      "evidence": "What are fillet welds?"
+    }
+  ],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:30+00:00",
+    "latency_s": 3.79,
+    "intent": "For 41 steel fillet-weld measurements, ultimate shear strength averages 56.4 ksi with a sample standard deviation of 6.2 ksi, and both statistics retain the strength unit.",
+    "dropped_without_evidence": 2
+  }
+}

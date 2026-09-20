@@ -1,0 +1,18 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Replace “(using Colab)” with “using Google Colab, a browser-based workspace for writing and running Python.”",
+      "evidence": "What is Colab?"
+    }
+  ],
+  "peer": [],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:23+00:00",
+    "latency_s": 2.39,
+    "intent": "Today’s lecture will cover quantiles and boxplots and use Python in Colab to produce descriptive statistics and graphical dataset summaries.",
+    "dropped_without_evidence": 2
+  }
+}

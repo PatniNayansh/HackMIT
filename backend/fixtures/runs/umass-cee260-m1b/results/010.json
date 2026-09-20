@@ -1,0 +1,307 @@
+{
+  "index": 10,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 9: Rainfall intensities summary statistics\n[body] Recall rainfall intensities:\n[body] ¯x = 1\n[body] 29 (43.30 + · · · + 43.11) = 50.70 in.\n[body] s2\n[body] (43.30 −50.70)2 + · · · + (43.11 −50.70)2\u0003\n[body] = 57.34\n[body] X = 1\n[body] 29 \u0002\n[body] sX = 7.57 in.\n[body] s¯x = 7.57 √\n[body] 29 = 1.41 in.\n[body] The sampling error sx measures the epistemic uncertainty in estimating the average annual rainfall intensity.\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 10 / 16\n\nFIGURE: [description of the image, not printed words] A table titled “TABLE 1.1 Rainfall Intensity Data Recorded over a Period of 29 Years” has three paired columns labelled “Year No.” and “Rainfall Intensity, in.”, listing years 1–29 with numerical values. Beneath it are four centered equations: x̄ = 1/29 (43.30 + ⋯ + 43.11) = 50.70 in.; s²ₓ = 1/29 [(43.30 − 50.70)² + ⋯ + (43.11 − 50.70)²] = 57.34; sₓ = 7.57 in.; and sₓ̄ = 7.57/√29 = 1.41 in.",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "For 29 years of rainfall data, the average is 50.70 inches, the values vary by 7.57 inches, and the sample-average uncertainty is 1.41 inches.",
+      "confidence": 0.84,
+      "unresolved_terms": [
+        "epistemic uncertainty"
+      ],
+      "questions": [
+        "What does epistemic uncertainty mean here?"
+      ],
+      "inferred_claim": "The standard error describes uncertainty in the estimated average rainfall.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 4.398,
+      "attempts": 1,
+      "slide_hash": "bd6b5ef59afb4ec3f7a43f3a"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "For 29 annual rainfall-intensity observations, the mean is 50.70 in., standard deviation is 7.57 in., and the sample-mean sampling error is 1.41 in.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Sampling error quantifies epistemic uncertainty in the estimated mean rainfall intensity.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.018,
+      "attempts": 1,
+      "slide_hash": "bd6b5ef59afb4ec3f7a43f3a"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "For 29 annual rainfall intensities, the mean is 50.70 in., standard deviation 7.57 in., and standard error of the mean 1.41 in., representing epistemic uncertainty in the estimated average.",
+      "confidence": 0.98,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "The standard error quantifies uncertainty in the estimated mean annual rainfall intensity.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 1.992,
+      "attempts": 1,
+      "slide_hash": "bd6b5ef59afb4ec3f7a43f3a"
+    }
+  },
+  "slide_intent": {
+    "text": "For 29 annual rainfall intensities, the mean is 50.70 in., standard deviation 7.57 in., and standard error of the mean 1.41 in., representing epistemic uncertainty in the estimated average.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "For 29 annual rainfall intensities, the mean is 50.70 in., standard deviation 7.57 in., and standard error of the mean 1.41 in., representing epistemic uncertainty in the estimated average.",
+    "takeaways": {
+      "novice": "For 29 years of rainfall data, the average is 50.70 inches, the values vary by 7.57 inches, and the sample-average uncertainty is 1.41 inches.",
+      "peer": "For 29 annual rainfall-intensity observations, the mean is 50.70 in., standard deviation is 7.57 in., and the sample-mean sampling error is 1.41 in.",
+      "expert": "For 29 annual rainfall intensities, the mean is 50.70 in., standard deviation 7.57 in., and standard error of the mean 1.41 in., representing epistemic uncertainty in the estimated average."
+    },
+    "fields": {
+      "novice": {
+        "concept": "sample-average uncertainty",
+        "claim": "The rainfall data are summarized by an average, variability, and sample-average uncertainty.",
+        "result": "50.70 inches, 7.57 inches, and 1.41 inches",
+        "vehicle": "29 years of rainfall data"
+      },
+      "peer": {
+        "concept": "mean, standard deviation, sampling error",
+        "claim": "Annual rainfall observations are summarized by a mean, standard deviation, and sample-mean sampling error.",
+        "result": "50.70 in., 7.57 in., and 1.41 in.",
+        "vehicle": "29 annual rainfall-intensity observations"
+      },
+      "expert": {
+        "concept": "mean, standard deviation, standard error of the mean, epistemic uncertainty",
+        "claim": "Annual rainfall observations are summarized by a mean, standard deviation, and standard error of the mean, with the latter representing epistemic uncertainty in the estimated average.",
+        "result": "50.70 in., 7.57 in., and 1.41 in.",
+        "vehicle": "29 annual rainfall intensities"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result",
+        "vehicle"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle, works through an example and reaches a numeric result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "Annual rainfall observations are summarized by a mean, standard deviation, and standard error of the mean."
+      },
+      {
+        "id": "p2",
+        "text": "The standard error of the mean represents epistemic uncertainty in the estimated average."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "mean, standard deviation, standard error of the mean, epistemic uncertainty",
+          "audience": "sample-average uncertainty",
+          "status": "compared",
+          "outcome": "mismatch",
+          "comparator": "fuzzy",
+          "normalised": [
+            "mean",
+            "sample average uncertainty"
+          ],
+          "how": "edit similarity 0.27"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Annual rainfall observations are summarized by a mean, standard deviation, and standard error of the mean, with the latter representing epistemic uncertainty in the estimated average.",
+          "audience": "The rainfall data are summarized by an average, variability, and sample-average uncertainty.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Annual rainfall observations are summarized by a mean, standard deviation, and standard error of the mean.",
+                "status": "covered",
+                "evidence": "The rainfall data are summarized by an average, variability, and sample-average uncertainty."
+              },
+              {
+                "id": "p2",
+                "text": "The standard error of the mean represents epistemic uncertainty in the estimated average.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice captures the three summary measures but not their epistemic interpretation.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "The standard error of the mean represents epistemic uncertainty in the estimated average."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": "50.70 in., 7.57 in., and 1.41 in.",
+          "audience": "50.70 inches, 7.57 inches, and 1.41 inches",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "1.41, 50.7, 7.57",
+            "1.41, 50.7, 7.57"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "29 annual rainfall intensities",
+          "audience": "29 years of rainfall data",
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "mean, standard deviation, standard error of the mean, epistemic uncertainty",
+          "audience": "mean, standard deviation, sampling error",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "mean",
+            "mean"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Annual rainfall observations are summarized by a mean, standard deviation, and standard error of the mean, with the latter representing epistemic uncertainty in the estimated average.",
+          "audience": "Annual rainfall observations are summarized by a mean, standard deviation, and sample-mean sampling error.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "Annual rainfall observations are summarized by a mean, standard deviation, and standard error of the mean.",
+                "status": "covered",
+                "evidence": "Annual rainfall observations are summarized by a mean, standard deviation, and sample-mean sampling error."
+              },
+              {
+                "id": "p2",
+                "text": "The standard error of the mean represents epistemic uncertainty in the estimated average.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer captures the three summary measures but not their epistemic interpretation.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "The standard error of the mean represents epistemic uncertainty in the estimated average."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": "50.70 in., 7.57 in., and 1.41 in.",
+          "audience": "50.70 in., 7.57 in., and 1.41 in.",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "1.41, 50.7, 7.57",
+            "1.41, 50.7, 7.57"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "29 annual rainfall intensities",
+          "audience": "29 annual rainfall-intensity observations",
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
+        "thin": false
+      },
+      "peer": {
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "epistemic uncertainty"
+      ],
+      "novice_unresolved": [
+        "epistemic uncertainty"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 10.793
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 4.403,
+    "structuring_s": 10.795
+  },
+  "image_content": {
+    "text": "A table titled “TABLE 1.1 Rainfall Intensity Data Recorded over a Period of 29 Years” has three paired columns labelled “Year No.” and “Rainfall Intensity, in.”, listing years 1–29 with numerical values. Beneath it are four centered equations: x̄ = 1/29 (43.30 + ⋯ + 43.11) = 50.70 in.; s²ₓ = 1/29 [(43.30 − 50.70)² + ⋯ + (43.11 − 50.70)²] = 57.34; sₓ = 7.57 in.; and sₓ̄ = 7.57/√29 = 1.41 in.",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

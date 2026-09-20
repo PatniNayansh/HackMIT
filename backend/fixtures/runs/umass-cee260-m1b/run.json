@@ -1,0 +1,30 @@
+{
+  "run_id": "umass-cee260-m1b",
+  "title": "CEE 260 / MIE 273 — M1b: Summarizing data",
+  "source_filename": "M1b-Summarizing-Data-Handout.pdf",
+  "created_at": "2026-09-20T11:45:22+00:00",
+  "started_at": "2026-09-20T11:45:22+00:00",
+  "finished_at": "2026-09-20T11:48:13+00:00",
+  "schema_version": 2,
+  "status": "complete",
+  "slide_count": 16,
+  "intent": null,
+  "profile": {
+    "domain": "descriptive statistics for engineering data",
+    "adjacent_field": "engineering reliability analysis",
+    "confirmed": true,
+    "edited": false
+  },
+  "profile_inferred": {
+    "domain": "descriptive statistics for engineering data",
+    "adjacent_field": "engineering reliability analysis"
+  },
+  "profile_inference_error": null,
+  "model": "gpt-5.6-terra",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "comparator": "fieldwise",
+  "structuring_model": "gpt-5.6-luna",
+  "prompt_version": "2",
+  "error": null,
+  "sample": false
+}

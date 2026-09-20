@@ -1,0 +1,29 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Define RMS and each displayed summary at first use in a compact legend: “RMS = root-mean-square roughness; σ = standard deviation; μ = mean; M = median; R = range.”",
+      "evidence": "“What do the RMS and subscripted measures mean?”"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Replace “What are the implications?” with “Implication: the rough road is not only rougher on average, but its roughness varies more from location to location.”",
+      "evidence": "“What practical effects follow from greater roughness variation?”"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Add a compact legend next to the figure: “σ = standard deviation; μ = mean; M = median; R = range.”",
+      "evidence": "“What do Mₐ RMS and Rₐ RMS represent?”"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:34+00:00",
+    "latency_s": 3.75,
+    "intent": "The rough-road sample has the larger RMS standard deviation (60 versus 20), reflecting much greater spread and a higher central roughness than the smooth-road sample.",
+    "dropped_without_evidence": 2
+  }
+}

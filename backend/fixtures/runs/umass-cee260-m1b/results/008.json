@@ -1,0 +1,327 @@
+{
+  "index": 8,
+  "text": "[title] Survey Results Summary statistics Quantiles and boxplots Python/Colab Outlook Example 8: Comparing two distributions\n[body] Recall the surface roughness distributions from two samples:\n[body] Questions\n[body] • Which sample has the larger standard deviation? • What are the implications?\n[body] Prof. Oke (UMass Amherst) CEE 260/MIE 273 M1b: Summarizing Data September 10, 2026 8 / 16\n\nFIGURE: [description of the image, not printed words] A plot has horizontal axis labelled “RMS (mm/m²)” with values 0, 50, 100, 150, 200, 250, and vertical axis labelled “Occurrence (%)” with values 0, 5, 10, 15, 20, 25. Light and dark vertical bars extend across the range. A black curve rises from near 0, peaks near 50 at about 15%, then declines toward 250. Text beside the plot reads “Typical smooth road” with σₐ RMS = 20, μₐ RMS = 40, Mₐ RMS = 30, Rₐ RMS = 0:100, and “Typical rough road” with σₐ RMS = 60, μₐ RMS = 110, Mₐ RMS = 70, Rₐ RMS = 20:250.",
+  "readings": {
+    "novice": {
+      "ok": true,
+      "takeaway": "The typical rough-road sample has the larger standard deviation (60 versus 20), so its surface-roughness values are more spread out than the smooth-road sample’s.",
+      "confidence": 0.94,
+      "unresolved_terms": [
+        "RMS",
+        "σₐ RMS",
+        "μₐ RMS",
+        "Mₐ RMS",
+        "Rₐ RMS"
+      ],
+      "questions": [
+        "What do the RMS and subscripted measures mean?",
+        "What practical effects follow from greater roughness variation?"
+      ],
+      "inferred_claim": "A larger standard deviation indicates the rough-road sample has more variable surface roughness.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.288,
+      "attempts": 1,
+      "slide_hash": "15101eef910411b3970ca146"
+    },
+    "peer": {
+      "ok": true,
+      "takeaway": "The rough-road sample has the larger standard deviation (60 versus 20), indicating its surface-roughness values are much more dispersed than the smooth-road sample’s.",
+      "confidence": 0.96,
+      "unresolved_terms": [
+        "σₐ RMS",
+        "μₐ RMS",
+        "Mₐ RMS",
+        "Rₐ RMS"
+      ],
+      "questions": [
+        "What do Mₐ RMS and Rₐ RMS represent?"
+      ],
+      "inferred_claim": "Standard deviation distinguishes the substantially greater variability of rough-road surface roughness.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.206,
+      "attempts": 1,
+      "slide_hash": "15101eef910411b3970ca146"
+    },
+    "expert": {
+      "ok": true,
+      "takeaway": "The rough-road sample has the larger RMS standard deviation (60 versus 20), reflecting much greater spread and a higher central roughness than the smooth-road sample.",
+      "confidence": 0.99,
+      "unresolved_terms": [],
+      "questions": [],
+      "inferred_claim": "Standard deviation distinguishes the substantially greater variability of rough-road roughness.",
+      "model": "gpt-5.6-terra",
+      "cached": false,
+      "latency_s": 2.044,
+      "attempts": 1,
+      "slide_hash": "15101eef910411b3970ca146"
+    }
+  },
+  "slide_intent": {
+    "text": "The rough-road sample has the larger RMS standard deviation (60 versus 20), reflecting much greater spread and a higher central roughness than the smooth-road sample.",
+    "source": "expert_takeaway"
+  },
+  "metrics": {
+    "comparator": "fieldwise",
+    "claim_comparison": "coverage",
+    "intent": "The rough-road sample has the larger RMS standard deviation (60 versus 20), reflecting much greater spread and a higher central roughness than the smooth-road sample.",
+    "takeaways": {
+      "novice": "The typical rough-road sample has the larger standard deviation (60 versus 20), so its surface-roughness values are more spread out than the smooth-road sample’s.",
+      "peer": "The rough-road sample has the larger standard deviation (60 versus 20), indicating its surface-roughness values are much more dispersed than the smooth-road sample’s.",
+      "expert": "The rough-road sample has the larger RMS standard deviation (60 versus 20), reflecting much greater spread and a higher central roughness than the smooth-road sample."
+    },
+    "fields": {
+      "novice": {
+        "concept": "standard deviation",
+        "claim": "A rougher sample has greater spread than a smoother sample.",
+        "result": "60 versus 20",
+        "vehicle": "rough-road sample versus smooth-road sample"
+      },
+      "peer": {
+        "concept": "standard deviation",
+        "claim": "A rougher sample has greater dispersion than a smoother sample.",
+        "result": "60 versus 20",
+        "vehicle": "rough-road sample versus smooth-road sample"
+      },
+      "expert": {
+        "concept": "RMS standard deviation",
+        "claim": "A rougher sample has greater spread and higher central roughness than a smoother sample.",
+        "result": "60 versus 20",
+        "vehicle": "rough-road sample versus smooth-road sample"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result",
+        "vehicle"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle, works through an example and reaches a numeric result."
+    },
+    "propositions": [
+      {
+        "id": "p1",
+        "text": "A rougher sample has greater spread than a smoother sample."
+      },
+      {
+        "id": "p2",
+        "text": "A rougher sample has higher central roughness than a smoother sample."
+      }
+    ],
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "RMS standard deviation",
+          "audience": "standard deviation",
+          "status": "compared",
+          "outcome": "near",
+          "comparator": "fuzzy",
+          "normalised": [
+            "rms standard deviation",
+            "standard deviation"
+          ],
+          "how": "one names the other more narrowly (its words are contained in the other's)"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A rougher sample has greater spread and higher central roughness than a smoother sample.",
+          "audience": "A rougher sample has greater spread than a smoother sample.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A rougher sample has greater spread than a smoother sample.",
+                "status": "covered",
+                "evidence": "A rougher sample has greater spread than a smoother sample."
+              },
+              {
+                "id": "p2",
+                "text": "A rougher sample has higher central roughness than a smoother sample.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Novice captured the greater spread but omitted the higher central roughness.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "A rougher sample has higher central roughness than a smoother sample."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": "60 versus 20",
+          "audience": "60 versus 20",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "20, 60",
+            "20, 60"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "rough-road sample versus smooth-road sample",
+          "audience": "rough-road sample versus smooth-road sample",
+          "status": "not_scored"
+        }
+      },
+      "peer": {
+        "concept": {
+          "field": "concept",
+          "expert": "RMS standard deviation",
+          "audience": "standard deviation",
+          "status": "compared",
+          "outcome": "near",
+          "comparator": "fuzzy",
+          "normalised": [
+            "rms standard deviation",
+            "standard deviation"
+          ],
+          "how": "one names the other more narrowly (its words are contained in the other's)"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "A rougher sample has greater spread and higher central roughness than a smoother sample.",
+          "audience": "A rougher sample has greater dispersion than a smoother sample.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "coverage",
+          "coverage": {
+            "propositions": [
+              {
+                "id": "p1",
+                "text": "A rougher sample has greater spread than a smoother sample.",
+                "status": "covered",
+                "evidence": "A rougher sample has greater dispersion than a smoother sample."
+              },
+              {
+                "id": "p2",
+                "text": "A rougher sample has higher central roughness than a smoother sample.",
+                "status": "omitted",
+                "evidence": null
+              }
+            ],
+            "extra_assertions": [],
+            "note": "Peer captured the greater dispersion but omitted the higher central roughness.",
+            "covered": 1,
+            "total": 2,
+            "missed": [
+              "A rougher sample has higher central roughness than a smoother sample."
+            ],
+            "contradicted": [],
+            "downgraded": [],
+            "dropped_extras": []
+          },
+          "meaning": "Some of the expert's propositions are covered and some are missed."
+        },
+        "result": {
+          "field": "result",
+          "expert": "60 versus 20",
+          "audience": "60 versus 20",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "20, 60",
+            "20, 60"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "rough-road sample versus smooth-road sample",
+          "audience": "rough-road sample versus smooth-road sample",
+          "status": "not_scored"
+        }
+      }
+    },
+    "chart": {
+      "novice": {
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
+        "thin": false
+      },
+      "peer": {
+        "value": 0.5,
+        "covered": 1,
+        "total": 2,
+        "state": "under-specified",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "covered": 2,
+        "total": 2,
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
+    "term_gap": {
+      "terms": [
+        "RMS",
+        "σₐ RMS",
+        "μₐ RMS",
+        "Mₐ RMS",
+        "Rₐ RMS"
+      ],
+      "novice_unresolved": [
+        "RMS",
+        "σₐ RMS",
+        "μₐ RMS",
+        "Mₐ RMS",
+        "Rₐ RMS"
+      ],
+      "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "gpt-5.6-luna",
+      "attempts": 1,
+      "dropped": [],
+      "retried_because": [],
+      "downgraded": [],
+      "dropped_extras": [],
+      "tripwire": [],
+      "latency_s": 8.246
+    }
+  },
+  "metrics_error": null,
+  "scored_by": "gpt-5.6-luna",
+  "timing": {
+    "personas_s": 2.292,
+    "structuring_s": 8.248
+  },
+  "image_content": {
+    "text": "A plot has horizontal axis labelled “RMS (mm/m²)” with values 0, 50, 100, 150, 200, 250, and vertical axis labelled “Occurrence (%)” with values 0, 5, 10, 15, 20, 25. Light and dark vertical bars extend across the range. A black curve rises from near 0, peaks near 50 at about 15%, then declines toward 250. Text beside the plot reads “Typical smooth road” with σₐ RMS = 20, μₐ RMS = 40, Mₐ RMS = 30, Rₐ RMS = 0:100, and “Typical rough road” with σₐ RMS = 60, μₐ RMS = 110, Mₐ RMS = 70, Rₐ RMS = 20:250.",
+    "model": "gpt-5.6-luna",
+    "source": "vision",
+    "machine_generated": true,
+    "attempts": 1
+  }
+}

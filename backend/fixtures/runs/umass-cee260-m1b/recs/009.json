@@ -1,0 +1,29 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Replace “aleatory uncertainty” with “random variation in the observed data” in the opening sentence.",
+      "evidence": "“What does aleatory uncertainty mean?”"
+    },
+    {
+      "audience": "novice",
+      "bullet": "Rewrite the sampling-error formula and its definition as “Standard error of the mean: SE(x̄) = sₓ / √n,” explicitly distinguishing the standard error from the sample standard deviation.",
+      "evidence": "“Why do both formulas use s_x differently?”"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Show the sampling-error equation unambiguously as “SE(x̄) = sₓ / √n” and label sₓ as the sample standard deviation, so the division by √n is visible rather than implied by the stacked notation.",
+      "evidence": "“Sampling error (standard error) is the standard deviation of the sample mean and decreases with sample size”"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "gpt-5.6-terra",
+    "generated_at": "2026-09-20T11:48:37+00:00",
+    "latency_s": 3.01,
+    "intent": "Sampling error (standard error) is presented as the sample standard deviation divided by \u001b[?25lthe square root of sample size, while coefficient of variation is standard deviation relative to the sample mean.",
+    "dropped_without_evidence": 1
+  }
+}
