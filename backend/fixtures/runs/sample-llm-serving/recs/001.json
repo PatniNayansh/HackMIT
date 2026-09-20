@@ -2,38 +2,38 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Define goodput on first use, e.g. 'goodput (requests meeting latency SLO per second)'",
-      "evidence": "What does 'goodput' mean here?"
+      "bullet": "Define goodput on first use (e.g., 'goodput: throughput of requests meeting latency SLOs')",
+      "evidence": "What does 'goodput' measure here?"
     },
     {
       "audience": "novice",
-      "bullet": "Replace or gloss 'p99' with 'the 99th percentile latency'",
-      "evidence": "What is 'p99' measuring?"
+      "bullet": "Explain what p99 means (e.g., 'p99: 99th percentile latency')",
+      "evidence": "What is p99 referring to?"
     },
     {
       "audience": "novice",
-      "bullet": "Add a subtitle briefly noting the technique/system used to achieve the speedup",
-      "evidence": "How was the 2.4x improvement achieved?"
+      "bullet": "Add a subtitle naming the method or approach used to achieve the 2.4x improvement",
+      "evidence": "What method achieves the 2.4x improvement?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
       "bullet": "State the baseline the 2.4x improvement is measured against",
-      "evidence": "What baseline is the 2.4x improvement measured against?"
+      "evidence": "What baseline is the 2.4x improvement compared against?"
     },
     {
       "audience": "peer",
-      "bullet": "Define goodput briefly in a subtitle or footnote",
-      "evidence": "How is 'goodput' defined here?"
+      "bullet": "Define goodput explicitly as SLO-attaining throughput, not generic throughput",
+      "evidence": "What exactly does 'goodput' measure here?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T01:38:18+00:00",
-    "latency_s": 3.42,
-    "intent": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
+    "generated_at": "2026-09-20T02:57:24+00:00",
+    "latency_s": 3.56,
+    "intent": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow.",
     "dropped_without_evidence": 0
   }
 }

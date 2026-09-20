@@ -41,6 +41,16 @@ class UnsupportedFormat(IngestError):
     pass
 
 
+FIGURE_INPUT_MODES = ("image+description", "description_only")
+
+
+def figure_input_mode() -> str:
+    """What the personas see of a figure slide: the image and the description (default), or only the
+    description. Read on each call so it can be flipped without a restart."""
+    mode = os.environ.get("SIGHTLINE_FIGURE_INPUT", "image+description").strip().lower()
+    return mode if mode in FIGURE_INPUT_MODES else "image+description"
+
+
 # --- when does a slide carry a figure worth describing? (a text-only deck must cost nothing extra)
 IMAGE_AREA_RATIO_MIN = 0.08  # raster images cover at least this share of the page
 DRAWING_PATHS_MIN = 8  # or the page has at least this many vector paths (a chart drawn with lines and ticks)
@@ -64,11 +74,19 @@ class Slide:
 
     def to_input(self) -> SlideInput:
         """What the personas are given: the printed text, then the figure description (if any)
-        under a FIGURE: marker so they know it is a description of the image, not printed words."""
+        under a FIGURE: marker so they know it is a description of the image, not printed words.
+
+        By default they ALSO get the rendered slide image, as they always have. That means a persona
+        can recognise a familiar diagram from the picture itself, whatever the neutral description
+        says (a "novice" persona named supply and demand from the image alone). With
+        SIGHTLINE_FIGURE_INPUT=description_only the image is withheld on slides that have a
+        description, so the description is the ONLY way the figure reaches them."""
         text = self.text
-        if self.image_content and self.image_content.get("text"):
+        described = bool(self.image_content and self.image_content.get("text"))
+        if described:
             text += ("\n\n" if text else "") + f"FIGURE: [description of the image, not printed words] {self.image_content['text']}"
-        return SlideInput(self.index, text, self.image_png)
+        withhold = described and figure_input_mode() == "description_only"
+        return SlideInput(self.index, text, None if withhold else self.image_png)
 
 
 Parser = Callable[[Path], "list[Slide]"]
@@ -247,7 +265,7 @@ MAX_FIGURE_WORDS = 90
 # Words that mean the describer has started explaining. A description that keeps using them is dropped.
 _INTERPRETIVE = re.compile(
     r"\b(shows?|showing|demonstrat\w*|illustrat\w*|represent\w*|indicat\w*|implies|implying|suggest\w*|"
-    r"equilibrium|surplus|therefore|because|meaning|means that|signif\w*)\b", re.I)
+    r"equilibrium|surplus|therefore|because|meaning|means that|signif\w*|would|probably|likely|better|worse|outperform\w*)\b", re.I)
 
 FIGURE_SCHEMA = {
     "type": "object",
@@ -267,6 +285,10 @@ labelled, what numbers appear, and how things are arranged (above, crossing, sha
 Never:
 - name a principle, a concept or the kind of diagram it is in conceptual terms;
 - say what the figure means, shows, demonstrates or implies, or draw any conclusion;
+- say what would happen, where marks would meet, or which mark is better, worse or wins: describe \
+only what IS drawn, and compare marks only by position, slope, length or colour;
+- use the words show, showing, demonstrate, illustrate, represent or indicate (write "has", "with", \
+"labelled", "drawn" instead);
 - expand or explain an acronym or symbol that appears; copy it as printed.
 
 Good: "Two lines on axes labelled Price and Quantity: one slopes downward, one slopes upward. They \
@@ -302,7 +324,7 @@ class FileFigureCache:
         os.replace(tmp, self.dir / f"{self.key(image_png)}.json")
 
 
-async def describe_figure(client: LLMClient, slide: Slide, *, max_attempts: int = 2) -> dict | None:
+async def describe_figure(client: LLMClient, slide: Slide, *, max_attempts: int = 3) -> dict | None:
     """A neutral description of the slide's figure, or None if the model finds no figure (the gate
     is deliberately generous). A description that will not stop interpreting is not used: its text
     is None and the reason is recorded, and the personas still have the image itself."""

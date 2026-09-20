@@ -4,7 +4,7 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "This is an introductory title slide claiming a presentation about making large language models serve responses 2.4 times more efficiently at a certain performance measure.",
+      "takeaway": "This is a title slide introducing a talk about making LLM serving 2.4x faster in some measured way, presented by Alex Rivera from Systems Group.",
       "confidence": 0.4,
       "unresolved_terms": [
         "LLMs",
@@ -12,90 +12,221 @@
         "p99"
       ],
       "questions": [
-        "What does 'goodput' mean here?",
-        "What is 'p99' measuring?",
-        "How was the 2.4x improvement achieved?"
+        "What does 'goodput' measure here?",
+        "What is p99 referring to?",
+        "What method achieves the 2.4x improvement?"
       ],
-      "inferred_claim": "The presenter wants me to believe their method significantly speeds up serving of LLMs.",
+      "inferred_claim": "The presenter wants me to believe their system significantly speeds up LLM serving performance.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.862,
+      "latency_s": 2.732,
       "attempts": 1,
       "slide_hash": "3490a7018b214a4d323a343d"
     },
     "peer": {
       "ok": true,
-      "takeaway": "This is a title slide introducing a talk claiming a 2.4x improvement in serving throughput for large language models at the 99th percentile latency.",
-      "confidence": 0.5,
+      "takeaway": "This is a title slide claiming a 2.4x improvement in some throughput metric for LLM serving at the p99 latency percentile.",
+      "confidence": 0.4,
       "unresolved_terms": [
         "goodput",
         "p99"
       ],
       "questions": [
-        "How is 'goodput' defined here?",
-        "What baseline is the 2.4x improvement measured against?",
-        "What system or technique achieves this speedup?"
+        "What exactly does 'goodput' measure here?",
+        "What baseline is the 2.4x improvement compared against?",
+        "What system or method achieves this improvement?"
       ],
-      "inferred_claim": "The presenter wants me to believe their system significantly improves LLM serving efficiency.",
+      "inferred_claim": "The presenter wants the audience to believe they achieved a significant performance improvement in LLM serving.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.856,
+      "latency_s": 3.066,
       "attempts": 1,
       "slide_hash": "3490a7018b214a4d323a343d"
     },
     "expert": {
       "ok": true,
-      "takeaway": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
-      "confidence": 0.55,
+      "takeaway": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow.",
+      "confidence": 0.5,
       "unresolved_terms": [],
       "questions": [
         "What baseline is the 2.4x goodput improvement measured against?",
-        "What SLO or latency target defines 'goodput' here?",
-        "What system or technique achieves this improvement?"
+        "What workload or model sizes were tested?",
+        "How is 'goodput' defined here (SLO-attaining throughput)?"
       ],
-      "inferred_claim": "The presenter wants the audience to expect a talk demonstrating a 2.4x p99 goodput gain in LLM serving.",
+      "inferred_claim": "The presenter wants the audience to expect a talk demonstrating a 2.4x p99 goodput improvement in LLM serving.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.433,
+      "latency_s": 2.97,
       "attempts": 1,
       "slide_hash": "3490a7018b214a4d323a343d"
     }
   },
   "slide_intent": {
-    "text": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
+    "text": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow.",
     "source": "expert_takeaway"
   },
   "metrics": {
-    "intent": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
+    "comparator": "fieldwise",
+    "intent": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow.",
     "takeaways": {
-      "novice": "This is an introductory title slide claiming a presentation about making large language models serve responses 2.4 times more efficiently at a certain performance measure.",
-      "peer": "This is a title slide introducing a talk claiming a 2.4x improvement in serving throughput for large language models at the 99th percentile latency.",
-      "expert": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group."
+      "novice": "This is a title slide introducing a talk about making LLM serving 2.4x faster in some measured way, presented by Alex Rivera from Systems Group.",
+      "peer": "This is a title slide claiming a 2.4x improvement in some throughput metric for LLM serving at the p99 latency percentile.",
+      "expert": "This is a title slide claiming a 2.4x improvement in p99 goodput for LLM serving, with details to follow."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.36927424909411344,
-        "inputs": {
-          "intent": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
-          "novice": "This is an introductory title slide claiming a presentation about making large language models serve responses 2.4 times more efficiently at a certain performance measure."
+        "concept": null,
+        "claim": "LLM serving can be made 2.4x faster in some measured way",
+        "result": "2.4x",
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "p99 latency",
+        "claim": "Some throughput metric for LLM serving is improved by a factor at the p99 latency percentile",
+        "result": "2.4x",
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "p99 goodput",
+        "claim": "LLM serving goodput is improved by a factor at the p99 percentile",
+        "result": "2.4x",
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle and reaches a numeric result; no example."
+    },
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "p99 goodput",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "LLM serving goodput is improved by a factor at the p99 percentile",
+          "audience": "LLM serving can be made 2.4x faster in some measured way",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": false,
+            "rationale": "Improving p99 goodput by 2.4x implies LLM serving is made 2.4x faster in some way, but the vaguer novice claim does not specify goodput or p99.",
+            "quote": "2.4x",
+            "quote_verified": true
+          },
+          "meaning": "The reading got a weaker version of the point."
+        },
+        "result": {
+          "field": "result",
+          "expert": "2.4x",
+          "audience": "2.4x",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "2.4x",
+            "2.4x"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.6916261102649803,
-        "inputs": {
-          "intent": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
-          "peer": "This is a title slide introducing a talk claiming a 2.4x improvement in serving throughput for large language models at the 99th percentile latency."
-        }
-      },
-      "expert": {
-        "value": 1.0,
-        "definitional": true,
-        "inputs": {
-          "intent": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group.",
-          "expert": "This is a title slide claiming a 2.4x improvement in goodput at p99 latency for LLM serving, presented by Alex Rivera, Systems Group."
+        "concept": {
+          "field": "concept",
+          "expert": "p99 goodput",
+          "audience": "p99 latency",
+          "status": "compared",
+          "outcome": "mismatch",
+          "comparator": "fuzzy",
+          "normalised": [
+            "p99 goodput",
+            "p99 latency"
+          ],
+          "how": "edit similarity 0.45"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "LLM serving goodput is improved by a factor at the p99 percentile",
+          "audience": "Some throughput metric for LLM serving is improved by a factor at the p99 latency percentile",
+          "status": "compared",
+          "outcome": "divergent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": false,
+            "audience_entails_expert": false,
+            "rationale": "Goodput and throughput are distinct metrics, so neither claim strictly implies the other despite both citing 2.4x at p99.",
+            "quote": "p99",
+            "quote_verified": true
+          },
+          "meaning": "Neither implies the other: likely a misconception."
+        },
+        "result": {
+          "field": "result",
+          "expert": "2.4x",
+          "audience": "2.4x",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "2.4x",
+            "2.4x"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       }
     },
+    "ordinal": {
+      "novice": {
+        "value": 0.33,
+        "basis": "claim",
+        "state": "under-specified",
+        "thin": false
+      },
+      "peer": {
+        "value": 0.0,
+        "basis": "claim",
+        "state": "divergent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
     "term_gap": {
       "terms": [
         "LLMs",
@@ -108,11 +239,20 @@
         "p99"
       ],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "latency_s": 14.857,
+      "dropped": [],
+      "retried_because": []
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "scored_by": "claude-sonnet-5",
   "timing": {
-    "personas_s": 3.864
-  }
+    "personas_s": 3.069,
+    "structuring_s": 14.858
+  },
+  "image_content": null
 }

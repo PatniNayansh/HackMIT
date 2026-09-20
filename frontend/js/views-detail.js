@@ -1,7 +1,7 @@
-import { h, mount, f2, describe, warnIcon, infoIcon, slideImage, PERSONAS, LABEL, COLOR } from "./dom.js";
+import { h, mount, f2, describe, warnIcon, infoIcon, slideImage, stateChip, STATE_MEANING, PERSONAS, LABEL, COLOR } from "./dom.js";
 import { getJSON } from "./api.js";
 import { watch } from "./run.js";
-import { numBtn, cmpLine, deckStrip, src, usesTakeawayIntent } from "./provenance.js";
+import { numBtn, cmpLine, deckStrip, src, usesTakeawayIntent, isFieldwise, openProvenance } from "./provenance.js";
 import { runHref, tierChip, guard, runBanners } from "./run-common.js";
 
 const REFERENCE_NOTE = "The intended reading is derived from this expert interpretation, so it defines the baseline rather than scoring against it.";
@@ -76,6 +76,7 @@ function metricRow(cls, label, valueNode, ...right) {
 function audienceCard(state, r, persona, recsSlot) {
   const rd = r.readings[persona];
   const n = r.index;
+  if (isFieldwise(r) && rd.ok) return fieldwiseCard(state, r, persona, recsSlot);
   // The expert's takeaway is the slide's intent and is shown once, under the slide image; the
   // card does not repeat it. (Runs saved before that measured against a rephrased sentence, so
   // their expert card keeps its takeaway: it is not the text shown as the intent.)
@@ -121,8 +122,146 @@ function audienceCard(state, r, persona, recsSlot) {
             rd.questions.length ? h("ul", null, ...rd.questions.map((q) => h("li", null, q))) : h("p", { class: "muted" }, "None"))))));
 }
 
+// ------------------------------------------------------------ field-wise (compare.py) cards
+
+const FIELD_LABEL = { concept: "Concept", claim: "Claim", result: "Result", vehicle: "Example" };
+const STATUS_TEXT = { excluded: "not part of this slide", gap: "not reached", over_reach: "extra (over-reach)", not_scored: "shown, not scored" };
+
+function statusCell(state, r, persona, field, c) {
+  const word = c.status === "compared"
+    ? (c.outcome === "match" ? "matches" : c.outcome === "near" ? "near match" : c.outcome === "mismatch" ? "differs" : c.outcome)
+    : STATUS_TEXT[c.status];
+  const cls = c.status === "gap" ? "gap" : c.status === "excluded" || c.status === "not_scored" ? "quiet" : "";
+  return numBtn(word, { kind: field === "claim" && c.status !== "excluded" ? "state" : "field", slide: r.index, persona, field }, state, `${FIELD_LABEL[field]}: ${word}. Show where this comes from.`);
+}
+
+/** The four fields for one reader, beside the expert's. Absent, excluded and extra are visibly different things. */
+function fieldsTable(state, r, persona) {
+  const m = r.metrics, comps = persona === "expert" ? null : m.comparisons[persona];
+  const val = (v) => (v ? h("span", { class: "fv" }, v) : h("span", { class: "fv none" }, "\u2014"));
+  return h("table", { class: "fields" },
+    h("thead", null, h("tr", null, h("th", null, "Field"), persona !== "expert" && h("th", null, "Expert"), h("th", null, persona === "expert" ? "Extracted from its takeaway" : `${LABEL[persona]}`), persona !== "expert" && h("th", null, "Reading"))),
+    h("tbody", null, ...["concept", "claim", "result", "vehicle"].map((f) => {
+      const c = comps?.[f];
+      const inProfile = m.slide_profile.fields.includes(f);
+      return h("tr", { class: `${c ? c.status : ""}${persona === "expert" && !inProfile ? " excluded" : ""}` },
+        h("th", { scope: "row" }, FIELD_LABEL[f]),
+        persona !== "expert" && h("td", null, val(c.expert)),
+        h("td", null, val(persona === "expert" ? m.fields.expert[f] : c.audience)),
+        persona !== "expert" && h("td", null, statusCell(state, r, persona, f, c)));
+    })));
+}
+
+function findingsFor(state, r, persona) {
+  const idx = r.metrics.findings.map((f, i) => [f, i]).filter(([f]) => f.audience === persona);
+  return idx.map(([f, i]) => h("div", { class: `finding-callout ${f.id}` },
+    infoIcon(),
+    numBtn(f.text, { kind: "finding", slide: r.index, index: i }, state, `${f.text} Show the rule and the quoted evidence.`)));
+}
+
+function fieldwiseCard(state, r, persona, recsSlot) {
+  const rd = r.readings[persona], n = r.index, m = r.metrics;
+  const head = h("div", { class: "aud-head" },
+    h("span", { class: "who" }, h("span", { class: `dot ${persona}` }), LABEL[persona]),
+    h("span", { class: "muted small" }, describe(persona, state.meta.profile)));
+  const terms = rd.unresolved_terms;
+  const termsRow = metricRow("strong", "Unresolved terms", h("span", { class: "val" }, numBtn(String(terms.length), { kind: "unresolved", slide: n, persona }, state)),
+    deckStrip(state, `unresolved_count.${persona}`, n, COLOR[persona]), cmpLine(state, `unresolved_count.${persona}`, n),
+    terms.length ? h("span", { class: "preview" }, terms.slice(0, 4).join(" \u00b7 "), terms.length > 4 ? ` +${terms.length - 4} more` : "") : null);
+
+  if (persona === "expert") {
+    return h("article", { class: "aud expert" }, head,
+      h("div", { class: "aud-body" },
+        h("p", { class: "muted small", style: "margin: 6px 0 4px" }, "Its takeaway is the intent of this slide, shown under the slide image."),
+        metricRow("strong", "Reading of this slide", h("span", { class: "val ref" }, numBtn("reference", { kind: "reference", slide: n }, state, "reference. Show why this is definitional.")),
+          h("span", { class: "cmp" }, REFERENCE_NOTE)),
+        h("div", { class: "fields-wrap" }, h("div", { class: "take-label" }, "What its takeaway names (this defines the slide\u2019s shape)"), fieldsTable(state, r, "expert")),
+        termsRow,
+        h("details", null, h("summary", null, "More from this reading"),
+          h("div", { class: "stack", style: "margin-top:8px" },
+            h("div", null, h("div", { class: "take-label" }, "Questions it would need answered"),
+              rd.questions.length ? h("ul", null, ...rd.questions.map((q) => h("li", null, q))) : h("p", { class: "muted" }, "None"))))));
+  }
+
+  const claim = m.comparisons[persona].claim;
+  const over = ["concept", "claim", "result"].filter((f) => m.comparisons[persona][f].status === "over_reach");
+  return h("article", { class: `aud ${persona}` }, head,
+    h("div", { class: "aud-body" },
+      // Words lead: the state of the claim, then anything the field logic found. No scalar.
+      claim.status === "excluded"
+        ? h("div", { class: "lead-row" }, h("span", { class: "muted small" }, "This slide states no general claim, so there is no claim to compare."))
+        : h("div", { class: "lead-row" },
+            h("span", { class: "lead-label" }, "Claim"),
+            h("button", { class: "state-btn", type: "button", "aria-label": `${claim.outcome}. Show the two claims and the verdict.`, on: { click: (e) => { e.stopPropagation(); openProvenance({ kind: "state", slide: n, persona }, state); } } }, stateChip(claim.outcome, { large: true })),
+            h("span", { class: "muted small" }, STATE_MEANING[claim.outcome])),
+      ...findingsFor(state, r, persona),
+      h("div", { class: "take-label", style: "margin-top:12px" }, "Takeaway, verbatim"),
+      h("blockquote", { class: "take" }, `“${rd.takeaway}”`),
+      h("div", { class: "fields-wrap" }, fieldsTable(state, r, persona)),
+      over.length ? h("p", { class: "muted small" }, `Beyond the expert: this reader also gave a ${over.join(" and a ")} the expert did not. Not penalised.`) : null,
+      termsRow,
+      recsSlot && h("div", { class: "recs-slot" }, h("h4", null, "What to change"), recsSlot),
+      h("details", null, h("summary", null, "More from this reading"),
+        h("div", { class: "stack", style: "margin-top:8px" },
+          h("div", null, h("div", { class: "take-label" }, "Claim it thinks you want believed"), h("p", null, rd.inferred_claim)),
+          h("div", null, h("div", { class: "take-label" }, "Questions it would need answered"),
+            rd.questions.length ? h("ul", null, ...rd.questions.map((q) => h("li", null, q))) : h("p", { class: "muted" }, "None"))))));
+}
+
+/** Headline, field-wise: what the field logic found (findings), the tier, and what the tier was read from. */
+function fieldwiseSummary(state, r) {
+  const n = r.index, m = r.metrics;
+  const t = state.rollup.per_slide.find((p) => p.slide === n)?.tier;
+  const findings = m.findings.map((f, i) => [f, i]);
+  const basis = t && (t.basis === "relative"
+    ? `The terms check is read against the other slides of this deck (${t.n_slides} scored so far).`
+    : `Too few slides scored to read the terms check against this deck (needs ${t.min_slides_for_relative}, has ${t.n_slides}): a rough absolute threshold was used.`);
+  const stateRow = (persona) => {
+    const c = m.comparisons[persona].claim;
+    return c.status === "excluded" ? null : metricRow("strong", `${LABEL[persona]} claim`, h("span", { class: "val" }, numBtn(c.outcome, { kind: "state", slide: n, persona }, state)), h("span", { class: "cmp" }, STATE_MEANING[c.outcome]));
+  };
+  const presence = (persona, field) => {
+    const c = m.comparisons[persona][field];
+    if (!m.slide_profile.scored.includes(field)) return null; // only fields in the slide profile are read
+    return metricRow("strong", `${LABEL[persona]} ${field}`, h("span", { class: "val" }, numBtn(c.status === "gap" ? "not reached" : c.outcome === "mismatch" ? "differs" : "reached", { kind: "field", slide: n, persona, field }, state)),
+      h("span", { class: "cmp" }, c.status === "gap" ? `The expert reached \u201c${c.expert}\u201d.` : c.outcome === "mismatch" ? `Expert \u201c${c.expert}\u201d, reader \u201c${c.audience}\u201d.` : `\u201c${c.audience}\u201d`));
+  };
+  return h("section", { class: "summary card" },
+    h("div", { class: "small muted" }, "What this slide demands of its reader"),
+    findings.length ? h("div", { class: "findings" }, ...findings.map(([f, i]) => h("div", { class: `finding-callout lead ${f.id}` }, warnIcon(),
+      h("div", null, h("strong", null, f.id === "example_bound" ? "Example-bound. " : "Figure-dependent. "),
+        numBtn(f.text, { kind: "finding", slide: n, index: i }, state, `${f.text} Show the rule and the quoted evidence.`))))) : null,
+    t
+      ? [h("div", { class: "summary-head" }, tierChip(state, n, { large: true }), h("span", { class: "tier-meaning" }, t.meaning)),
+         h("p", { class: "muted small" }, basis, state.meta.status === "running" && " Tiers are read against the slides read so far and can shift as more arrive.")]
+      : h("div", { class: "banner", style: "margin-top:8px" }, infoIcon(), h("div", null, h("strong", null, "No tier. "), "The expert’s takeaway gave this slide no concept, claim or result to judge a reader by.")),
+    h("div", { class: "small muted", style: "margin-top:12px" }, "What it was read from"),
+    stateRow("novice"), stateRow("peer"),
+    ...["concept", "result"].map((f) => presence("novice", f)),
+    metricRow("strong", "Novice unresolved terms", h("span", { class: "val" }, numBtn(String(r.readings.novice.unresolved_terms.length), { kind: "unresolved", slide: n, persona: "novice" }, state)),
+      deckStrip(state, "unresolved_count.novice", n, COLOR.novice), cmpLine(state, "unresolved_count.novice", n)));
+}
+
+/** "This slide names a principle and works to a numeric result." How to read everything below it. */
+function profileLine(state, r) {
+  if (!isFieldwise(r)) return null;
+  return h("p", { class: "profile-line" }, numBtn(r.metrics.slide_profile.text, { kind: "profile", slide: r.index }, state, `${r.metrics.slide_profile.text} Show how this shape was read.`));
+}
+
+/** The figure on the slide, described neutrally at ingest. Collapsed, and labelled as machine-generated. */
+function figureDetails(r) {
+  const ic = r.image_content;
+  if (!ic) return null;
+  if (!ic.text) return h("p", { class: "muted small" }, `A description of this slide’s figure could not be produced (${ic.error || "no usable description"}). The readers still saw the image itself.`);
+  return h("details", { class: "figure-desc" },
+    h("summary", { class: "small muted", style: "cursor:pointer" }, "Figure description (machine-generated)"),
+    h("div", { class: "src" }, h("div", { class: "who" }, `Written by ${ic.model || "a model"} from the slide image; given to all three readers under FIGURE:`), h("p", null, ic.text)),
+    h("p", { class: "caveat" }, "Deliberately non-interpretive: it describes marks, labels, axes, values and arrangement, and names no principle, so the readers are not handed the expert’s job. It is not scored and never compared across readers."));
+}
+
 /** The headline: which tier the slide falls in, and the three numbers it was read from. */
 function summary(state, r) {
+  if (isFieldwise(r)) return fieldwiseSummary(state, r);
   const n = r.index;
   const t = state.rollup.per_slide.find((p) => p.slide === n)?.tier;
   if (!r.metrics || !t) {
@@ -215,6 +354,7 @@ export function detail(root, runId, n) {
     const left = h("div", { class: "slide-col" },
       slideImage(state.imageUrls[n - 1], `Slide ${n}`),
       intentBlock(r),
+      figureDetails(r),
       h("details", null, h("summary", { class: "small muted", style: "cursor:pointer" }, "Text the audiences were given, alongside the image"),
         h("div", { class: "textbox" }, r.text || "(no extractable text on this slide)")));
 
@@ -235,7 +375,7 @@ export function detail(root, runId, n) {
 
     mount(root, head, chips, ...runBanners(state),
       h("div", { class: "detail" }, left,
-        h("div", null, flagSlot, summary(state, r), ...cards)));
+        h("div", null, flagSlot, profileLine(state, r), summary(state, r), ...cards)));
   });
   return () => { cleanups.forEach((fn) => fn()); off(); };
 }

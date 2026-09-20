@@ -2,38 +2,28 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Define KV-cache briefly on the slide (e.g., 'KV-cache: per-request memory storing past tokens' attention data')",
-      "evidence": "KV-cache"
+      "bullet": "Replace 'p99' with 'the slowest 1% of requests' or add a brief definition",
+      "evidence": "How does p99 relate to average latency?"
     },
     {
       "audience": "novice",
-      "bullet": "Replace or gloss 'p99' with plain language like 'the slowest 1% of requests'",
-      "evidence": "p99"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Add a short phrase explaining how fragmentation wastes GPU capacity",
-      "evidence": "How does memory fragmentation waste GPU capacity?"
+      "bullet": "Add one sentence explaining what causes fragmented memory in this context",
+      "evidence": "What causes memory fragmentation here?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Define KV-cache briefly on the slide since it's still unresolved for this reader",
-      "evidence": "KV-cache"
-    },
-    {
-      "audience": "peer",
-      "bullet": "Add a brief note on what causes fragmentation to waste GPU capacity",
-      "evidence": "How does fragmentation specifically waste GPU capacity?"
+      "bullet": "Add a phrase connecting these three challenges to the 2.4x improvement claimed on the title slide",
+      "evidence": "How do these three issues connect to the 2.4x claim?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T01:38:22+00:00",
-    "latency_s": 3.85,
-    "intent": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
-    "dropped_without_evidence": 0
+    "generated_at": "2026-09-20T02:57:27+00:00",
+    "latency_s": 3.54,
+    "intent": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
+    "dropped_without_evidence": 2
   }
 }

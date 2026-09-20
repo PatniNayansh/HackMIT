@@ -461,3 +461,43 @@ a.tile:hover .tier-mini { outline: 2px solid var(--stroke); }
 .slide-card img { display: block; width: 100%; height: auto; filter: none; opacity: 1; mix-blend-mode: normal; }
 .tile .thumb.slide-card, .rank-row .slide-card { padding: 3px; border-radius: 6px; }
 .thumbs-strip .slide-card { padding: 3px; border-radius: 6px; }
+
+/* -------------------------------------------------------------- field-wise comparison */
+/* The five claim states: words first, differing by fill weight on the tier ramp (never a traffic light). */
+.state-chip {
+  display: inline-block; border: 1.5px solid var(--tier-1-border); border-radius: 999px; padding: 1px 11px; font-weight: 600;
+  color: var(--ink); background: transparent; white-space: nowrap; font-size: 13px;
+}
+.state-chip.large { font-size: 16px; padding: 3px 14px; }
+.state-chip.over_claimed, .state-chip.under_specified { background: var(--tier-2-bg); border-color: var(--tier-2-border); }
+.state-chip.divergent, .state-chip.absent { background: var(--tier-3-bg); border-color: var(--tier-3-bg); color: var(--tier-3-fg); }
+.state-chip.under_specified { border-style: dashed; }
+.state-chip.absent { border-style: dashed; border-color: var(--tier-3-fg); }
+.state-btn { appearance: none; background: none; border: 0; padding: 0; cursor: pointer; border-radius: 999px; }
+.state-btn:hover .state-chip { outline: 2px solid var(--stroke); outline-offset: 2px; }
+.lead-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 6px 0 4px; }
+.lead-label { font-size: 12px; color: var(--ink-2); }
+.rank-state { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; font-size: 12px; color: var(--ink-2); }
+
+.profile-line { margin: 0 0 10px; font-size: 14px; color: var(--ink-2); }
+.profile-line .num { font-size: 14px; }
+
+.finding-callout { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--ink); border-radius: 10px; padding: 9px 12px; margin: 8px 0; background: var(--sunken); }
+.finding-callout svg { flex: none; margin-top: 2px; }
+.finding-callout.lead { border-width: 2px; }
+.findings { margin: 6px 0 2px; }
+.finding-text { font-size: 16px; font-weight: 600; }
+
+table.fields { width: 100%; border-collapse: collapse; margin: 8px 0 4px; font-size: 13px; }
+table.fields th, table.fields td { padding: 5px 8px; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; }
+table.fields thead th { font-size: 11.5px; color: var(--ink-2); font-weight: 500; }
+table.fields tbody th { font-weight: 600; width: 74px; }
+.fv { overflow-wrap: anywhere; }
+.fv.none { color: var(--muted); }
+table.fields tr.excluded td, table.fields tr.excluded th { color: var(--muted); }
+table.fields tr.gap td:last-child .num { font-weight: 650; }
+.fields-wrap .take-label { margin-top: 8px; }
+
+.figure-desc { margin-top: 8px; }
+.figure-desc .src { margin-top: 6px; }
+.hollow-key { border-top: 0 !important; width: 10px !important; height: 10px; border: 2px solid var(--ink-2) !important; border-radius: 50%; background: var(--surface); }

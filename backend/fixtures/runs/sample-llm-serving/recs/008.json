@@ -1,0 +1,29 @@
+{
+  "novice": [
+    {
+      "audience": "novice",
+      "bullet": "Explain why 500ms matters, e.g., label it as the SLO threshold",
+      "evidence": "Why does 500 ms matter as a threshold?"
+    }
+  ],
+  "peer": [
+    {
+      "audience": "peer",
+      "bullet": "Annotate the request rate at which 'ours' crosses the 500ms line, if it does",
+      "evidence": "What request rate does 'ours' cross 500ms?"
+    },
+    {
+      "audience": "peer",
+      "bullet": "Add a note on workload/hardware used to generate the graph",
+      "evidence": "What workload/hardware generated this graph?"
+    }
+  ],
+  "expert_flagged": [],
+  "meta": {
+    "model": "claude-sonnet-5",
+    "generated_at": "2026-09-20T02:57:48+00:00",
+    "latency_s": 2.98,
+    "intent": "The proposed system sustains lower p99 latency than the baseline as request rate increases, staying under the 500ms SLO longer.",
+    "dropped_without_evidence": 1
+  }
+}

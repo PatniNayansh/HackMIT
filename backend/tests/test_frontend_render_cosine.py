@@ -19,17 +19,38 @@ from sightline.store import BUNDLED_RUNS_DIR, RunStore
 
 from builders import HashEmbedder
 
-RUN = "sample-llm-serving"
+RUN = "cosine-demo"
 pytestmark = pytest.mark.skipif(shutil.which("node") is None, reason="node is needed to render the frontend")
+
+TERMS = [["p99", "KV-cache"], ["goodput"], ["TTFT", "SLO", "goodput", "p99", "KV-cache", "block tables", "speculative decoding", "PagedAttention", "chunked prefill", "continuous batching"], [], ["alpha"], [], []]
+ALIGN = [(0.45, 0.77), (0.44, 0.47), (0.31, 0.76), (0.54, 0.60), (0.70, 0.62), (0.60, 0.80), (0.77, 0.84)]
 
 
 @pytest.fixture(scope="module")
 def payload(tmp_path_factory):
+    """A run made by the ORIGINAL cosine comparator, saved by hand from the cosine builder, and read
+    back through the real server: the cosine UI must keep working when the flag is flipped."""
+    from sightline.ingest import Slide
+    from builders import slide_result
+
     tmp = tmp_path_factory.mktemp("render")
-    app = create_app(
-        store=RunStore(tmp / "history", bundled=[BUNDLED_RUNS_DIR]), cache=FileCache(tmp / "cache"),
-        client_factory=lambda: None, embedder=HashEmbedder(),
-    )
+    store = RunStore(tmp / "history")
+    slides = [Slide(i, f"[title] Slide {i}", b"\x89PNG") for i in range(1, 8)]
+    meta = store.create_draft(title="Cosine demo", source_filename="d.pdf", slides=slides, inferred=None, inference_error=None, run_id=RUN)
+    store.update_meta(RUN, status="complete", comparator="cosine", model="fake-model", started_at=meta["created_at"], finished_at=meta["created_at"],
+                      intent="Our serving system delivers 2.4x higher goodput at p99 latency.",
+                      profile={"domain": "LLM inference serving systems", "adjacent_field": "distributed systems", "confirmed": True, "edited": False})
+    for i in range(1, 8):
+        r = slide_result(i, align=ALIGN[i - 1], terms=(TERMS[i - 1], [], []), text=f"[title] Slide {i}\n[body] p99 goodput KV-cache")
+        r["readings"]["expert"]["takeaway"] = r["metrics"]["takeaways"]["expert"] = r["metrics"]["intent"] = r["slide_intent"]["text"] = f"Expert takeaway for slide {i}, verbatim."
+        for who in ("novice", "peer", "expert"):
+            r["metrics"]["intent_alignment"][who]["inputs"]["intent"] = r["slide_intent"]["text"]
+        r["metrics"]["intent_alignment"]["expert"]["inputs"]["expert"] = r["slide_intent"]["text"]
+        store.save_result(RUN, r)
+        term = TERMS[i - 1][0] if TERMS[i - 1] else "the setup"
+        store.save_recs(RUN, i, {"novice": [{"audience": "novice", "bullet": f"Define {term} on first use", "evidence": f"cos={ALIGN[i-1][0]:.2f} takeaway of novice"}],
+                                 "peer": [], "expert_flagged": [], "meta": {"model": "fake-sonnet", "dropped_without_evidence": 0}})
+    app = create_app(store=store, cache=FileCache(tmp / "cache"), client_factory=lambda: None, embedder=HashEmbedder(), comparator="cosine")
     with TestClient(app) as c:
         run = c.get(f"/api/runs/{RUN}").json()
         recs = {n: c.get(f"/api/runs/{RUN}/slides/{n}/recommendations").json() for n in range(1, 8)}
@@ -54,7 +75,7 @@ def everything(out):
     return texts
 
 
-def test_the_sample_replays_its_recommendations_offline_for_every_slide(payload):
+def test_saved_recommendations_replay_offline_for_every_slide(payload):
     assert all(r["available"] and r["cached"] for r in payload["recs"].values())  # no key, no calls
 
 
@@ -190,7 +211,6 @@ def test_recommendations_quote_evidence_and_are_grouped_by_audience(tmp_path, pa
             assert r["bullet"] in page and r["evidence"] in page
     assert page.count("What to change") == 2  # novice and peer, never the expert
     assert "Expert also flagged" not in page or recs["expert_flagged"]  # only when the expert flagged something
-    assert "sample data" in page  # the run is a bundled sample; the recommendations are not
     assert "checked-in fixture" not in page
 
 

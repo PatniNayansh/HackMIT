@@ -131,9 +131,29 @@ def _norm_result(s: str) -> str:
         return t
 
 
+_QUANTITY = re.compile(r"(?<![A-Za-z0-9.])(\d[\d,]*(?:\.\d+)?)\s*(x|\u00d7|times|%|ms|s)?(?![A-Za-z0-9])", re.I)
+
+
+def _quantities(s: str) -> list[str]:
+    """The numeric quantities a result states, each with its attached unit: '2.4x improvement' and
+    '2.4 times faster' both state 2.4x. A digit inside a name (p99, KV2) is not a quantity."""
+    out = []
+    for num, unit in _QUANTITY.findall(unicodedata.normalize("NFKC", s)):
+        n = num.replace(",", "")
+        n = repr(float(n)).removesuffix(".0")
+        u = (unit or "").lower()
+        out.append(n + ("x" if u in ("x", "\u00d7", "times") else u))
+    return sorted(set(out))
+
+
 def compare_result(expert: str, audience: str) -> dict[str, Any]:
-    """Exact match after trivial normalisation (currency symbol, whitespace, thousands commas, a
-    trailing unit word). No model."""
+    """Exact match, no model. Extracted results are phrases ('2.4x higher request throughput'), so
+    what is matched exactly is the QUANTITY they state (number and unit, after trivial normalisation:
+    currency symbol, spaces, thousands commas, 'times' for x). A result with no number is matched as
+    a normalised string."""
+    ea, au = _quantities(expert), _quantities(audience)
+    if ea or au:
+        return {"outcome": "match" if ea == au else "mismatch", "comparator": "exact", "normalised": [", ".join(ea) or "(no number)", ", ".join(au) or "(no number)"]}
     a, b = _norm_result(expert), _norm_result(audience)
     return {"outcome": "match" if a == b else "mismatch", "comparator": "exact", "normalised": [a, b]}
 
@@ -143,10 +163,29 @@ def _norm_concept(s: str) -> str:
     return " ".join(w[:-1] if len(w) > 3 and w.endswith("s") and not w.endswith("ss") else w for w in words)
 
 
+def _concept_parts(s: str) -> list[str]:
+    """An extractor may return a list of concepts ('KV-cache, memory fragmentation'). Each is compared."""
+    parts = [p for p in re.split(r"\s*(?:[,;/]|\band\b)\s*", s) if p.strip()]
+    return parts or [s]
+
+
 def compare_concept(expert: str, audience: str) -> dict[str, Any]:
-    """Identity first; then near-misses: the same words in a different order, a listed synonym,
-    or a small edit distance."""
+    """Identity first; then near-misses: the same words in a different order, a listed synonym, one
+    concept containing the other ('goodput' in 'p99 goodput'), mostly shared words, or a small edit
+    distance. A list of concepts matches if any pair does; the best pair decides."""
+    rank = {"match": 2, "near": 1, "mismatch": 0}
+    best = None
+    for e in _concept_parts(expert):
+        for a in _concept_parts(audience):
+            got = _compare_one_concept(e, a)
+            if best is None or rank[got["outcome"]] > rank[best["outcome"]]:
+                best = got
+    return best
+
+
+def _compare_one_concept(expert: str, audience: str) -> dict[str, Any]:
     a, b = _norm_concept(expert), _norm_concept(audience)
+    ta, tb = {w for w in a.split() if len(w) > 2}, {w for w in b.split() if len(w) > 2}
     if a == b:
         return {"outcome": "match", "comparator": "identity", "normalised": [a, b], "how": "identical after normalisation"}
     if sorted(a.split()) == sorted(b.split()):
@@ -155,6 +194,11 @@ def compare_concept(expert: str, audience: str) -> dict[str, Any]:
         norm = {_norm_concept(x) for x in group}
         if a in norm and b in norm:
             return {"outcome": "near", "comparator": "synonym", "normalised": [a, b], "how": "listed synonyms"}
+    if ta and tb and (ta < tb or tb < ta):
+        return {"outcome": "near", "comparator": "fuzzy", "normalised": [a, b], "how": "one names the other more narrowly (its words are contained in the other's)"}
+    shared = ta & tb
+    if len(shared) >= 2 and len(shared) / min(len(ta), len(tb)) >= 0.5:
+        return {"outcome": "near", "comparator": "fuzzy", "normalised": [a, b], "how": f"shares most of its words ({', '.join(sorted(shared))})"}
     ratio = difflib.SequenceMatcher(None, a, b).ratio()
     if ratio >= CONCEPT_FUZZY_RATIO:
         return {"outcome": "near", "comparator": "fuzzy", "normalised": [a, b], "how": f"edit similarity {ratio:.2f}"}
@@ -332,8 +376,11 @@ and you report what each ACTUALLY SAYS.
 SECTION 1, fields. For each viewer return four fields, each a string or null:
 - concept: the named principle or technical term the takeaway itself names (e.g. "opportunity cost"). \
 null if the takeaway names none.
-- claim: ONE sentence saying what the takeaway says the slide establishes, restated in GENERAL terms \
-with the worked example stripped out. If the takeaway states a general point anywhere, even with an \
+- claim: ONE sentence saying what the takeaway says about the SUBJECT, restated in GENERAL terms with \
+the worked example stripped out. State the point itself, not the slide's rhetorical role in the talk: \
+if a takeaway says a slide "lists challenges that motivate the solution", the claim is the challenges \
+it lists, not that they motivate anything. Do the same for every viewer, so equivalent understanding \
+comes out as equivalent claims. If the takeaway states a general point anywhere, even with an \
 example or a number attached to it, put that point in claim. Only if the takeaway never goes beyond \
 the specific example (its names, prices and numbers), claim is null and the example goes in vehicle.
 - result: the numeric or factual outcome the takeaway reaches, copied exactly as the takeaway wrote it \

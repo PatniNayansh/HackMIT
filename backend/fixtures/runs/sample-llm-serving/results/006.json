@@ -4,105 +4,239 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The presenter achieved 2.4 times more processed requests per second using the same hardware and latency, without hurting response time.",
-      "confidence": 0.75,
-      "unresolved_terms": [
-        "GPUs"
-      ],
+      "takeaway": "Using the same hardware and latency requirements, the new system handled 2.4x more requests per second without slowing down typical response times, tested on real chat data.",
+      "confidence": 0.85,
+      "unresolved_terms": [],
       "questions": [
-        "What was the baseline before this improvement?",
-        "How was 'real chat workload' defined or measured?"
+        "How was 'real chat workload' data collected or defined?",
+        "Does this improvement generalize to other GPU counts?"
       ],
-      "inferred_claim": "The presenter wants us to believe their method significantly boosts efficiency without tradeoffs.",
+      "inferred_claim": "The presenter wants the audience to believe their system significantly improves efficiency without sacrificing speed.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.976,
+      "latency_s": 2.855,
       "attempts": 1,
       "slide_hash": "6245d954610689860a75b20b"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The presented techniques achieved 2.4x more requests per second on the same hardware without sacrificing median response time, validated on a real chat workload.",
+      "takeaway": "The described optimizations achieved 2.4x more requests per second on the same hardware without hurting median latency, on a real chat workload.",
       "confidence": 0.7,
       "unresolved_terms": [],
       "questions": [
-        "What was the actual latency target value used?",
-        "How does p99 latency compare, not just median?",
-        "What counts as a 'real chat workload' exactly?"
+        "Is the 2.4x measured at p99 or median latency SLO?",
+        "How does 'real chat workload' compare to prior benchmarks?"
       ],
-      "inferred_claim": "The presenter wants us to believe their optimizations deliver a validated, real-world 2.4x throughput gain at no latency cost.",
+      "inferred_claim": "The presenter wants viewers to believe their system doubles-plus throughput without sacrificing latency in practice.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.978,
+      "latency_s": 2.825,
       "attempts": 1,
       "slide_hash": "6245d954610689860a75b20b"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+      "takeaway": "The combined optimizations achieved a measured 2.4x throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
       "confidence": 0.75,
       "unresolved_terms": [],
       "questions": [
-        "Is this p99 goodput or raw RPS being measured?",
-        "What was the latency target value used?",
-        "How does tail (p99) latency compare, not just median?"
+        "What percentile latency target was used, not just median?",
+        "How does p99 latency compare, not just median?",
+        "What is the baseline system for comparison?"
       ],
-      "inferred_claim": "The presenter wants the audience to accept that their system doubles-plus throughput at no latency cost.",
+      "inferred_claim": "The presenter wants the audience to accept the 2.4x throughput gain as validated and practically meaningful.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.053,
+      "latency_s": 3.041,
       "attempts": 1,
       "slide_hash": "6245d954610689860a75b20b"
     }
   },
   "slide_intent": {
-    "text": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+    "text": "The combined optimizations achieved a measured 2.4x throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
     "source": "expert_takeaway"
   },
   "metrics": {
-    "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+    "comparator": "fieldwise",
+    "intent": "The combined optimizations achieved a measured 2.4x throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
     "takeaways": {
-      "novice": "The presenter achieved 2.4 times more processed requests per second using the same hardware and latency, without hurting response time.",
-      "peer": "The presented techniques achieved 2.4x more requests per second on the same hardware without sacrificing median response time, validated on a real chat workload.",
-      "expert": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload."
+      "novice": "Using the same hardware and latency requirements, the new system handled 2.4x more requests per second without slowing down typical response times, tested on real chat data.",
+      "peer": "The described optimizations achieved 2.4x more requests per second on the same hardware without hurting median latency, on a real chat workload.",
+      "expert": "The combined optimizations achieved a measured 2.4x throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.6030805756002726,
-        "inputs": {
-          "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
-          "novice": "The presenter achieved 2.4 times more processed requests per second using the same hardware and latency, without hurting response time."
+        "concept": null,
+        "claim": "A system can handle substantially more requests per second on the same hardware without slowing typical response times.",
+        "result": "2.4x more requests per second",
+        "vehicle": "tested on real chat data"
+      },
+      "peer": {
+        "concept": "optimizations",
+        "claim": "Optimizations can achieve substantially more requests per second on the same hardware without hurting median latency.",
+        "result": "2.4x more requests per second",
+        "vehicle": "real chat workload"
+      },
+      "expert": {
+        "concept": "combined optimizations",
+        "claim": "Combined optimizations can achieve a substantial throughput gain on the same hardware without sacrificing median latency.",
+        "result": "2.4x throughput gain",
+        "vehicle": "real chat workload"
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result",
+        "vehicle"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle, works through an example and reaches a numeric result."
+    },
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "combined optimizations",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Combined optimizations can achieve a substantial throughput gain on the same hardware without sacrificing median latency.",
+          "audience": "A system can handle substantially more requests per second on the same hardware without slowing typical response times.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": true,
+            "rationale": "Both claims state the same essential outcome: substantial throughput gain without hurting typical/median latency on same hardware.",
+            "quote": "without sacrificing median latency",
+            "quote_verified": true
+          },
+          "meaning": "Same understanding."
+        },
+        "result": {
+          "field": "result",
+          "expert": "2.4x throughput gain",
+          "audience": "2.4x more requests per second",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "2.4x",
+            "2.4x"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "real chat workload",
+          "audience": "tested on real chat data",
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.8044600673634272,
-        "inputs": {
-          "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
-          "peer": "The presented techniques achieved 2.4x more requests per second on the same hardware without sacrificing median response time, validated on a real chat workload."
-        }
-      },
-      "expert": {
-        "value": 1.0,
-        "definitional": true,
-        "inputs": {
-          "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
-          "expert": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload."
+        "concept": {
+          "field": "concept",
+          "expert": "combined optimizations",
+          "audience": "optimizations",
+          "status": "compared",
+          "outcome": "near",
+          "comparator": "fuzzy",
+          "normalised": [
+            "combined optimization",
+            "optimization"
+          ],
+          "how": "one names the other more narrowly (its words are contained in the other's)"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Combined optimizations can achieve a substantial throughput gain on the same hardware without sacrificing median latency.",
+          "audience": "Optimizations can achieve substantially more requests per second on the same hardware without hurting median latency.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": true,
+            "rationale": "Both claims describe optimizations achieving substantial throughput gain without hurting median latency on same hardware.",
+            "quote": "without hurting median latency",
+            "quote_verified": true
+          },
+          "meaning": "Same understanding."
+        },
+        "result": {
+          "field": "result",
+          "expert": "2.4x throughput gain",
+          "audience": "2.4x more requests per second",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "exact",
+          "normalised": [
+            "2.4x",
+            "2.4x"
+          ]
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": "real chat workload",
+          "audience": "real chat workload",
+          "status": "not_scored"
         }
       }
     },
+    "ordinal": {
+      "novice": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "ok"
+    },
+    "findings": [],
     "term_gap": {
-      "terms": [
-        "GPUs"
-      ],
-      "novice_unresolved": [
-        "GPUs"
-      ],
+      "terms": [],
+      "novice_unresolved": [],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "latency_s": 4.061,
+      "dropped": [],
+      "retried_because": []
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "scored_by": "claude-sonnet-5",
   "timing": {
-    "personas_s": 3.057
-  }
+    "personas_s": 3.047,
+    "structuring_s": 4.063
+  },
+  "image_content": null
 }

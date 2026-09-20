@@ -4,97 +4,223 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter.",
-      "confidence": 0.8,
+      "takeaway": "The presenter wants us to remember that their new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
+      "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "When exactly this quarter will it be released?",
-        "Which specific model or system is being open-sourced?"
+        "When exactly will the open-source release happen?",
+        "Which GPUs or hardware setups does this apply to?"
       ],
-      "inferred_claim": "The presenter wants viewers to remember the efficiency gain, unchanged accuracy, and upcoming open-source release.",
+      "inferred_claim": "The presenter wants us to believe this improvement is efficient, safe, and will soon be publicly available.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.678,
+      "latency_s": 2.738,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The presenter is summarizing that their system increases user capacity per GPU without altering model output, and will be open-sourced soon.",
+      "takeaway": "The presentation's efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
       "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "What is the open-source release timeline exactly?",
-        "Which repository or license will be used?"
+        "Which open-source project or repo will be released?",
+        "What license or platform will host the release?"
       ],
-      "inferred_claim": "The audience should expect and adopt this open-sourced efficiency system this quarter.",
+      "inferred_claim": "The presenter wants the audience to remember these gains are efficiency-only and soon publicly available.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.623,
+      "latency_s": 2.963,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter.",
+      "takeaway": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
       "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "What specifically will be open-sourced—code, weights, or benchmarks?",
-        "Which framework or repo will host the release?"
+        "Which specific components/code will be open-sourced?",
+        "Does 'no change to what the model says' mean bitwise identical outputs, including with speculative decoding?"
       ],
-      "inferred_claim": "The presenter wants the audience to remember the efficiency gains are lossless and will soon be publicly available.",
+      "inferred_claim": "The presenter wants the audience to remember the serving efficiency gains are lossless and will be publicly released soon.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.626,
+      "latency_s": 2.946,
       "attempts": 1,
       "slide_hash": "b02758b4b924323068e004fa"
     }
   },
   "slide_intent": {
-    "text": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter.",
+    "text": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
     "source": "expert_takeaway"
   },
   "metrics": {
-    "intent": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter.",
+    "comparator": "fieldwise",
+    "intent": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
     "takeaways": {
-      "novice": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter.",
-      "peer": "The presenter is summarizing that their system increases user capacity per GPU without altering model output, and will be open-sourced soon.",
-      "expert": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter."
+      "novice": "The presenter wants us to remember that their new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
+      "peer": "The presentation's efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
+      "expert": "This is a summary slide reiterating that the optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.772538250673158,
-        "inputs": {
-          "intent": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter.",
-          "novice": "The presenter is summarizing that their method lets more users be served on the same hardware without changing model output, and will be released as open source this quarter."
+        "concept": null,
+        "claim": "A new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "efficiency improvements",
+        "claim": "Efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "optimizations",
+        "claim": "Optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "optimizations",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+          "audience": "A new method serves more users on existing hardware without changing model outputs, and will be released as open source this quarter.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": true,
+            "rationale": "Both state the same points: more capacity/users served on same hardware without output changes, plus open-sourcing this quarter.",
+            "quote": "open-sourced this quarter",
+            "quote_verified": true
+          },
+          "meaning": "Same understanding."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.8420616034807316,
-        "inputs": {
-          "intent": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter.",
-          "peer": "The presenter is summarizing that their system increases user capacity per GPU without altering model output, and will be open-sourced soon."
-        }
-      },
-      "expert": {
-        "value": 1.0,
-        "definitional": true,
-        "inputs": {
-          "intent": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter.",
-          "expert": "The presenter is summarizing the key claims: higher throughput per GPU without changing model outputs, and a commitment to open-source the work this quarter."
+        "concept": {
+          "field": "concept",
+          "expert": "optimizations",
+          "audience": "efficiency improvements",
+          "status": "compared",
+          "outcome": "mismatch",
+          "comparator": "fuzzy",
+          "normalised": [
+            "optimization",
+            "efficiency improvement"
+          ],
+          "how": "edit similarity 0.18"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Optimizations increase serving capacity without altering model outputs, and the work will be open-sourced this quarter.",
+          "audience": "Efficiency improvements let more users be served on the same hardware without altering model outputs, and the work will be open-sourced this quarter.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": true,
+            "rationale": "Both claims describe increased serving capacity without altering outputs and open-sourcing this quarter.",
+            "quote": "open-sourced this quarter",
+            "quote_verified": true
+          },
+          "meaning": "Same understanding."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       }
     },
+    "ordinal": {
+      "novice": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
     "term_gap": {
       "terms": [],
       "novice_unresolved": [],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "latency_s": 3.885,
+      "dropped": [],
+      "retried_because": []
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "scored_by": "claude-sonnet-5",
   "timing": {
-    "personas_s": 3.679
-  }
+    "personas_s": 2.968,
+    "structuring_s": 3.887
+  },
+  "image_content": null
 }

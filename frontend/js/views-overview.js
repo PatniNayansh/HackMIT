@@ -1,4 +1,4 @@
-import { h, mount, f2, when, infoIcon, slideImage } from "./dom.js";
+import { h, mount, f2, when, infoIcon, slideImage, stateChip } from "./dom.js";
 import { watch } from "./run.js";
 import { arcChart } from "./charts.js";
 import { numBtn, openProvenance } from "./provenance.js";
@@ -21,6 +21,7 @@ export function overview(root, runId) {
         h("h1", null, meta.title),
         h("div", { class: "meta-line small" },
           statusPill(meta), h("span", null, when(meta.created_at)), h("span", null, `${total} slides`),
+          state.rollup.comparator && !meta.legacy && h("span", { class: "pill", title: "Which comparator produced this run\u2019s numbers" }, state.rollup.comparator === "fieldwise" ? "field-wise comparison" : "cosine comparison"),
           h("span", { class: "mono" }, meta.model || "no model"),
           meta.sample && h("span", { class: "pill sample" }, "sample data")),
         meta.status === "running" && h("div", null,
@@ -80,12 +81,18 @@ export function overview(root, runId) {
     if (!meta.legacy && rollup.arc.some((a) => a.novice != null)) {
       parts.push(h("section", { class: "section" },
         h("header", null, h("h2", null, "Narrative arc")),
-        h("p", { class: "lede" }, "How far each audience falls below the intended reading as the deck goes on. Where the novice line drops and stays down, a newcomer was lost and did not recover. Alignment is semantic similarity: the weaker instrument, so read the shape across slides, not any one level."),
+        h("p", { class: "lede" }, rollup.comparator === "fieldwise"
+          ? "How each audience\u2019s reading of the claim compares with the expert\u2019s as the deck goes on, on an ordinal with four rungs: equivalent, over-claimed, under-specified, and divergent or absent. It is a rank, not a similarity or a probability. Where the novice line drops and stays down, a newcomer was lost and did not recover. A hollow marker is a slide with a thin profile, not a low-comprehension slide."
+          : "How far each audience falls below the intended reading as the deck goes on. Where the novice line drops and stays down, a newcomer was lost and did not recover. Alignment is semantic similarity: the weaker instrument, so read the shape across slides, not any one level."),
         h("div", { class: "card" }, arcChart(rollup, {
-          onPoint: (slide, persona) => openProvenance({ kind: "alignment", slide, persona }, state),
+          onPoint: (slide, persona) => openProvenance(rollup.comparator === "fieldwise"
+            ? (rollup.definitional.includes(persona) ? { kind: "reference", slide } : { kind: "state", slide, persona })
+            : { kind: "alignment", slide, persona }, state),
           tableNumber: (slide, persona, v, isReference) => (isReference
             ? numBtn("reference", { kind: "reference", slide }, state, "reference. Show why this is definitional.")
-            : numBtn(f2(v), { kind: "alignment", slide, persona }, state)),
+            : rollup.comparator === "fieldwise"
+              ? numBtn(rollup.arc.find((a) => a.slide === slide).states[persona] ?? "\u2014", { kind: "state", slide, persona }, state)
+              : numBtn(f2(v), { kind: "alignment", slide, persona }, state)),
         }))));
     }
 
@@ -107,7 +114,9 @@ function hardestSection(state, showAll, toggle) {
   return h("section", { class: "section" },
     h("header", null, h("h2", null, "Hardest slides for a newcomer")),
     h("p", { class: "lede" },
-      "Ordered by how far the novice’s reading falls from what the slide is trying to establish, then by how many terms they could not resolve. It is a ranking inside this deck: read the order, not any one slide’s level.",
+      rollup.comparator === "fieldwise"
+        ? "Ordered by where the novice’s reading of the claim falls against the expert’s (absent and divergent first), then by how many of the slide’s fields they missed, then by unresolved terms. It is a ranking inside this deck: read the order."
+        : "Ordered by how far the novice’s reading falls from what the slide is trying to establish, then by how many terms they could not resolve. It is a ranking inside this deck: read the order, not any one slide’s level.",
       meta.status === "running" && " Tiers are read against the slides read so far and can shift as more arrive."),
     rows.length
       ? h("div", { class: "card" },
@@ -117,7 +126,7 @@ function hardestSection(state, showAll, toggle) {
             return h("div", { class: "rank-row wide" },
               h("a", { href: runHref(state, n), "aria-label": `Open slide ${n}` }, slideImage(state.imageUrls[n - 1], ""), h("div", { class: "small", style: "margin-top:4px;font-weight:600" }, `Slide ${n}`)),
               h("div", { class: "rank-take" }, h("div", { class: "take-label" }, "Novice takeaway"), h("div", { class: "clamp" }, `“${firstLine(take)}”`)),
-              h("div", { class: "rank-tier" }, tierChip(state, n)),
+              h("div", { class: "rank-tier" }, tierChip(state, n), rollup.comparator === "fieldwise" && row.novice_state ? h("span", { class: "rank-state" }, "novice: ", stateChip(row.novice_state)) : null),
               h("div", { class: "fact" }, h("span", { class: "k" }, "Novice unresolved terms"),
                 h("span", { class: "v" }, numBtn(String(row.novice_unresolved), { kind: "unresolved", slide: n, persona: "novice" }, state))));
           }),

@@ -44,6 +44,20 @@ export function slideImage(url, alt, extra = "") {
   return h("div", { class: `slide-card${extra ? ` ${extra}` : ""}` }, h("img", { src: url, alt, loading: "lazy" }));
 }
 
+/** The claim's entailment state as a word. Words are the point: no scalar. The five states differ by
+ *  fill weight on the tier ramp (never red/amber/green), and the text is always present. */
+export const STATES = ["equivalent", "over-claimed", "under-specified", "divergent", "absent"];
+export const STATE_MEANING = {
+  equivalent: "Same understanding.",
+  "over-claimed": "The reading over-generalised: it claims more than the expert did.",
+  "under-specified": "The reading got a weaker version of the point.",
+  divergent: "Neither implies the other: likely a misconception.",
+  absent: "The reading stated no general claim.",
+};
+export function stateChip(state, { large = false } = {}) {
+  return h("span", { class: `state-chip ${state.replace(/[^a-z]/g, "_")}${large ? " large" : ""}` }, state);
+}
+
 // ---------------------------------------------------------------- formatting
 
 export const f2 = (x) => (x < 0 ? "−" : "") + Math.abs(x).toFixed(2);

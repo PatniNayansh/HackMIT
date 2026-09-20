@@ -2,43 +2,33 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "State the baseline throughput the 2.4x improvement is measured against",
-      "evidence": "What was the baseline before this improvement?"
+      "bullet": "State what baseline system the 2.4x improvement is measured against",
+      "evidence": "Result: 2.4x more requests per second"
     },
     {
       "audience": "novice",
-      "bullet": "Define what 'real chat workload' means (e.g., dataset, request pattern)",
-      "evidence": "How was 'real chat workload' defined or measured?"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Briefly define GPUs or clarify their role in the setup",
-      "evidence": "GPUs"
+      "bullet": "Name the specific optimizations that produced this result, since the slide shows only the result without the principle behind it",
+      "evidence": "How was 'real chat workload' data collected or defined?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "State the actual latency target value used",
-      "evidence": "What was the actual latency target value used?"
+      "bullet": "State the baseline system the 2.4x is measured against",
+      "evidence": "How does 'real chat workload' compare to prior benchmarks?"
     },
     {
       "audience": "peer",
-      "bullet": "Add p99 (tail) latency comparison alongside median",
-      "evidence": "How does p99 latency compare, not just median?"
-    },
-    {
-      "audience": "peer",
-      "bullet": "Clarify the definition/criteria for 'real chat workload'",
-      "evidence": "What counts as a 'real chat workload' exactly?"
+      "bullet": "Clarify that median latency is the specific metric being held constant, distinct from tail latency",
+      "evidence": "Is the 2.4x measured at p99 or median latency SLO?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T01:38:39+00:00",
-    "latency_s": 3.11,
-    "intent": "The combined optimizations achieve 2.4x higher throughput on the same hardware without sacrificing median latency, validated on a real chat workload.",
+    "generated_at": "2026-09-20T02:57:42+00:00",
+    "latency_s": 3.26,
+    "intent": "The combined optimizations achieved a measured 2.4x throughput gain on the same hardware without sacrificing median latency, validated on a real chat workload.",
     "dropped_without_evidence": 0
   }
 }

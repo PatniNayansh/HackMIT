@@ -1,30 +1,96 @@
 [
   {
     "index": 1,
-    "text": "[title] Serving LLMs faster: 2.4x goodput at p99\n[body] Alex Rivera\n[body] Systems Group"
+    "text": "[title] Serving LLMs faster: 2.4x goodput at p99\n[body] Alex Rivera\n[body] Systems Group",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 3,
+      "text_chars": 56,
+      "carries_figure": false
+    }
   },
   {
     "index": 2,
-    "text": "[title] Why serving is hard\n[body] Every request grows a KV-cache as it generates tokens\n[body] Fragmented memory wastes GPU capacity\n[body] Tail latency (p99) is what users feel"
+    "text": "[title] Why serving is hard\n[body] Every request grows a KV-cache as it generates tokens\n[body] Fragmented memory wastes GPU capacity\n[body] Tail latency (p99) is what users feel",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 4,
+      "text_chars": 125,
+      "carries_figure": false
+    }
   },
   {
     "index": 3,
-    "text": "[title] PagedAttention + speculative decoding: 2.4x goodput at p99\n[body] KV-cache fragmentation: <4% waste via block tables\n[body] Draft model acceptance alpha = 0.78 at gamma = 5\n[body] Continuous batching; chunked prefill off to hold the TTFT SLO"
+    "text": "[title] PagedAttention + speculative decoding: 2.4x goodput at p99\n[body] KV-cache fragmentation: <4% waste via block tables\n[body] Draft model acceptance alpha = 0.78 at gamma = 5\n[body] Continuous batching; chunked prefill off to hold the TTFT SLO",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 4,
+      "text_chars": 186,
+      "carries_figure": false
+    }
   },
   {
     "index": 4,
-    "text": "[title] Block tables\n[body] KV-cache split into fixed-size blocks, mapped per sequence\n[body] Copy-on-write shares blocks across parallel samples\n[body] Prefix caching hit rate: 61% on the chat workload"
+    "text": "[title] Block tables\n[body] KV-cache split into fixed-size blocks, mapped per sequence\n[body] Copy-on-write shares blocks across parallel samples\n[body] Prefix caching hit rate: 61% on the chat workload",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 4,
+      "text_chars": 149,
+      "carries_figure": false
+    }
   },
   {
     "index": 5,
-    "text": "[title] Speculative decoding\n[body] A small draft model proposes gamma tokens\n[body] The target model verifies them in one forward pass\n[body] Rejection sampling keeps the output distribution exact"
+    "text": "[title] Speculative decoding\n[body] A small draft model proposes gamma tokens\n[body] The target model verifies them in one forward pass\n[body] Rejection sampling keeps the output distribution exact",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 4,
+      "text_chars": 144,
+      "carries_figure": false
+    }
   },
   {
     "index": 6,
-    "text": "[title] Result: 2.4x more requests per second\n[body] Same hardware: 8 GPUs, same latency target\n[body] Median response time unchanged\n[body] Measured on a real chat workload"
+    "text": "[title] Result: 2.4x more requests per second\n[body] Same hardware: 8 GPUs, same latency target\n[body] Median response time unchanged\n[body] Measured on a real chat workload",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 4,
+      "text_chars": 122,
+      "carries_figure": false
+    }
   },
   {
     "index": 7,
-    "text": "[title] What to remember\n[body] Serve more users on the same GPUs\n[body] No change to what the model says\n[body] Open-sourced this quarter"
+    "text": "[title] What to remember\n[body] Serve more users on the same GPUs\n[body] No change to what the model says\n[body] Open-sourced this quarter",
+    "image_content": null,
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 4,
+      "text_chars": 90,
+      "carries_figure": false
+    }
+  },
+  {
+    "index": 8,
+    "text": "[title] Latency versus load\n[body] baseline\n[body] 500 ms\n[body] p99 latency (ms)\n[body] ours\n[body] Requests per second",
+    "image_content": {
+      "text": "A graph with axes labeled \"Requests per second\" (horizontal) and \"p99 latency (ms)\" (vertical). Two upward-curving lines originate near the origin: an orange line labeled \"baseline\" and a blue line labeled \"ours\". The orange line rises more steeply than the blue line. A horizontal dashed line at 500 ms intersects the orange line in the upper right portion of the graph.",
+      "model": "claude-haiku-4-5",
+      "source": "vision",
+      "machine_generated": true,
+      "attempts": 1
+    },
+    "figure_signals": {
+      "image_area_ratio": 0.0,
+      "drawing_paths": 17,
+      "text_chars": 65,
+      "carries_figure": true
+    }
   }
 ]

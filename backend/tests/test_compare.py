@@ -44,6 +44,12 @@ def metrics(**kw):
     ("$50", "$50", "match"), ("$50", "50", "match"), ("$50.00", "$50", "match"), (" $ 50 ", "$50", "match"),
     ("1,200", "$1200", "match"), ("50 dollars", "$50", "match"), ("50%", "50%", "match"), ("2.4x", "2.4X", "match"),
     ("$50", "$60", "mismatch"), ("$50", "$5", "mismatch"), ("50%", "50", "mismatch"), ("four", "4", "mismatch"),
+    # extracted results are phrases: it is the quantity they state that is matched exactly
+    ("2.4x improvement", "2.4x", "match"), ("2.4x higher request throughput", "2.4x more requests per second", "match"),
+    ("2.4x improvement", "2.4 times faster", "match"), ("2.4x p99 goodput improvement", "2.4x", "match"),
+    ("2.4x improvement", "3x improvement", "mismatch"), ("about $50 of foregone benefit", "$50", "match"),
+    ("2.4x improvement", "a big improvement", "mismatch"), ("a big improvement", "a big improvement", "match"),
+    ("p99 of 500 ms", "500ms", "match"), ("KV2 cache", "cache", "mismatch"),  # a digit inside a name is not a quantity
 ])
 def test_result_is_an_exact_match_after_trivial_normalisation(a, b, outcome):
     got = compare_result(a, b)
@@ -61,6 +67,13 @@ def test_result_is_an_exact_match_after_trivial_normalisation(a, b, outcome):
     ("price elasticity", "price elasticty", "near", "fuzzy"),                  # a typo: small edit distance
     ("opportunity cost", "sunk cost", "mismatch", "fuzzy"),
     ("supply", "demand", "mismatch", "fuzzy"),
+    ("p99 goodput", "goodput", "near", "fuzzy"),                                # one names the other more narrowly
+    ("PagedAttention's block table mechanism", "block tables", "near", "fuzzy"),
+    ("PagedAttention's block table mechanism", "block-table memory management", "near", "fuzzy"),  # shares most of its words
+    ("KV-cache, memory fragmentation, p99 tail latency", "memory fragmentation", "match", "identity"),  # a list: the best pair decides
+    ("KV-cache, memory fragmentation, p99 tail latency", "fragmented memory", "mismatch", "fuzzy"),
+    ("throughput", "latency", "mismatch", "fuzzy"),
+    ("cost of capital", "opportunity cost", "mismatch", "fuzzy"),               # one shared word is not enough
 ])
 def test_concept_is_identity_first_then_a_fuzzy_or_synonym_fallback(a, b, outcome, comparator):
     got = compare_concept(a, b)

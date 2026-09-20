@@ -8,6 +8,7 @@ import re
 import pytest
 from fastapi.testclient import TestClient
 
+from sightline import compare as C
 from sightline.audiences import PERSONAS, FileCache
 from sightline.server import FRONTEND_DIR, create_app
 from sightline.store import BUNDLED_RUNS_DIR, RunStore
@@ -15,6 +16,7 @@ from sightline.store import BUNDLED_RUNS_DIR, RunStore
 from builders import HashEmbedder
 
 RUN = "sample-llm-serving"
+INTERPRETIVE = r"\b(shows?|demonstrat\w*|illustrat\w*|represent\w*|indicat\w*|implies|suggest\w*|equilibrium|surplus|therefore|because|would|better|worse)\b"
 
 
 @pytest.fixture
@@ -31,38 +33,67 @@ def client(tmp_path):
 
 def test_the_sample_is_listed_flagged_and_complete(client):
     (row,) = [r for r in client.get("/api/runs").json() if r["run_id"] == RUN]
-    assert row["sample"] is True and row["status"] == "complete" and row["slide_count"] == 7
+    assert row["sample"] is True and row["status"] == "complete" and row["slide_count"] == 8
     assert row["model"] and row["title"]
 
 
 def test_the_sample_reproduces_the_full_review_payload_offline(client):
     body = client.get(f"/api/runs/{RUN}").json()
     assert body["meta"]["status"] == "complete" and body["pending"] == []
-    assert len(body["results"]) == 7 and body["rollup"]["n_scored"] == 7 and body["rollup"]["comparable"]
-    assert body["rollup"]["terms"] and body["rollup"]["arc"] and body["rollup"]["hardest"]
-    assert body["rollup"]["definitional"] == ["expert"] and body["meta"]["legacy"] is False
-    for i in range(1, 8):
+    assert body["meta"]["comparator"] == "fieldwise" and body["rollup"]["comparator"] == "fieldwise" and body["meta"]["legacy"] is False
+    assert len(body["results"]) == 8 and body["rollup"]["n_scored"] == 8 and body["rollup"]["comparable"]
+    assert body["rollup"]["terms"] and body["rollup"]["arc"] and body["rollup"]["hardest"] and body["rollup"]["definitional"] == ["expert"]
+    for i in range(1, 9):
         assert client.get(f"/api/runs/{RUN}/slides/{i}.png").status_code == 200
+        rec = client.get(f"/api/runs/{RUN}/slides/{i}/recommendations").json()
+        assert rec["available"] and rec["cached"]  # saved with the run: no key needed
 
 
-def test_every_metric_in_the_sample_traces_back_to_the_text_that_produced_it(client):
-    """A slide's intent IS the expert's stored takeaway, and every alignment was computed from
-    exactly that string and the persona's own stored takeaway."""
+def test_a_slides_intent_is_the_expert_takeaway_and_the_fieldwise_payload_is_self_consistent(client):
+    """Every stored comparison can be recomputed from the stored fields alone (the null table, the
+    comparators, the states from the stored verdicts), so nothing on screen is unexplained."""
     body = client.get(f"/api/runs/{RUN}").json()
     for r in body["results"]:
-        m, si = r["metrics"], r["slide_intent"]
-        takeaways = {p: r["readings"][p]["takeaway"] for p in PERSONAS}
-        assert m["takeaways"] == takeaways
-        assert si == {"text": takeaways["expert"], "source": "expert_takeaway"}
-        assert m["intent"] == si["text"] == r["readings"]["expert"]["takeaway"]  # shown == measured, character for character
-        for p in ("novice", "peer"):
-            assert m["intent_alignment"][p]["inputs"] == {"intent": si["text"], p: takeaways[p]}
-        expert = m["intent_alignment"]["expert"]  # the reference: 1.0 by definition, and labelled so
-        assert expert["value"] == 1.0 and expert["definitional"] is True
-        assert m["term_gap"]["novice_unresolved"] == r["readings"]["novice"]["unresolved_terms"]
+        m = r["metrics"]
+        assert r["slide_intent"] == {"text": r["readings"]["expert"]["takeaway"], "source": "expert_takeaway"} and m["intent"] == r["slide_intent"]["text"]
+        assert m["takeaways"] == {p: r["readings"][p]["takeaway"] for p in PERSONAS}
+        fields = m["fields"]
+        assert m["slide_profile"] == C.slide_profile(fields["expert"])
+        for aud in ("novice", "peer"):
+            for f in C.FIELDS:
+                stored = m["comparisons"][aud][f]
+                fresh = C.compare_field(f, fields["expert"][f], fields[aud][f])
+                assert stored["status"] == fresh["status"], (r["index"], aud, f)
+                if f in ("concept", "result") and stored["status"] == "compared":
+                    assert stored["outcome"] == fresh["outcome"]
+            claim = m["comparisons"][aud]["claim"]
+            if claim["status"] == "compared":
+                v = claim["verdict"]
+                assert claim["outcome"] == C.entailment_state(claim["expert"], claim["audience"], v)
+                assert v["quote"] and v["rationale"]  # every state traces to a quoted span
+            assert m["comparisons"][aud]["vehicle"]["status"] == "not_scored"  # never scored
+        assert m["ordinal"]["expert"]["definitional"] is True and "intent_alignment" not in m
         assert not ({"audience_divergence", "blind_spot_score", "pairwise_distance"} & set(m))
-        # confidence is still stored exactly as the model reported it (debugging, history)
-        assert all(0.0 <= r["readings"][p]["confidence"] <= 1.0 for p in PERSONAS)
+
+
+def test_every_finding_in_the_sample_is_backed_by_quoted_text(client):
+    for r in client.get(f"/api/runs/{RUN}").json()["results"]:
+        for f in r["metrics"]["findings"]:
+            assert f["evidence"] and all(e["text"] for e in f["evidence"])
+            if f["id"] == "example_bound":
+                assert f["evidence"][0]["text"] == r["metrics"]["takeaways"][f["audience"]]
+
+
+def test_only_the_figure_slide_was_described_and_the_description_is_neutral(client):
+    results = client.get(f"/api/runs/{RUN}").json()["results"]
+    described = [r["index"] for r in results if r["image_content"]]
+    assert described == [8]  # a text-only slide costs nothing extra
+    ic = results[7]["image_content"]
+    assert ic["source"] == "vision" and ic["machine_generated"] is True and ic["model"] == "claude-haiku-4-5"
+    assert not re.search(INTERPRETIVE, ic["text"], re.I)  # marks, labels, axes, values: no meaning drawn from them
+    assert 'labeled "p99 latency (ms)"' in ic["text"] or "p99 latency (ms)" in ic["text"]
+    assert results[7]["text"].endswith("FIGURE: [description of the image, not printed words] " + ic["text"])
+    assert all("FIGURE:" not in r["text"] for r in results[:7])
 
 
 def test_the_sample_cannot_be_run_again_or_modified(client):

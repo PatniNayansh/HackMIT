@@ -2,38 +2,33 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Explain what copy-on-write means in this context with a short phrase or example",
-      "evidence": "What does 'copy-on-write' mean here?"
+      "bullet": "Add a one-line definition of copy-on-write and why it helps performance",
+      "evidence": "How does copy-on-write help performance?"
     },
     {
       "audience": "novice",
-      "bullet": "Add a sentence explaining how prefix caching improves performance",
-      "evidence": "How does prefix caching improve performance?"
+      "bullet": "Explain what 'prefix caching hit rate' means and what a hit represents",
+      "evidence": "What does prefix caching hit rate mean exactly?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Specify the block size used in the block table scheme",
-      "evidence": "What counts as a 'block' size in practice?"
+      "bullet": "State the baseline the 61% hit rate is measured against",
+      "evidence": "What baseline is the 61% hit rate compared to?"
     },
     {
       "audience": "peer",
-      "bullet": "Clarify how the 61% prefix caching hit rate is measured and what it means for performance",
-      "evidence": "How does prefix caching relate to the 61% hit rate?"
-    },
-    {
-      "audience": "peer",
-      "bullet": "Add a note connecting block tables to solving the earlier fragmentation problem mentioned elsewhere in the deck",
-      "evidence": "How do block tables address the earlier fragmentation problem?"
+      "bullet": "Add a sentence connecting the 61% hit rate to the overall throughput/speedup result",
+      "evidence": "How does this connect to the 2.4x speedup claim?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T01:38:32+00:00",
-    "latency_s": 3.82,
-    "intent": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload.",
+    "generated_at": "2026-09-20T02:57:35+00:00",
+    "latency_s": 4.0,
+    "intent": "The slide explains PagedAttention's block table mechanism (fixed-size KV-cache blocks, copy-on-write sharing) and reports a 61% prefix cache hit rate on a chat workload.",
     "dropped_without_evidence": 1
   }
 }

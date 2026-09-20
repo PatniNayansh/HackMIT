@@ -2,33 +2,33 @@
   "novice": [
     {
       "audience": "novice",
-      "bullet": "Define 'gamma tokens' as the number of tokens the draft model proposes per step, on first use",
-      "evidence": "What does 'gamma tokens' specifically mean?"
+      "bullet": "Explain 'forward pass' in plain terms (a single run of the model over the input)",
+      "evidence": "What exactly is a 'forward pass'?"
     },
     {
       "audience": "novice",
-      "bullet": "Briefly explain rejection sampling as accepting/rejecting draft tokens based on target model probabilities to keep output identical to target-only sampling",
-      "evidence": "How does rejection sampling ensure exactness?"
-    },
-    {
-      "audience": "novice",
-      "bullet": "Add a short note on why one forward pass verifies multiple tokens faster than generating them sequentially",
-      "evidence": "Why is one forward pass faster than normal?"
+      "bullet": "Add a one-line explanation of how rejection sampling preserves exactness",
+      "evidence": "How does 'rejection sampling' work here?"
     }
   ],
   "peer": [
     {
       "audience": "peer",
-      "bullet": "Note what determines gamma (e.g., fixed hyperparameter or tuned per task)",
+      "bullet": "State explicitly that this mechanism is one component behind the earlier-claimed 2.4x goodput gain, tying it back to that figure",
+      "evidence": "Speculative decoding is a key technique enabling the claimed 2.4x throughput gain without sacrificing accuracy."
+    },
+    {
+      "audience": "peer",
+      "bullet": "Note how gamma is chosen or its typical value in this system",
       "evidence": "What determines the value of gamma?"
     }
   ],
   "expert_flagged": [],
   "meta": {
     "model": "claude-sonnet-5",
-    "generated_at": "2026-09-20T01:38:36+00:00",
-    "latency_s": 3.94,
-    "intent": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
-    "dropped_without_evidence": 0
+    "generated_at": "2026-09-20T02:57:39+00:00",
+    "latency_s": 3.68,
+    "intent": "The slide gives a standard summary of speculative decoding mechanics as one component behind the earlier-claimed 2.4x goodput gain.",
+    "dropped_without_evidence": 1
   }
 }

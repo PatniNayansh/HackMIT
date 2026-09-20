@@ -4,28 +4,28 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The slide describes a memory management technique called 'block tables' that splits and shares cached data to improve efficiency in serving AI models.",
-      "confidence": 0.5,
+      "takeaway": "The slide describes a memory-management technique (block tables) that splits and shares cached data efficiently, boosting reuse rates, to help explain the earlier speedup.",
+      "confidence": 0.4,
       "unresolved_terms": [
         "KV-cache",
         "Copy-on-write",
         "Prefix caching"
       ],
       "questions": [
-        "What is KV-cache exactly?",
-        "What does 'copy-on-write' mean here?",
-        "How does prefix caching improve performance?"
+        "What is KV-cache and why split it?",
+        "How does copy-on-write help performance?",
+        "What does prefix caching hit rate mean exactly?"
       ],
-      "inferred_claim": "The presenter wants me to believe this block table method contributes to the claimed 2.4x efficiency gain.",
+      "inferred_claim": "The presenter wants me to believe this block-table method improves memory efficiency and speed.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.968,
+      "latency_s": 3.362,
       "attempts": 1,
       "slide_hash": "d577040ae8b3ba7871e74fb2"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The system manages a per-sequence key-value cache using fixed-size blocks with copy-on-write sharing and prefix caching to improve memory efficiency.",
+      "takeaway": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching.",
       "confidence": 0.55,
       "unresolved_terms": [
         "KV-cache",
@@ -33,70 +33,197 @@
         "Prefix caching"
       ],
       "questions": [
-        "What counts as a 'block' size in practice?",
-        "How does prefix caching relate to the 61% hit rate?",
-        "How do block tables address the earlier fragmentation problem?"
+        "How does block table structure reduce fragmentation?",
+        "What baseline is the 61% hit rate compared to?",
+        "How does this connect to the 2.4x speedup claim?"
       ],
-      "inferred_claim": "The presenter wants me to believe block tables efficiently manage memory to boost throughput.",
+      "inferred_claim": "The presenter wants me to believe block-table memory management is a key technique behind their throughput gains.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.986,
+      "latency_s": 3.262,
       "attempts": 1,
       "slide_hash": "d577040ae8b3ba7871e74fb2"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload.",
+      "takeaway": "The slide explains PagedAttention's block table mechanism (fixed-size KV-cache blocks, copy-on-write sharing) and reports a 61% prefix cache hit rate on a chat workload.",
       "confidence": 0.75,
       "unresolved_terms": [],
       "questions": [
-        "What block size is used?",
-        "How is the 61% hit rate measured/defined?",
-        "How does block table overhead compare to contiguous KV-cache?"
+        "What workload/dataset defines 'chat workload' here?",
+        "How does 61% hit rate translate into latency/throughput gains?",
+        "Is block size a tunable parameter affecting this hit rate?"
       ],
-      "inferred_claim": "The presenter wants us to believe block tables with copy-on-write and prefix caching contribute to the claimed goodput gains.",
+      "inferred_claim": "Block tables with copy-on-write and prefix caching are key mechanisms enabling the memory efficiency behind the claimed speedup.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.983,
+      "latency_s": 3.503,
       "attempts": 1,
       "slide_hash": "d577040ae8b3ba7871e74fb2"
     }
   },
   "slide_intent": {
-    "text": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload.",
+    "text": "The slide explains PagedAttention's block table mechanism (fixed-size KV-cache blocks, copy-on-write sharing) and reports a 61% prefix cache hit rate on a chat workload.",
     "source": "expert_takeaway"
   },
   "metrics": {
-    "intent": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload.",
+    "comparator": "fieldwise",
+    "intent": "The slide explains PagedAttention's block table mechanism (fixed-size KV-cache blocks, copy-on-write sharing) and reports a 61% prefix cache hit rate on a chat workload.",
     "takeaways": {
-      "novice": "The slide describes a memory management technique called 'block tables' that splits and shares cached data to improve efficiency in serving AI models.",
-      "peer": "The system manages a per-sequence key-value cache using fixed-size blocks with copy-on-write sharing and prefix caching to improve memory efficiency.",
-      "expert": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload."
+      "novice": "The slide describes a memory-management technique (block tables) that splits and shares cached data efficiently, boosting reuse rates, to help explain the earlier speedup.",
+      "peer": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching.",
+      "expert": "The slide explains PagedAttention's block table mechanism (fixed-size KV-cache blocks, copy-on-write sharing) and reports a 61% prefix cache hit rate on a chat workload."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.5433863174744912,
-        "inputs": {
-          "intent": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload.",
-          "novice": "The slide describes a memory management technique called 'block tables' that splits and shares cached data to improve efficiency in serving AI models."
+        "concept": "block tables",
+        "claim": "A memory-management technique splits and shares cached data efficiently, boosting reuse rates.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "KV-cache blocks / copy-on-write / prefix caching",
+        "claim": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "PagedAttention block table mechanism",
+        "claim": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing to manage memory.",
+        "result": "61% prefix cache hit rate on a chat workload",
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle and reaches a numeric result; no example."
+    },
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "PagedAttention block table mechanism",
+          "audience": "block tables",
+          "status": "compared",
+          "outcome": "near",
+          "comparator": "fuzzy",
+          "normalised": [
+            "pagedattention block table mechanism",
+            "block table"
+          ],
+          "how": "one names the other more narrowly (its words are contained in the other's)"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing to manage memory.",
+          "audience": "A memory-management technique splits and shares cached data efficiently, boosting reuse rates.",
+          "status": "compared",
+          "outcome": "under-specified",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": false,
+            "rationale": "Expert's specific block/copy-on-write mechanism implies novice's general claim of splitting and sharing cached data to boost reuse, but not vice versa.",
+            "quote": "fixed-size KV-cache blocks with copy-on-write sharing",
+            "quote_verified": true
+          },
+          "meaning": "The reading got a weaker version of the point."
+        },
+        "result": {
+          "field": "result",
+          "expert": "61% prefix cache hit rate on a chat workload",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.6042944211704191,
-        "inputs": {
-          "intent": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload.",
-          "peer": "The system manages a per-sequence key-value cache using fixed-size blocks with copy-on-write sharing and prefix caching to improve memory efficiency."
-        }
-      },
-      "expert": {
-        "value": 1.0,
-        "definitional": true,
-        "inputs": {
-          "intent": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload.",
-          "expert": "The slide describes PagedAttention-style block tables for KV-cache management, enabling copy-on-write sharing and reporting a 61% prefix cache hit rate on a chat workload."
+        "concept": {
+          "field": "concept",
+          "expert": "PagedAttention block table mechanism",
+          "audience": "KV-cache blocks / copy-on-write / prefix caching",
+          "status": "compared",
+          "outcome": "mismatch",
+          "comparator": "fuzzy",
+          "normalised": [
+            "pagedattention block table mechanism",
+            "kv cache block"
+          ],
+          "how": "edit similarity 0.32"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "PagedAttention uses fixed-size KV-cache blocks with copy-on-write sharing to manage memory.",
+          "audience": "The system manages GPU memory for LLM inference by splitting the KV-cache into blocks with copy-on-write sharing, boosting cache reuse via prefix caching.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": true,
+            "rationale": "Both describe the same block-splitting, copy-on-write, reuse-boosting mechanism in equivalent general terms.",
+            "quote": "fixed-size KV-cache blocks with copy-on-write sharing",
+            "quote_verified": true
+          },
+          "meaning": "Same understanding."
+        },
+        "result": {
+          "field": "result",
+          "expert": "61% prefix cache hit rate on a chat workload",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       }
     },
+    "ordinal": {
+      "novice": {
+        "value": 0.33,
+        "basis": "claim",
+        "state": "under-specified",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "partial"
+    },
+    "findings": [],
     "term_gap": {
       "terms": [
         "KV-cache",
@@ -109,11 +236,20 @@
         "Prefix caching"
       ],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "latency_s": 4.982,
+      "dropped": [],
+      "retried_because": []
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "scored_by": "claude-sonnet-5",
   "timing": {
-    "personas_s": 3.987
-  }
+    "personas_s": 3.509,
+    "structuring_s": 4.985
+  },
+  "image_content": null
 }

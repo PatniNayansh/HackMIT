@@ -133,7 +133,8 @@ async def test_the_prompt_is_descriptive_never_interpretive():
     await describe_figures(d, [figure_slide()])
     p = d.calls[0]["system"]
     for rule in ("describer, not an interpreter", "marks, labels, axes, values and spatial relationships", "name a principle",
-                 "what the figure means", "expand or explain an acronym", "copy it as printed", "P*, Q*"):
+                 "what the figure means", "expand or explain an acronym", "copy it as printed", "P*, Q*",
+                 "what would happen", "describe only what IS drawn", "use the words show, showing"):
         assert rule in p, rule
     assert "showing market equilibrium and consumer surplus" in p  # the counter-example is in the prompt as the BAD case
     assert p.index("Good:") < p.index("Bad:")
@@ -143,12 +144,14 @@ async def test_the_prompt_is_descriptive_never_interpretive():
     "A supply and demand diagram showing market equilibrium and consumer surplus.",
     "The chart demonstrates that latency rises with load.",
     "A curve that illustrates growth, therefore output rises.",
+    "A dashed line meets the orange curve at a higher load than where it would meet the blue one.",
+    "The blue curve is better than the orange one.",
 ])
 async def test_a_description_that_interprets_is_retried_then_not_used(interpretive):
     bad = {"has_figure": True, "description": interpretive}
-    d = Describer(bad, bad)
+    d = Describer(bad, bad, bad)
     rec = await describe_figure(d, figure_slide())
-    assert len(d.calls) == 2 and "interpreted the figure" in d.calls[1]["user"]
+    assert len(d.calls) == 3 and "interpreted the figure" in d.calls[1]["user"]
     assert rec["text"] is None and rec["source"] == "failed" and "interpreted the figure" in rec["error"]
 
 
@@ -159,13 +162,19 @@ async def test_a_retry_that_describes_plainly_is_accepted():
     assert rec["text"].startswith("Two lines") and rec["attempts"] == 2
 
 
+async def test_a_third_attempt_rescues_a_description_the_first_two_got_wrong():
+    bad = {"has_figure": True, "description": "A line showing steady growth."}
+    d = Describer(bad, bad, {"has_figure": True, "description": "One orange line rises from left to right on axes labelled Hours and Volume."})
+    assert (await describe_figure(d, figure_slide()))["attempts"] == 3
+
+
 async def test_when_the_model_finds_no_figure_there_is_no_description():
     (out,) = await describe_figures(Describer({"has_figure": False, "description": None}), [figure_slide()])
     assert out.image_content is None
 
 
 async def test_an_api_error_does_not_fail_the_deck_the_personas_still_have_the_image():
-    rec = await describe_figure(Describer(ConnectionError("down"), ConnectionError("down")), figure_slide())
+    rec = await describe_figure(Describer(ConnectionError("down"), ConnectionError("down"), ConnectionError("down")), figure_slide())
     assert rec["text"] is None and rec["source"] == "failed" and "ConnectionError" in rec["error"]
 
 
@@ -187,7 +196,7 @@ async def test_a_deck_is_described_once_the_cache_answers_the_second_time(tmp_pa
 async def test_a_failed_description_is_not_cached_so_a_later_upload_can_succeed(tmp_path):
     cache = FileFigureCache(tmp_path)
     bad = {"has_figure": True, "description": "It shows the trend."}
-    await describe_figures(Describer(bad, bad), [figure_slide()], cache)
+    await describe_figures(Describer(bad, bad, bad), [figure_slide()], cache)
     d = Describer()
     (out,) = await describe_figures(d, [figure_slide()], cache)
     assert len(d.calls) == 1 and out.image_content["text"]
@@ -226,3 +235,15 @@ def test_the_description_is_stored_with_the_slide_and_restored(tmp_path):
     meta = store.create_draft(title="t", source_filename="t.pdf", slides=[s, Slide(2, "y", png())], inferred=None, inference_error=None)
     back = store.load_slides(meta["run_id"])
     assert back[0].image_content == s.image_content and back[0].carries_figure and back[1].image_content is None
+
+
+def test_the_image_is_withheld_from_the_personas_only_when_asked_and_only_on_described_slides(monkeypatch):
+    described = Slide(1, "[title] x", b"IMG", {"text": "One line rises."})
+    plain = Slide(2, "[title] y", b"IMG2")
+    monkeypatch.delenv("SIGHTLINE_FIGURE_INPUT", raising=False)
+    assert described.to_input().image_png == b"IMG" and plain.to_input().image_png == b"IMG2"  # default: as it has always been
+    monkeypatch.setenv("SIGHTLINE_FIGURE_INPUT", "description_only")
+    assert described.to_input().image_png is None and "FIGURE:" in described.to_input().text
+    assert plain.to_input().image_png == b"IMG2"  # no description, so nothing replaces the image
+    monkeypatch.setenv("SIGHTLINE_FIGURE_INPUT", "nonsense")
+    assert described.to_input().image_png == b"IMG"

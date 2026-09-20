@@ -4,7 +4,7 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "A method called speculative decoding uses a small model to guess tokens ahead of time, which a bigger model checks, to speed up AI responses without changing accuracy.",
+      "takeaway": "A faster small model guesses several tokens ahead, and a bigger model checks them at once while keeping results as accurate as if it worked alone.",
       "confidence": 0.6,
       "unresolved_terms": [
         "gamma tokens",
@@ -12,88 +12,203 @@
         "Rejection sampling"
       ],
       "questions": [
-        "What does 'gamma tokens' specifically mean?",
-        "How does rejection sampling ensure exactness?",
-        "Why is one forward pass faster than normal?"
+        "What exactly is a 'forward pass'?",
+        "How does 'rejection sampling' work here?",
+        "Why does verifying multiple tokens at once save time?"
       ],
-      "inferred_claim": "The presenter wants me to believe speculative decoding speeds up AI model responses while preserving accuracy.",
+      "inferred_claim": "The presenter wants me to believe speculative decoding speeds up model output without sacrificing accuracy.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.978,
+      "latency_s": 3.252,
       "attempts": 1,
       "slide_hash": "db5e7a31f2a208b5da315ff6"
     },
     "peer": {
       "ok": true,
-      "takeaway": "A small draft model quickly proposes multiple tokens which the larger target model verifies in one pass, speeding decoding without changing output correctness.",
-      "confidence": 0.65,
+      "takeaway": "A small draft model proposes multiple tokens that the larger target model verifies in one pass, speeding decoding without changing output distribution.",
+      "confidence": 0.6,
       "unresolved_terms": [
         "gamma"
       ],
       "questions": [
         "What determines the value of gamma?",
-        "How much overhead does verification add?",
-        "How does acceptance rate affect speedup?"
+        "How much does this speed up decoding in practice?",
+        "What's the overhead cost of running the draft model?"
       ],
-      "inferred_claim": "Speculative decoding speeds up generation while preserving exact output quality.",
+      "inferred_claim": "Speculative decoding is a key technique enabling the claimed 2.4x throughput gain without sacrificing accuracy.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.027,
+      "latency_s": 3.045,
       "attempts": 1,
       "slide_hash": "db5e7a31f2a208b5da315ff6"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
-      "confidence": 0.95,
+      "takeaway": "The slide gives a standard summary of speculative decoding mechanics as one component behind the earlier-claimed 2.4x goodput gain.",
+      "confidence": 0.9,
       "unresolved_terms": [],
       "questions": [
-        "What gamma value is used in their experiments?",
-        "How much latency reduction does this contribute vs PagedAttention alone?"
+        "How is gamma chosen in this system?",
+        "What acceptance rate does the draft model achieve?"
       ],
-      "inferred_claim": "Speculative decoding is a key, standard technique contributing to their 2.4x goodput improvement.",
+      "inferred_claim": "Speculative decoding, as implemented here, contributes to the latency/throughput gains without sacrificing correctness.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 2.96,
+      "latency_s": 2.677,
       "attempts": 1,
       "slide_hash": "db5e7a31f2a208b5da315ff6"
     }
   },
   "slide_intent": {
-    "text": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
+    "text": "The slide gives a standard summary of speculative decoding mechanics as one component behind the earlier-claimed 2.4x goodput gain.",
     "source": "expert_takeaway"
   },
   "metrics": {
-    "intent": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
+    "comparator": "fieldwise",
+    "intent": "The slide gives a standard summary of speculative decoding mechanics as one component behind the earlier-claimed 2.4x goodput gain.",
     "takeaways": {
-      "novice": "A method called speculative decoding uses a small model to guess tokens ahead of time, which a bigger model checks, to speed up AI responses without changing accuracy.",
-      "peer": "A small draft model quickly proposes multiple tokens which the larger target model verifies in one pass, speeding decoding without changing output correctness.",
-      "expert": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness."
+      "novice": "A faster small model guesses several tokens ahead, and a bigger model checks them at once while keeping results as accurate as if it worked alone.",
+      "peer": "A small draft model proposes multiple tokens that the larger target model verifies in one pass, speeding decoding without changing output distribution.",
+      "expert": "The slide gives a standard summary of speculative decoding mechanics as one component behind the earlier-claimed 2.4x goodput gain."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.7008302939791392,
-        "inputs": {
-          "intent": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
-          "novice": "A method called speculative decoding uses a small model to guess tokens ahead of time, which a bigger model checks, to speed up AI responses without changing accuracy."
+        "concept": null,
+        "claim": "A faster small model guesses several tokens ahead, and a bigger model checks them all at once, keeping accuracy the same as if the bigger model worked alone.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": null,
+        "claim": "A small draft model proposes multiple tokens that a larger target model verifies in one pass, speeding decoding without changing the output distribution.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "speculative decoding",
+        "claim": "Speculative decoding mechanics are one component behind an earlier-claimed goodput gain.",
+        "result": "2.4x goodput gain",
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "scored": [
+        "concept",
+        "claim",
+        "result"
+      ],
+      "thin": false,
+      "text": "This slide names a principle and reaches a numeric result; no example."
+    },
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "speculative decoding",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Speculative decoding mechanics are one component behind an earlier-claimed goodput gain.",
+          "audience": "A faster small model guesses several tokens ahead, and a bigger model checks them all at once, keeping accuracy the same as if the bigger model worked alone.",
+          "status": "compared",
+          "outcome": "divergent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": false,
+            "audience_entails_expert": false,
+            "rationale": "Expert's claim is about goodput gain attribution, not the mechanics described by novice, so neither implies the other.",
+            "quote": "one component behind the earlier-claimed 2.4x goodput gain",
+            "quote_verified": true
+          },
+          "meaning": "Neither implies the other: likely a misconception."
+        },
+        "result": {
+          "field": "result",
+          "expert": "2.4x goodput gain",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.6191386114180494,
-        "inputs": {
-          "intent": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
-          "peer": "A small draft model quickly proposes multiple tokens which the larger target model verifies in one pass, speeding decoding without changing output correctness."
-        }
-      },
-      "expert": {
-        "value": 1.0,
-        "definitional": true,
-        "inputs": {
-          "intent": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness.",
-          "expert": "The slide gives a standard summary of speculative decoding: draft model proposes tokens, target verifies in one pass, rejection sampling preserves exactness."
+        "concept": {
+          "field": "concept",
+          "expert": "speculative decoding",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "Speculative decoding mechanics are one component behind an earlier-claimed goodput gain.",
+          "audience": "A small draft model proposes multiple tokens that a larger target model verifies in one pass, speeding decoding without changing the output distribution.",
+          "status": "compared",
+          "outcome": "divergent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": false,
+            "audience_entails_expert": false,
+            "rationale": "Expert's claim concerns goodput gain contribution, not the specific mechanics peer describes, so no entailment either way.",
+            "quote": "one component behind the earlier-claimed 2.4x goodput gain",
+            "quote_verified": true
+          },
+          "meaning": "Neither implies the other: likely a misconception."
+        },
+        "result": {
+          "field": "result",
+          "expert": "2.4x goodput gain",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       }
     },
+    "ordinal": {
+      "novice": {
+        "value": 0.0,
+        "basis": "claim",
+        "state": "divergent",
+        "thin": false
+      },
+      "peer": {
+        "value": 0.0,
+        "basis": "claim",
+        "state": "divergent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "fail",
+      "peer": "fail"
+    },
+    "findings": [],
     "term_gap": {
       "terms": [
         "gamma tokens",
@@ -106,11 +221,27 @@
         "Rejection sampling"
       ],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "latency_s": 4.293,
+      "dropped": [
+        {
+          "persona": "peer",
+          "field": "concept",
+          "value": "speculative decoding",
+          "reason": "the takeaway does not name this concept"
+        }
+      ],
+      "retried_because": []
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "scored_by": "claude-sonnet-5",
   "timing": {
-    "personas_s": 3.03
-  }
+    "personas_s": 3.264,
+    "structuring_s": 4.295
+  },
+  "image_content": null
 }

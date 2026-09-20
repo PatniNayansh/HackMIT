@@ -4,95 +4,213 @@
   "readings": {
     "novice": {
       "ok": true,
-      "takeaway": "The slide lists three technical challenges that make serving AI models difficult, involving memory usage and response speed.",
-      "confidence": 0.4,
+      "takeaway": "The slide lists three technical reasons why serving AI models efficiently is difficult: growing memory needs, wasted capacity, and slow worst-case response times.",
+      "confidence": 0.55,
       "unresolved_terms": [
         "KV-cache",
         "p99"
       ],
       "questions": [
-        "What is a KV-cache exactly?",
-        "What does p99 latency mean?",
-        "How does memory fragmentation waste GPU capacity?"
+        "What exactly is a KV-cache?",
+        "What causes memory fragmentation here?",
+        "How does p99 relate to average latency?"
       ],
-      "inferred_claim": "The presenter wants me to understand these problems justify their proposed solution's efficiency gains.",
+      "inferred_claim": "The presenter wants me to understand the key technical challenges their system solves.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.187,
+      "latency_s": 3.178,
       "attempts": 1,
       "slide_hash": "986108ace36f108c8be95602"
     },
     "peer": {
       "ok": true,
-      "takeaway": "The slide lists three core technical challenges in serving LLM requests efficiently: growing memory caches, memory fragmentation, and tail latency.",
+      "takeaway": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
       "confidence": 0.6,
       "unresolved_terms": [
         "KV-cache"
       ],
       "questions": [
-        "What exactly is a KV-cache and why does it grow?",
+        "What exactly is a KV-cache technically?",
         "How does fragmentation specifically waste GPU capacity?",
-        "What causes tail latency spikes in serving?"
+        "How do these three issues connect to the 2.4x claim?"
       ],
-      "inferred_claim": "The presenter wants me to understand these three problems motivate their proposed serving solution.",
+      "inferred_claim": "The presenter wants to justify why their solution's improvements in serving efficiency matter.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 4.644,
+      "latency_s": 2.876,
       "attempts": 1,
       "slide_hash": "986108ace36f108c8be95602"
     },
     "expert": {
       "ok": true,
-      "takeaway": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
-      "confidence": 0.9,
+      "takeaway": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
+      "confidence": 0.85,
       "unresolved_terms": [],
       "questions": [
-        "Does the fix target fragmentation, tail latency, or both?",
-        "How does KV-cache growth relate to the fragmentation issue?"
+        "Will PagedAttention or similar be presented as the fix?",
+        "How does fragmentation quantitatively affect throughput here?",
+        "What baseline system exhibits these problems?"
       ],
-      "inferred_claim": "These three problems are what the presenter's system addresses to achieve the 2.4x goodput gain.",
+      "inferred_claim": "These three problems are the key obstacles the presenter's system solves to achieve the 2.4x p99 goodput gain.",
       "model": "claude-sonnet-5",
       "cached": false,
-      "latency_s": 3.396,
+      "latency_s": 3.696,
       "attempts": 1,
       "slide_hash": "986108ace36f108c8be95602"
     }
   },
   "slide_intent": {
-    "text": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
+    "text": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
     "source": "expert_takeaway"
   },
   "metrics": {
-    "intent": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
+    "comparator": "fieldwise",
+    "intent": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide.",
     "takeaways": {
-      "novice": "The slide lists three technical challenges that make serving AI models difficult, involving memory usage and response speed.",
-      "peer": "The slide lists three core technical challenges in serving LLM requests efficiently: growing memory caches, memory fragmentation, and tail latency.",
-      "expert": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach."
+      "novice": "The slide lists three technical reasons why serving AI models efficiently is difficult: growing memory needs, wasted capacity, and slow worst-case response times.",
+      "peer": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
+      "expert": "The slide outlines three core challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the improvement claimed on the title slide."
     },
-    "intent_alignment": {
+    "fields": {
       "novice": {
-        "value": 0.507536545511074,
-        "inputs": {
-          "intent": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
-          "novice": "The slide lists three technical challenges that make serving AI models difficult, involving memory usage and response speed."
+        "concept": null,
+        "claim": "Serving AI models efficiently is difficult due to three technical reasons: growing memory needs, wasted capacity, and slow worst-case response times.",
+        "result": null,
+        "vehicle": null
+      },
+      "peer": {
+        "concept": "tail latency",
+        "claim": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
+        "result": null,
+        "vehicle": null
+      },
+      "expert": {
+        "concept": "KV-cache, memory fragmentation, tail latency",
+        "claim": "LLM serving has three core challenges: growing KV-cache, memory fragmentation, and tail latency.",
+        "result": null,
+        "vehicle": null
+      }
+    },
+    "slide_profile": {
+      "fields": [
+        "concept",
+        "claim"
+      ],
+      "scored": [
+        "concept",
+        "claim"
+      ],
+      "thin": false,
+      "text": "This slide names a principle; no example, no worked result."
+    },
+    "comparisons": {
+      "novice": {
+        "concept": {
+          "field": "concept",
+          "expert": "KV-cache, memory fragmentation, tail latency",
+          "audience": null,
+          "status": "gap",
+          "outcome": "absent"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "LLM serving has three core challenges: growing KV-cache, memory fragmentation, and tail latency.",
+          "audience": "Serving AI models efficiently is difficult due to three technical reasons: growing memory needs, wasted capacity, and slow worst-case response times.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": true,
+            "rationale": "Both list the same three challenges, just with different phrasing for the same underlying issues.",
+            "quote": "growing memory needs, wasted capacity, and slow worst-case response times",
+            "quote_verified": true
+          },
+          "meaning": "Same understanding."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       },
       "peer": {
-        "value": 0.8250916263142667,
-        "inputs": {
-          "intent": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
-          "peer": "The slide lists three core technical challenges in serving LLM requests efficiently: growing memory caches, memory fragmentation, and tail latency."
-        }
-      },
-      "expert": {
-        "value": 1.0,
-        "definitional": true,
-        "inputs": {
-          "intent": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach.",
-          "expert": "The slide lists the core technical challenges in LLM serving—growing KV-cache, memory fragmentation, and tail latency—that motivate the presenter's approach."
+        "concept": {
+          "field": "concept",
+          "expert": "KV-cache, memory fragmentation, tail latency",
+          "audience": "tail latency",
+          "status": "compared",
+          "outcome": "match",
+          "comparator": "identity",
+          "normalised": [
+            "tail latency",
+            "tail latency"
+          ],
+          "how": "identical after normalisation"
+        },
+        "claim": {
+          "field": "claim",
+          "expert": "LLM serving has three core challenges: growing KV-cache, memory fragmentation, and tail latency.",
+          "audience": "Serving LLM requests is difficult because growing memory caches, memory fragmentation, and tail latency all strain GPU resources and user experience.",
+          "status": "compared",
+          "outcome": "equivalent",
+          "comparator": "entailment",
+          "verdict": {
+            "expert_entails_audience": true,
+            "audience_entails_expert": true,
+            "rationale": "Both identify the same three challenges: growing memory/cache, fragmentation, and tail latency.",
+            "quote": "growing memory caches, memory fragmentation, and tail latency",
+            "quote_verified": true
+          },
+          "meaning": "Same understanding."
+        },
+        "result": {
+          "field": "result",
+          "expert": null,
+          "audience": null,
+          "status": "excluded"
+        },
+        "vehicle": {
+          "field": "vehicle",
+          "expert": null,
+          "audience": null,
+          "status": "not_scored"
         }
       }
     },
+    "ordinal": {
+      "novice": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false
+      },
+      "peer": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false
+      },
+      "expert": {
+        "value": 1.0,
+        "basis": "claim",
+        "state": "equivalent",
+        "thin": false,
+        "definitional": true
+      }
+    },
+    "reach": {
+      "novice": "partial",
+      "peer": "ok"
+    },
+    "findings": [],
     "term_gap": {
       "terms": [
         "KV-cache",
@@ -103,11 +221,20 @@
         "p99"
       ],
       "expert_unresolved": []
+    },
+    "structuring": {
+      "model": "claude-sonnet-5",
+      "attempts": 1,
+      "latency_s": 3.956,
+      "dropped": [],
+      "retried_because": []
     }
   },
   "metrics_error": null,
-  "scored_by": "sentence-transformers/all-MiniLM-L6-v2",
+  "scored_by": "claude-sonnet-5",
   "timing": {
-    "personas_s": 4.648
-  }
+    "personas_s": 3.705,
+    "structuring_s": 3.957
+  },
+  "image_content": null
 }
